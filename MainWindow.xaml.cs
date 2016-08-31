@@ -23,16 +23,7 @@ namespace WpfApplication3
     {
         public MainWindow()
         {
-            InitializeComponent();
-
-            SymbolsFetcher sf = new SymbolsFetcher();
-            Data.symbolsList = sf.GetSymbols();
-            
-        }
-
-        private void Symbol_show(object sender, RoutedEventArgs e)
-        {
-
-        }
+            InitializeComponent(); 
+        }        
     }
 }

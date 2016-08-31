@@ -10,10 +10,32 @@ using System.Text.RegularExpressions;
 
 namespace WpfApplication3
 {
-    class SymbolsFetcher
+    class Data
     {
-        public List<string> GetSymbols()
+        struct SymbolDayData
         {
+            public DateTime date;
+            public double open, hi, low, close;
+            public uint volume; 
+        }
+
+        public static List<string> GetSymbolsFromWeb()
+        {
+            { 
+            List<SymbolDayData> results = new List<SymbolDayData>();
+            HtmlWeb weba = new HtmlWeb();
+
+            string urla = "http://stooq.pl/q/d/l/?s=dom&i=d";
+
+                HttpWebRequest req = (HttpWebRequest)WebRequest.Create(urla);
+                HttpWebResponse resp = (HttpWebResponse)req.GetResponse();
+
+                StreamReader sr = new StreamReader(resp.GetResponseStream());
+                string resultsa = sr.ReadToEnd();
+                sr.Close();
+            }
+
+
             List<string> symbols = new List<string>();
 
             HtmlWeb web = new HtmlWeb();
@@ -50,13 +72,19 @@ namespace WpfApplication3
 
                 page += 1;
             }
-            
-            return symbols; 
-        }
-    }
 
-    class Data
-    {
-        public static List<string> symbolsList = new List<string>();
-    }
+            return symbols;
+        }
+
+        List<SymbolDayData> GetSymbolDataFromWeb(string symbolName)
+        {
+            List<SymbolDayData> results = new List<SymbolDayData>();
+            HtmlWeb web = new HtmlWeb();
+
+            string url = "http://stooq.pl/q/d/l/?s=dom&i=d";
+            HtmlDocument doc = web.Load(url);
+
+            return results;
+        }
+    }    
 }
