@@ -5,8 +5,11 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Net;
 using System.IO;
-using HtmlAgilityPack;
 using System.Text.RegularExpressions;
+using System.Diagnostics;
+using System.Globalization;
+
+using HtmlAgilityPack;
 
 namespace WpfApplication3
 {
@@ -15,26 +18,13 @@ namespace WpfApplication3
         struct SymbolDayData
         {
             public DateTime date;
-            public double open, hi, low, close;
+            public float open, hi, low, close;
             public uint volume; 
         }
 
         public static List<string> GetSymbolsFromWeb()
         {
-            { 
-            List<SymbolDayData> results = new List<SymbolDayData>();
-            HtmlWeb weba = new HtmlWeb();
-
-            string urla = "http://stooq.pl/q/d/l/?s=dom&i=d";
-
-                HttpWebRequest req = (HttpWebRequest)WebRequest.Create(urla);
-                HttpWebResponse resp = (HttpWebResponse)req.GetResponse();
-
-                StreamReader sr = new StreamReader(resp.GetResponseStream());
-                string resultsa = sr.ReadToEnd();
-                sr.Close();
-            }
-
+            GetSymbolDataFromWeb("Aaa");
 
             List<string> symbols = new List<string>();
 
@@ -76,15 +66,45 @@ namespace WpfApplication3
             return symbols;
         }
 
-        List<SymbolDayData> GetSymbolDataFromWeb(string symbolName)
+        static List<SymbolDayData> GetSymbolDataFromWeb(string symbolName)
         {
-            List<SymbolDayData> results = new List<SymbolDayData>();
-            HtmlWeb web = new HtmlWeb();
+            List<SymbolDayData> result = new List<SymbolDayData>();
 
-            string url = "http://stooq.pl/q/d/l/?s=dom&i=d";
-            HtmlDocument doc = web.Load(url);
+            symbolName = "dom";
+            string url = "http://stooq.pl/q/d/l/?s=" + symbolName + "&i=d";
 
-            return results;
+            HttpWebRequest req = (HttpWebRequest)WebRequest.Create(url);
+            HttpWebResponse resp = (HttpWebResponse)req.GetResponse();
+            StreamReader sr = new StreamReader(resp.GetResponseStream());
+            string csv = sr.ReadToEnd();
+
+            bool header = true;
+            foreach(string line in csv.Split('\n'))
+            {
+                if (header)
+                {
+                    header = false;
+                    continue;
+                }
+
+                if (line.Length == 0) continue;
+
+                string l = line.Substring(0, line.Length - 1);
+                string[] data = l.Split(',');
+                Debug.Assert(data.Length == 6);
+
+                SymbolDayData sdd = new SymbolDayData();
+                sdd.date = DateTime.ParseExact(data[0], "yyyy-MM-dd", CultureInfo.InvariantCulture);
+                sdd.open = float.Parse(data[1], CultureInfo.InvariantCulture);
+                sdd.hi = float.Parse(data[2], CultureInfo.InvariantCulture);
+                sdd.low = float.Parse(data[3], CultureInfo.InvariantCulture);
+                sdd.close = float.Parse(data[4], CultureInfo.InvariantCulture);
+                sdd.volume = uint.Parse(data[5]);
+
+                result.Add(sdd);
+            }
+
+            return result;
         }
     }    
 }
