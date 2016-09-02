@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,20 +15,35 @@ using HtmlAgilityPack;
 
 namespace WpfApplication3
 {
-    class Data
+    public class Data
     {
-        struct SymbolDayData
+        public class SymbolDayData
         {
-            public DateTime date;
-            public float open, hi, low, close;
-            public uint volume; 
+            public DateTime date { get; set; }
+            public float open { get; set; }
+            public float hi { get; set; }
+            public float low { get; set; }
+            public float close { get; set; }
+            public uint volume { get; set; }
         }
 
-        public static List<string> GetSymbolsFromWeb()
+        public class SymbolInfo
+        {
+            public string FullName { get; }
+            public string ShortName { get; }
+
+            public SymbolInfo(string fullName, string shortName)
+            {
+                FullName = fullName;
+                ShortName = shortName;
+            }
+        }
+
+        public static List<SymbolInfo> GetSymbolsFromWeb()
         {
             GetSymbolDataFromWeb("Aaa");
 
-            List<string> symbols = new List<string>();
+            List<SymbolInfo> symbols = new List<SymbolInfo>();
 
             HtmlWeb web = new HtmlWeb();
             int page = 1;
@@ -42,7 +59,10 @@ namespace WpfApplication3
                 HtmlNodeCollection symbolNodes = doc.DocumentNode.SelectNodes("//*/td[@id=\"f10\"]");
                 foreach (HtmlNode node in symbolNodes.Skip(2))
                 {
-                    symbols.Add(node.InnerText);
+                    string fullName = node.InnerText;
+                    string shortName = node.ParentNode.FirstChild.FirstChild.InnerText;
+                    SymbolInfo si = new SymbolInfo(fullName, shortName);
+                    symbols.Add(si);
                 }
 
                 if (symbols.Count <= added)
@@ -66,7 +86,7 @@ namespace WpfApplication3
             return symbols;
         }
 
-        static List<SymbolDayData> GetSymbolDataFromWeb(string symbolName)
+        public static List<SymbolDayData> GetSymbolDataFromWeb(string symbolName)
         {
             List<SymbolDayData> result = new List<SymbolDayData>();
 
@@ -106,5 +126,16 @@ namespace WpfApplication3
 
             return result;
         }
+
     }    
+
+    public class DataViewModel
+    {
+        public List<Data.SymbolInfo> SymbolsInfoList { get; set; }
+
+        public DataViewModel()
+        {
+            SymbolsInfoList = new List<Data.SymbolInfo>(Data.GetSymbolsFromWeb());
+        }
+    }
 }

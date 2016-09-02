@@ -4,10 +4,17 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WpfApplication3"
+        xmlns:diag="clr-namespace:System.Diagnostics;assembly=WindowsBase"
         mc:Ignorable="d"
         d:DesignWidth="723.2" d:DesignHeight="506.4"
         Title="MainWindow" 
-        MinHeight="200" MinWidth="200" >
+        MinHeight="200" MinWidth="200">
+
+    <Window.DataContext>
+        <local:DataViewModel />
+    </Window.DataContext>
+        
+    <!-- UI -->
     <DockPanel>
         <ToolBarTray DockPanel.Dock="Top">
             <ToolBar>
@@ -34,13 +41,12 @@
                      Name="textBox" 
                      Text="..."/>
             <Label DockPanel.Dock="Top">symbols:</Label>
-            <ListView Name="SymbolsList" >
-                <ListView.ContextMenu>
-                    <ContextMenu>
-                        <MenuItem Header="show" />
-                    </ContextMenu>
-                </ListView.ContextMenu>
-                <ListViewItem>fake</ListViewItem>
+            <ListView Name="SymbolsList" ItemsSource="{Binding SymbolsInfoList}">
+                <ListView.View>
+                    <GridView>
+                        <GridViewColumn DisplayMemberBinding="{Binding FullName}"/>
+                    </GridView>
+                </ListView.View>
             </ListView>
         </DockPanel>
         <TabControl>

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Configuration;
 using System.Data;
 using System.Linq;
@@ -16,7 +17,8 @@ namespace WpfApplication3
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
-            List<string> symbols = Data.GetSymbolsFromWeb();
+      //      List<Data.SymbolInfo> symbols = Data.GetSymbolsFromWeb();
+      //      List<Data.SymbolDayData> domdevDayData = Data.GetSymbolDataFromWeb("dom");            
         }
     }
 }
