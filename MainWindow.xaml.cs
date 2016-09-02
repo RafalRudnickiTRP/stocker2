@@ -24,6 +24,29 @@ namespace WpfApplication3
         public MainWindow()
         {
             InitializeComponent();            
-        } 
+        }
+
+        void SymbolsList_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            var dataContext = ((FrameworkElement)e.OriginalSource).DataContext;
+            if ((dataContext is Data.SymbolInfo) == false) return;
+
+            Data.SymbolInfo si = (Data.SymbolInfo)dataContext;            
+            List<Data.SymbolDayData> sdd = Data.GetSymbolDataFromWeb(si.ShortName);
+
+            TabItem newTab = new TabItem();
+            newTab.Header = si.FullName;
+
+            SymbolsTabControl.Items.Add(newTab);
+            SymbolsTabControl.SelectedItem = newTab;
+
+            Drawings.DrawingInfo di = new Drawings.DrawingInfo();
+            di.viewHeight = (int)SymbolsTabControl.ActualHeight;
+            di.viewWidth = (int)SymbolsTabControl.ActualWidth;
+            di.viewMargin = 3;
+            di.viewAutoScale = true;
+
+            newTab.Content = Drawings.CreateDrawing(di, sdd);
+        }        
     }
 }

@@ -25,7 +25,10 @@
         </ToolBarTray>
         <StatusBar DockPanel.Dock="Bottom">
             <StatusBarItem>
-                <TextBlock Name="lblCursorPosition" />
+                <TextBlock Name="StatusBarText" />
+            </StatusBarItem>
+            <StatusBarItem>
+                <ProgressBar x:Name="StatusBarProgress" IsIndeterminate="True" Height="15" />
             </StatusBarItem>
         </StatusBar>
         <DockPanel DockPanel.Dock="Left" 
@@ -41,7 +44,7 @@
                      Name="textBox" 
                      Text="..."/>
             <Label DockPanel.Dock="Top">symbols:</Label>
-            <ListView Name="SymbolsList" ItemsSource="{Binding SymbolsInfoList}">
+            <ListView Name="SymbolsList" ItemsSource="{Binding SymbolsInfoList}" MouseDoubleClick="SymbolsList_MouseDoubleClick">
                 <ListView.View>
                     <GridView>
                         <GridViewColumn DisplayMemberBinding="{Binding FullName}"/>
@@ -49,12 +52,7 @@
                 </ListView.View>
             </ListView>
         </DockPanel>
-        <TabControl>
-            <TabItem Name="tab" Header="Symbol">
-                <Canvas Name="canvas">
-                    <Rectangle Fill="#FFF4F4F5" Height="100" Canvas.Left="67" Stroke="Black" Canvas.Top="58" Width="100"/>
-                </Canvas>
-            </TabItem>
+        <TabControl Name="SymbolsTabControl">
         </TabControl>
     </DockPanel>
 </Window>

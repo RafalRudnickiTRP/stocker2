@@ -89,8 +89,7 @@ namespace WpfApplication3
         public static List<SymbolDayData> GetSymbolDataFromWeb(string symbolName)
         {
             List<SymbolDayData> result = new List<SymbolDayData>();
-
-            symbolName = "dom";
+            
             string url = "http://stooq.pl/q/d/l/?s=" + symbolName + "&i=d";
 
             HttpWebRequest req = (HttpWebRequest)WebRequest.Create(url);
@@ -135,7 +134,13 @@ namespace WpfApplication3
 
         public DataViewModel()
         {
-            SymbolsInfoList = new List<Data.SymbolInfo>(Data.GetSymbolsFromWeb());
+            //SymbolsInfoList = new List<Data.SymbolInfo>(Data.GetSymbolsFromWeb());
+
+            // debug
+            
+            SymbolsInfoList = new List<Data.SymbolInfo>();
+            SymbolsInfoList.Add(new Data.SymbolInfo("DOMDEV", "DOM"));
+            
         }
     }
 }
