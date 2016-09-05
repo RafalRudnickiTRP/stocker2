@@ -10,7 +10,7 @@ using System.Windows.Media;
 
 namespace WpfApplication3
 {
-    public class Drawings
+    public class Chart
     {
 
         public class ChartLine
@@ -77,8 +77,8 @@ namespace WpfApplication3
             {
                 foreach(Data.SymbolDayData sdd in sddList.GetRange(0, numCandlesToDraw))
                 {
-                    int hi = (int)Math.Ceiling(sdd.hi);
-                    int low = (int)Math.Floor(sdd.low);
+                    int hi = (int)Math.Ceiling(sdd.Hi);
+                    int low = (int)Math.Floor(sdd.Low);
 
                     minLow = low < minLow ? low : minLow;
                     maxHi = hi > maxHi ? hi : maxHi;
@@ -89,10 +89,10 @@ namespace WpfApplication3
             foreach (Data.SymbolDayData sdd in sddList.GetRange(0, numCandlesToDraw))
             {
                 float[] vals = {
-                    sdd.hi,
-                    sdd.open >= sdd.close ? sdd.open : sdd.close,
-                    sdd.open > sdd.close ? sdd.close : sdd.open,
-                    sdd.low
+                    sdd.Hi,
+                    sdd.Open >= sdd.Close ? sdd.Open : sdd.Close,
+                    sdd.Open > sdd.Close ? sdd.Close : sdd.Open,
+                    sdd.Low
                 };
 
                 if (di.viewAutoScale)
@@ -127,7 +127,7 @@ namespace WpfApplication3
                 Path bodyPath = new Path();
                 bodyPath.StrokeThickness = 1;
                 bodyPath.Stroke = Brushes.Black;
-                bodyPath.Fill = sdd.open > sdd.close ? Brushes.Black : Brushes.White;
+                bodyPath.Fill = sdd.Open > sdd.Close ? Brushes.Black : Brushes.White;
                 bodyPath.Data = bodyGeom;
 
                 canvas.Children.Add(bodyPath);

@@ -19,12 +19,22 @@ namespace WpfApplication3
     {
         public class SymbolDayData
         {
-            public DateTime date { get; set; }
-            public float open { get; set; }
-            public float hi { get; set; }
-            public float low { get; set; }
-            public float close { get; set; }
-            public uint volume { get; set; }
+            public DateTime Date { get; }
+            public float Open { get; }
+            public float Hi { get; }
+            public float Low { get; }
+            public float Close { get; }
+            public uint Volume { get; }
+
+            public SymbolDayData(DateTime date, float open, float hi, float low,float close,uint volume)
+            {
+                Date = date;
+                Open = open;
+                Hi = hi;
+                Low = low;
+                Close = close;
+                Volume = volume;
+            }
         }
 
         public class SymbolInfo
@@ -112,13 +122,14 @@ namespace WpfApplication3
                 string[] data = l.Split(',');
                 Debug.Assert(data.Length == 6);
 
-                SymbolDayData sdd = new SymbolDayData();
-                sdd.date = DateTime.ParseExact(data[0], "yyyy-MM-dd", CultureInfo.InvariantCulture);
-                sdd.open = float.Parse(data[1], CultureInfo.InvariantCulture);
-                sdd.hi = float.Parse(data[2], CultureInfo.InvariantCulture);
-                sdd.low = float.Parse(data[3], CultureInfo.InvariantCulture);
-                sdd.close = float.Parse(data[4], CultureInfo.InvariantCulture);
-                sdd.volume = uint.Parse(data[5]);
+                DateTime date = DateTime.ParseExact(data[0], "yyyy-MM-dd", CultureInfo.InvariantCulture);
+                float open = float.Parse(data[1], CultureInfo.InvariantCulture);
+                float hi = float.Parse(data[2], CultureInfo.InvariantCulture);
+                float low = float.Parse(data[3], CultureInfo.InvariantCulture);
+                float close = float.Parse(data[4], CultureInfo.InvariantCulture);
+                uint volume = uint.Parse(data[5]);
+
+                SymbolDayData sdd = new SymbolDayData(date, open, hi, low, close, volume);
 
                 result.Add(sdd);
             }
@@ -132,11 +143,11 @@ namespace WpfApplication3
     {
         public List<Data.SymbolInfo> SymbolsInfoList { get; set; }
 
-        public Dictionary<string, Drawings> SymbolsDrawings { get; set; }
+        public Dictionary<string, Chart> SymbolsDrawings { get; set; }
 
         public DataViewModel()
         {
-            SymbolsDrawings = new Dictionary<string, Drawings>();
+            SymbolsDrawings = new Dictionary<string, Chart>();
 
             //SymbolsInfoList = new List<Data.SymbolInfo>(Data.GetSymbolsFromWeb());
 

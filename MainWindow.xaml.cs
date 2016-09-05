@@ -42,14 +42,14 @@ namespace WpfApplication3
             SymbolsTabControl.Items.Add(newTab);
             SymbolsTabControl.SelectedItem = newTab;
 
-            Drawings.DrawingInfo di = new Drawings.DrawingInfo();
+            Chart.DrawingInfo di = new Chart.DrawingInfo();
             di.viewHeight = (int)SymbolsTabControl.ActualHeight;
             di.viewWidth = (int)SymbolsTabControl.ActualWidth;
             di.viewMargin = 3;
             di.viewAutoScale = true;
 
             var dvm = DataContext as DataViewModel;
-            Drawings drawing = new Drawings();
+            Chart drawing = new Chart();
             dvm.SymbolsDrawings.Add(si.FullName, drawing);
             
             newTab.Content = drawing.CreateDrawing(di, sdd);
@@ -61,7 +61,7 @@ namespace WpfApplication3
             TabItem tabItem = (TabItem)tabCtrl.Items[tabCtrl.SelectedIndex];
             Canvas canvas = (Canvas)tabItem.Content;
 
-            Drawings.ChartLine line = Drawings.line;
+            Chart.ChartLine line = Chart.line;
             if (line.show == false)
             {
                 line.p1 = e.MouseDevice.GetPosition(canvas);
@@ -85,7 +85,7 @@ namespace WpfApplication3
 
         void SymbolTab_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
-            Drawings.ChartLine line = Drawings.line;
+            Chart.ChartLine line = Chart.line;
             if (line.editing == true)
             {
                 line.editing = false;
@@ -95,7 +95,7 @@ namespace WpfApplication3
 
         void SymbolTab_MouseMove(object sender, MouseEventArgs e)
         {
-            Drawings.ChartLine line = Drawings.line;
+            Chart.ChartLine line = Chart.line;
             if (line.editing == true)
             {
                 line.p2 = e.MouseDevice.GetPosition((Canvas)line.linePath.Parent);
