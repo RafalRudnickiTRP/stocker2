@@ -12,7 +12,6 @@ namespace WpfApplication3
 {
     public class Chart
     {
-
         public class ChartLine
         {
             public bool show;
@@ -29,7 +28,6 @@ namespace WpfApplication3
                 editing = false;
             }
         }
-        public static ChartLine line = new ChartLine();
 
         public struct DrawingInfo
         {
@@ -42,6 +40,17 @@ namespace WpfApplication3
             public int candleWidth;
             public int candleMargin;
         }
+
+        public Chart()
+        {
+            chartLines = new List<ChartLine>();
+        }
+
+        #region Members
+
+        public List<ChartLine> chartLines;
+
+        #endregion
 
         public static float Remap(float value, float from1, float to1, float from2, float to2)
         {

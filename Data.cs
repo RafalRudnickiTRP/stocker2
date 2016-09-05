@@ -11,6 +11,8 @@ using System.Text.RegularExpressions;
 using System.Diagnostics;
 using System.Globalization;
 
+using HtmlAgilityPack;
+
 namespace WpfApplication3
 {
     public class Data
@@ -142,17 +144,24 @@ namespace WpfApplication3
         public List<Data.SymbolInfo> SymbolsInfoList { get; set; }
 
         public Dictionary<string, Chart> SymbolsDrawings { get; set; }
+        public Chart CurrentDrawing { get; set;  }
 
         public DataViewModel()
         {
             SymbolsDrawings = new Dictionary<string, Chart>();
 
-            //SymbolsInfoList = new List<Data.SymbolInfo>(Data.GetSymbolsFromWeb());
+          //  SymbolsInfoList = new List<Data.SymbolInfo>(Data.GetSymbolsFromWeb());
 
             // debug
 
             SymbolsInfoList = new List<Data.SymbolInfo>();
-            SymbolsInfoList.Add(new Data.SymbolInfo("DOMDEV", "DOM"));            
+            SymbolsInfoList.Add(new Data.SymbolInfo("DOMDEV", "DOM"));
+            SymbolsInfoList.Add(new Data.SymbolInfo("11BIT", "11B"));
+        }
+
+        public void SetCurrentDrawing(Chart currentChart)
+        {
+            CurrentDrawing = currentChart;
         }
     }
 }

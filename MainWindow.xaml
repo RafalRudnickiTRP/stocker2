@@ -49,6 +49,7 @@
             </ListView>
         </DockPanel>
         <TabControl Name="SymbolsTabControl" 
+                    SelectionChanged="SymbolTab_SelectionChanged"
                     MouseLeftButtonDown="SymbolTab_MouseLeftButtonDown"
                     MouseLeftButtonUp="SymbolTab_MouseLeftButtonUp"
                     MouseMove="SymbolTab_MouseMove">
