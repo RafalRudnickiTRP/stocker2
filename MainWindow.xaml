@@ -9,10 +9,6 @@
         d:DesignWidth="723.2" d:DesignHeight="506.4"
         Title="MainWindow" 
         MinHeight="200" MinWidth="200">
-
-    <Window.DataContext>
-        <local:DataViewModel />
-    </Window.DataContext>
         
     <!-- UI -->
     <DockPanel>
@@ -52,7 +48,10 @@
                 </ListView.View>
             </ListView>
         </DockPanel>
-        <TabControl Name="SymbolsTabControl">
+        <TabControl Name="SymbolsTabControl" 
+                    MouseLeftButtonDown="SymbolTab_MouseLeftButtonDown"
+                    MouseLeftButtonUp="SymbolTab_MouseLeftButtonUp"
+                    MouseMove="SymbolTab_MouseMove">
         </TabControl>
     </DockPanel>
 </Window>

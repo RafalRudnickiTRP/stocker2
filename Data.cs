@@ -132,15 +132,18 @@ namespace WpfApplication3
     {
         public List<Data.SymbolInfo> SymbolsInfoList { get; set; }
 
+        public Dictionary<string, Drawings> SymbolsDrawings { get; set; }
+
         public DataViewModel()
         {
+            SymbolsDrawings = new Dictionary<string, Drawings>();
+
             //SymbolsInfoList = new List<Data.SymbolInfo>(Data.GetSymbolsFromWeb());
 
             // debug
-            
+
             SymbolsInfoList = new List<Data.SymbolInfo>();
-            SymbolsInfoList.Add(new Data.SymbolInfo("DOMDEV", "DOM"));
-            
+            SymbolsInfoList.Add(new Data.SymbolInfo("DOMDEV", "DOM"));            
         }
     }
 }

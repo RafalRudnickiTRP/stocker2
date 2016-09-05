@@ -23,15 +23,17 @@ namespace WpfApplication3
     {
         public MainWindow()
         {
-            InitializeComponent();            
+            InitializeComponent();
+            DataViewModel dvm = new DataViewModel();
+            DataContext = dvm;
         }
-
+        
         void SymbolsList_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
             var dataContext = ((FrameworkElement)e.OriginalSource).DataContext;
             if ((dataContext is Data.SymbolInfo) == false) return;
 
-            Data.SymbolInfo si = (Data.SymbolInfo)dataContext;            
+            Data.SymbolInfo si = (Data.SymbolInfo)dataContext;
             List<Data.SymbolDayData> sdd = Data.GetSymbolDataFromWeb(si.ShortName);
 
             TabItem newTab = new TabItem();
@@ -46,7 +48,59 @@ namespace WpfApplication3
             di.viewMargin = 3;
             di.viewAutoScale = true;
 
-            newTab.Content = Drawings.CreateDrawing(di, sdd);
-        }        
+            var dvm = DataContext as DataViewModel;
+            Drawings drawing = new Drawings();
+            dvm.SymbolsDrawings.Add(si.FullName, drawing);
+            
+            newTab.Content = drawing.CreateDrawing(di, sdd);
+        }
+
+        void SymbolTab_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            TabControl tabCtrl = (TabControl)sender;
+            TabItem tabItem = (TabItem)tabCtrl.Items[tabCtrl.SelectedIndex];
+            Canvas canvas = (Canvas)tabItem.Content;
+
+            Drawings.ChartLine line = Drawings.line;
+            if (line.show == false)
+            {
+                line.p1 = e.MouseDevice.GetPosition(canvas);
+                line.p2 = line.p1;
+                line.show = true;
+                line.editing = true;
+
+                Path linePath = new Path();
+                linePath.StrokeThickness = 1;
+                linePath.Stroke = Brushes.Black;
+                linePath.Data = new LineGeometry(line.p1, line.p2);
+                line.linePath = linePath;
+                canvas.Children.Add(linePath);
+            }
+            else
+            {
+                line.p2 = e.MouseDevice.GetPosition(canvas);
+                line.linePath.Data = new LineGeometry(line.p1, line.p2);
+            }
+        }
+
+        void SymbolTab_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            Drawings.ChartLine line = Drawings.line;
+            if (line.editing == true)
+            {
+                line.editing = false;
+                line.show = false;
+            }
+        }
+
+        void SymbolTab_MouseMove(object sender, MouseEventArgs e)
+        {
+            Drawings.ChartLine line = Drawings.line;
+            if (line.editing == true)
+            {
+                line.p2 = e.MouseDevice.GetPosition((Canvas)line.linePath.Parent);
+                line.linePath.Data = new LineGeometry(line.p1, line.p2);
+            }
+        }
     }
 }

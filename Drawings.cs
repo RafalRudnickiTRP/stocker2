@@ -12,6 +12,25 @@ namespace WpfApplication3
 {
     public class Drawings
     {
+
+        public class ChartLine
+        {
+            public bool show;
+            public bool editing;
+
+            public Point p1;
+            public Point p2;
+
+            public Path linePath;
+
+            public ChartLine()
+            {
+                show = false;
+                editing = false;
+            }
+        }
+        public static ChartLine line = new ChartLine();
+
         public struct DrawingInfo
         {
             public int viewHeight;
@@ -29,7 +48,7 @@ namespace WpfApplication3
             return (value - from1) / (from2 - from1) * (to2 - to1) + to1;
         }
 
-        public static Canvas CreateDrawing(DrawingInfo di, List<Data.SymbolDayData> sddList)
+        public Canvas CreateDrawing(DrawingInfo di, List<Data.SymbolDayData> sddList)
         {
             di.candleWidth = 5;
             di.candleMargin = 1;
@@ -117,6 +136,6 @@ namespace WpfApplication3
             }
 
             return canvas;
-        }        
+        }
     }
 }
