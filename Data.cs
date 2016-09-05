@@ -11,8 +11,6 @@ using System.Text.RegularExpressions;
 using System.Diagnostics;
 using System.Globalization;
 
-using HtmlAgilityPack;
-
 namespace WpfApplication3
 {
     public class Data
