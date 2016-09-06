@@ -3,20 +3,31 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:WpfApplication3"
         xmlns:diag="clr-namespace:System.Diagnostics;assembly=WindowsBase"
+        xmlns:local="clr-namespace:WpfApplication3"
         mc:Ignorable="d"
         d:DesignWidth="723.2" d:DesignHeight="506.4"
         Title="MainWindow" 
         MinHeight="200" MinWidth="200">
-        
+
+    <!-- RESOURCES -->
+    <Window.Resources>
+        <RoutedUICommand x:Key="Command_SelectMode" Text="Select mode" />
+        <RoutedUICommand x:Key="Command_DrawMode" Text="Draw mode" />
+    </Window.Resources>
+    
+    <!-- COMMANDS -->
+    <Window.CommandBindings>
+        <CommandBinding Command="{StaticResource Command_SelectMode}" CanExecute="CanExecute_SelectMode" Executed="Command_SelectMode" />
+        <CommandBinding Command="{StaticResource Command_DrawMode}" CanExecute="CanExecute_DrawMode" Executed="Command_DrawMode" />
+    </Window.CommandBindings>
+
     <!-- UI -->
     <DockPanel>
         <ToolBarTray DockPanel.Dock="Top">
             <ToolBar>
-                <Button Command="New" Content="New" />
-                <Button Command="Open" Content="Open" />
-                <Button Command="Save" Content="Save" />
+                <Button Command="{StaticResource Command_SelectMode}">select</Button>
+                <Button Command="{StaticResource Command_DrawMode}">draw</Button>
             </ToolBar>
         </ToolBarTray>
         <StatusBar DockPanel.Dock="Bottom">
@@ -52,6 +63,7 @@
                     SelectionChanged="SymbolTab_SelectionChanged"
                     MouseLeftButtonDown="SymbolTab_MouseLeftButtonDown"
                     MouseLeftButtonUp="SymbolTab_MouseLeftButtonUp"
+                    MouseDoubleClick="SymbolTab_MouseDoubleClick"
                     MouseMove="SymbolTab_MouseMove">
         </TabControl>
     </DockPanel>

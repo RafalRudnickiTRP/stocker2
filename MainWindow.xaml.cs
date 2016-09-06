@@ -27,12 +27,14 @@ namespace WpfApplication3
             InitializeComponent();
             DataViewModel dvm = new DataViewModel();
             DataContext = dvm;
-        }
 
+            InitializeCommands();
+        }
+        
         public DataViewModel GetDVM()
         {
             return (DataViewModel)DataContext;
-        }
+        } 
         
         void SymbolsList_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
@@ -71,6 +73,8 @@ namespace WpfApplication3
         void SymbolTab_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             TabControl tabCtrl = (TabControl)sender;
+            if (tabCtrl.Items.Count == 0) return;
+
             TabItem tabItem = (TabItem)tabCtrl.Items[tabCtrl.SelectedIndex];
             Canvas canvas = (Canvas)tabItem.Content;
 
@@ -147,5 +151,10 @@ namespace WpfApplication3
                 line.linePath.Data = new LineGeometry(line.p1, line.p2);                
             }
         }
-    }
+
+        void SymbolTab_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+
+        }
+    }    
 }

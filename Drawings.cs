@@ -21,8 +21,8 @@ namespace WpfApplication3
             public Point p2;
 
             public Path linePath;
-
-            public ChartLine()
+            
+            public ChartLine() 
             {
                 show = false;
                 editing = false;
@@ -49,6 +49,7 @@ namespace WpfApplication3
         #region Members
 
         public List<ChartLine> chartLines;
+        public List<ChartLine> selectedLines;
 
         #endregion
 
