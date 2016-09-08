@@ -14,18 +14,82 @@ namespace WpfApplication3
     {
         public class ChartLine
         {
-            public bool show;
-            public bool editing;
+            private static int selectionRectWidth2 = 2;
 
-            public Point p1;
-            public Point p2;
-
-            public Path linePath;
-            
-            public ChartLine() 
+            public enum Mode
             {
-                show = false;
-                editing = false;
+                Invalid,
+                Drawing,
+                Normal,
+                Selected
+            }
+
+            public Mode mode;
+
+            public void Select(bool selected)
+            {
+                if (selected)
+                {
+                    mode = Mode.Selected;
+                    rectPath.Visibility = Visibility.Visible;
+                    chart.selectedLines.Add(this);
+                }
+                else
+                {
+                    mode = Mode.Normal;
+                    rectPath.Visibility = Visibility.Hidden;
+                    chart.selectedLines.Remove(this);
+                }
+            }
+
+            public Path linePath { get; }
+            public Path rectPath { get; }
+
+            private LineGeometry line;
+            private RectangleGeometry p1Rect;
+            private RectangleGeometry p2Rect;
+
+            private Chart chart;
+            private static int nextId = 0;
+            public int id;
+
+            public ChartLine(Chart parentChart) 
+            {
+                chart = parentChart;
+                mode = Mode.Invalid;
+                id = nextId;
+                nextId++;
+                
+                linePath = new Path();                
+                linePath.StrokeThickness = 1;
+                linePath.Stroke = Brushes.Black;
+                line = new LineGeometry();
+                linePath.Data = line;
+                linePath.Name = "line_".ToString() + id.ToString();
+
+                rectPath = new Path();
+                rectPath.StrokeThickness = 1;      
+                rectPath.Stroke = Brushes.Black;
+
+                GeometryGroup geom = new GeometryGroup();
+                p1Rect = new RectangleGeometry(new Rect(new Size(selectionRectWidth2 * 2, selectionRectWidth2 * 2)));
+                p2Rect = new RectangleGeometry(new Rect(new Size(selectionRectWidth2 * 2, selectionRectWidth2 * 2)));
+                geom.Children.Add(p1Rect);
+                geom.Children.Add(p2Rect);
+                rectPath.Data = geom;
+                rectPath.Name = "rect_".ToString() + id.ToString();
+            }
+
+            public void MoveP1(Point p)
+            {
+                line.StartPoint = p;
+                p1Rect.Transform = new TranslateTransform(p.X - selectionRectWidth2, p.Y - selectionRectWidth2);
+            }
+
+            public void MoveP2(Point p)
+            {
+                line.EndPoint = p;
+                p2Rect.Transform = new TranslateTransform(p.X - selectionRectWidth2, p.Y - selectionRectWidth2);
             }
         }
 
@@ -44,10 +108,12 @@ namespace WpfApplication3
         public Chart()
         {
             chartLines = new List<ChartLine>();
+            selectedLines = new List<ChartLine>();
         }
 
         #region Members
 
+        public Canvas canvas;
         public List<ChartLine> chartLines;
         public List<ChartLine> selectedLines;
 
@@ -63,7 +129,7 @@ namespace WpfApplication3
             di.candleWidth = 5;
             di.candleMargin = 1;
 
-            Canvas canvas = new Canvas();
+            canvas = new Canvas();
             canvas.SnapsToDevicePixels = true;
             canvas.SetValue(RenderOptions.EdgeModeProperty, EdgeMode.Aliased);
 

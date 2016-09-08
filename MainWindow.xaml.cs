@@ -77,57 +77,36 @@ namespace WpfApplication3
 
             TabItem tabItem = (TabItem)tabCtrl.Items[tabCtrl.SelectedIndex];
             Canvas canvas = (Canvas)tabItem.Content;
+            Point mousePosition = e.MouseDevice.GetPosition(canvas);
 
-            Chart activeChart = GetDVM().CurrentDrawing;
-            Chart.ChartLine line;
-            if (activeChart.chartLines.Count == 0)
+            if (workMode == WorkMode.Drawing)
             {
-                line = new Chart.ChartLine();
-                activeChart.chartLines.Add(line);
-            }
-            else
-                line = activeChart.chartLines[0];
-
-            if (line.show == false)
-            {
-                line.p1 = e.MouseDevice.GetPosition(canvas);
-                line.p2 = line.p1;
-                line.show = true;
-                line.editing = true;
-
-                Path linePath = new Path();
-                canvas.SetValue(RenderOptions.EdgeModeProperty, EdgeMode.Unspecified);
-                linePath.StrokeThickness = 1;
-                linePath.Stroke = Brushes.Black;
-                linePath.Data = new LineGeometry(line.p1, line.p2);
-                line.linePath = linePath;
-                canvas.Children.Add(linePath);
-            }
-            else
-            {
-                line.p2 = e.MouseDevice.GetPosition(canvas);
-                line.linePath.Data = new LineGeometry(line.p1, line.p2);
+                DrawLine(mousePosition);
             }
         }
-
-        void SymbolTab_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        
+        private void DrawLine(Point mousePosition)
         {
             Chart activeChart = GetDVM().CurrentDrawing;
-            if (activeChart == null) return;
 
-            Chart.ChartLine line;
-            if (activeChart.chartLines.Count == 0)
+            // if there is no selected lines, create a new line and select it
+            if (activeChart.selectedLines.Count == 0)
             {
-                line = new Chart.ChartLine();
+                Chart.ChartLine line = new Chart.ChartLine(activeChart);
                 activeChart.chartLines.Add(line);
+                activeChart.canvas.Children.Add(line.linePath);
+                activeChart.canvas.Children.Add(line.rectPath);
+
+                line.mode = Chart.ChartLine.Mode.Drawing;
+                activeChart.selectedLines.Add(line);
+
+                line.MoveP1(mousePosition);
+                line.MoveP2(mousePosition);
             }
             else
-                line = activeChart.chartLines[0];
-            
-            if (line.editing == true)
             {
-                line.editing = false;
-                line.show = false;
+                Chart.ChartLine line = activeChart.selectedLines[0];
+                line.MoveP2(mousePosition);
             }
         }
 
@@ -136,25 +115,63 @@ namespace WpfApplication3
             Chart activeChart = GetDVM().CurrentDrawing;
             if (activeChart == null) return;
 
-            Chart.ChartLine line;
-            if (activeChart.chartLines.Count == 0)
+            if (workMode != WorkMode.Drawing)
+                return;
+            
+            if (activeChart.selectedLines.Count > 0)
             {
-                line = new Chart.ChartLine();
-                activeChart.chartLines.Add(line);
+                Chart.ChartLine line = activeChart.selectedLines[0];
+                if (line.mode == Chart.ChartLine.Mode.Drawing)
+                {
+                    Point mousePosition = e.MouseDevice.GetPosition((Canvas)line.linePath.Parent);
+                    line.MoveP2(mousePosition);
+                }
             }
-            else
-                line = activeChart.chartLines[0];
+        }
 
-            if (line.editing == true)
+        void SymbolTab_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            Chart activeChart = GetDVM().CurrentDrawing;
+            if (activeChart == null) return;
+
+            if (activeChart.selectedLines.Count > 0)
             {
-                line.p2 = e.MouseDevice.GetPosition((Canvas)line.linePath.Parent);
-                line.linePath.Data = new LineGeometry(line.p1, line.p2);                
+                Chart.ChartLine line = activeChart.selectedLines[0];
+                if (line.mode == Chart.ChartLine.Mode.Drawing)
+                {
+                    line.Select(false);
+                    workMode = WorkMode.Selecting;
+                }
             }
         }
 
         void SymbolTab_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
+            TabControl tabCtrl = (TabControl)sender;
+            if (tabCtrl.Items.Count == 0) return;
 
+            TabItem tabItem = (TabItem)tabCtrl.Items[tabCtrl.SelectedIndex];
+            Canvas canvas = (Canvas)tabItem.Content;
+            Point mousePosition = e.MouseDevice.GetPosition(canvas);
+
+            if (workMode == WorkMode.Selecting)
+            {
+                // check what user selected
+                if (e.OriginalSource is Path)
+                {
+                    var path = e.OriginalSource as Path;
+                    if (path.Name.StartsWith("line_"))
+                    {
+                        Chart activeChart = GetDVM().CurrentDrawing;
+                        Chart.ChartLine line = activeChart.chartLines.First(l => l.linePath.Name == path.Name);
+
+                        if (activeChart.selectedLines.Exists(l => l.linePath.Name == line.linePath.Name) == false)
+                        {
+                            line.Select(true);
+                        }
+                    }
+                }
+            }
         }
     }    
 }
