@@ -12,6 +12,7 @@ using System.Diagnostics;
 using System.Globalization;
 
 using HtmlAgilityPack;
+using Newtonsoft.Json;
 
 namespace WpfApplication3
 {
@@ -46,7 +47,15 @@ namespace WpfApplication3
             {
                 FullName = fullName;
                 ShortName = shortName;
+
+                SymbolInfoList.Add(this);
             }
+        }
+        public static List<SymbolInfo> SymbolInfoList = new List<SymbolInfo>();
+
+        public static void SerializeToJson()
+        {
+            string output = JsonConvert.SerializeObject(SymbolInfoList);
         }
 
         public static List<SymbolInfo> GetSymbolsFromWeb()
@@ -157,6 +166,8 @@ namespace WpfApplication3
             SymbolsInfoList = new List<Data.SymbolInfo>();
             SymbolsInfoList.Add(new Data.SymbolInfo("DOMDEV", "DOM"));
             SymbolsInfoList.Add(new Data.SymbolInfo("11BIT", "11B"));
+
+            Data.SerializeToJson();
         }
 
         public void SetCurrentDrawing(Chart currentChart)

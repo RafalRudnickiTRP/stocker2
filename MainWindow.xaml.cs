@@ -146,6 +146,6 @@ namespace WpfApplication3
                 line.p2 = e.MouseDevice.GetPosition((Canvas)line.linePath.Parent);
                 line.linePath.Data = new LineGeometry(line.p1, line.p2);                
             }
-        }
+        }        
     }
 }
