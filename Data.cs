@@ -159,10 +159,9 @@ namespace WpfApplication3
         {
             SymbolsDrawings = new Dictionary<string, Chart>();
 
-          //  SymbolsInfoList = new List<Data.SymbolInfo>(Data.GetSymbolsFromWeb());
+            //  SymbolsInfoList = new List<Data.SymbolInfo>(Data.GetSymbolsFromWeb());
 
             // debug
-
             SymbolsInfoList = new List<Data.SymbolInfo>();
             SymbolsInfoList.Add(new Data.SymbolInfo("DOMDEV", "DOM"));
             SymbolsInfoList.Add(new Data.SymbolInfo("11BIT", "11B"));
