@@ -13,7 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Diagnostics;
-
+using System.IO;
 
 namespace WpfApplication3
 {
@@ -157,9 +157,9 @@ namespace WpfApplication3
             if (workMode == WorkMode.Selecting)
             {
                 // check what user selected
-                if (e.OriginalSource is Path)
+                if (e.OriginalSource is System.Windows.Shapes.Path)
                 {
-                    var path = e.OriginalSource as Path;
+                    var path = e.OriginalSource as System.Windows.Shapes.Path;
                     if (path.Name.StartsWith("line_"))
                     {
                         Chart activeChart = GetDVM().CurrentDrawing;
@@ -171,6 +171,17 @@ namespace WpfApplication3
                         }
                     }
                 }
+            }
+        }
+
+        private void buttonSave_Click(object sender, RoutedEventArgs e)
+        {
+            string output = GetDVM().CurrentDrawing.SerializeToJson();
+
+            string mydocpath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            using (StreamWriter outputFile = new StreamWriter(mydocpath + @"\charts.json"))
+            {
+                outputFile.WriteLine(output);
             }
         }
     }    

@@ -8,6 +8,8 @@ using System.Windows.Shapes;
 using System.Windows.Controls;
 using System.Windows.Media;
 
+using Newtonsoft.Json;
+
 namespace WpfApplication3
 {
     public class Chart
@@ -53,14 +55,14 @@ namespace WpfApplication3
             private static int nextId = 0;
             public int id;
 
-            public ChartLine(Chart parentChart) 
+            public ChartLine(Chart parentChart)
             {
                 chart = parentChart;
                 mode = Mode.Invalid;
                 id = nextId;
                 nextId++;
-                
-                linePath = new Path();                
+
+                linePath = new Path();
                 linePath.StrokeThickness = 1;
                 linePath.Stroke = Brushes.Black;
                 line = new LineGeometry();
@@ -68,7 +70,7 @@ namespace WpfApplication3
                 linePath.Name = "line_".ToString() + id.ToString();
 
                 rectPath = new Path();
-                rectPath.StrokeThickness = 1;      
+                rectPath.StrokeThickness = 1;
                 rectPath.Stroke = Brushes.Black;
 
                 GeometryGroup geom = new GeometryGroup();
@@ -90,6 +92,24 @@ namespace WpfApplication3
             {
                 line.EndPoint = p;
                 p2Rect.Transform = new TranslateTransform(p.X - selectionRectWidth2, p.Y - selectionRectWidth2);
+            }
+
+            public struct DataToSerialize
+            {
+                public string StartPoint { get; set; }
+                public string EndPoint { get; set; }
+                public string id { get; set; }
+            }
+
+            public DataToSerialize SerializeToJson()
+            {
+                DataToSerialize toSerialize = new DataToSerialize
+                {
+                    StartPoint = line.StartPoint.ToString(),
+                    EndPoint = line.EndPoint.ToString(),
+                    id = id.ToString(),
+                };
+                return toSerialize;
             }
         }
 
@@ -118,6 +138,27 @@ namespace WpfApplication3
         public List<ChartLine> selectedLines;
 
         #endregion
+
+        public struct DataToSerialize
+        {
+            public IList<ChartLine.DataToSerialize> chartLines { get; set; }
+        }
+
+        public string SerializeToJson()
+        {
+            DataToSerialize toSerialize = new DataToSerialize()
+            {
+                chartLines = new List<ChartLine.DataToSerialize>()
+            };
+
+            foreach (ChartLine line in chartLines)
+            {
+                toSerialize.chartLines.Add(line.SerializeToJson());
+            }
+
+            string output = JsonConvert.SerializeObject(toSerialize, Formatting.Indented);
+            return output;
+        }
 
         public static float Remap(float value, float from1, float to1, float from2, float to2)
         {

@@ -15,7 +15,7 @@
         <RoutedUICommand x:Key="Command_SelectMode" Text="Select mode" />
         <RoutedUICommand x:Key="Command_DrawMode" Text="Draw mode" />
     </Window.Resources>
-    
+
     <!-- COMMANDS -->
     <Window.CommandBindings>
         <CommandBinding Command="{StaticResource Command_SelectMode}" CanExecute="CanExecute_SelectMode" Executed="Command_SelectMode" />
@@ -28,6 +28,7 @@
             <ToolBar>
                 <Button Command="{StaticResource Command_SelectMode}">select</Button>
                 <Button Command="{StaticResource Command_DrawMode}">draw</Button>
+                <Button x:Name="buttonSave" Content="save" Click="buttonSave_Click" />
             </ToolBar>
         </ToolBarTray>
         <StatusBar DockPanel.Dock="Bottom">
