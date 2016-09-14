@@ -44,30 +44,44 @@ namespace WpfApplication3
             Data.SymbolInfo si = (Data.SymbolInfo)dataContext;           
             List<Data.SymbolDayData> sdd = Data.GetSymbolDataFromWeb(si.ShortName);
 
-            TabItem newTab = new TabItem();
-            newTab.Header = si.FullName;
-
-            SymbolsTabControl.Items.Add(newTab);
-            SymbolsTabControl.SelectedItem = newTab;
-
-            Chart.DrawingInfo di = new Chart.DrawingInfo();
-            di.viewHeight = (int)SymbolsTabControl.ActualHeight;
-            di.viewWidth = (int)SymbolsTabControl.ActualWidth;
-            di.viewMargin = 3;
-            di.viewAutoScale = true;
-
             var dvm = DataContext as DataViewModel;
-            Chart chart = new Chart();
-            dvm.SymbolsDrawings.Add(si.FullName, chart);
-            dvm.SetCurrentDrawing(chart);
-            
-            newTab.Content = chart.CreateDrawing(di, sdd);
+            Chart chart = null;
+            if (dvm.SymbolsDrawings.TryGetValue(si.FullName, out chart) == false)
+            {
+                TabItem newTab = new TabItem();
+                newTab.Header = si.FullName;
+                
+                SymbolsTabControl.Items.Add(newTab);
+                SymbolsTabControl.SelectedItem = newTab;
+                
+                Chart.DrawingInfo di = new Chart.DrawingInfo();
+                di.viewHeight = (int)SymbolsTabControl.ActualHeight;
+                di.viewWidth = (int)SymbolsTabControl.ActualWidth;
+                di.viewMargin = 3;
+                di.viewAutoScale = true;
+
+                chart = new Chart();
+                dvm.SymbolsDrawings.Add(si.FullName, chart);
+                newTab.Content = chart.CreateDrawing(di, sdd);
+            }
+            else
+            {
+                foreach (TabItem item in SymbolsTabControl.Items)
+                {
+                    if (item.Header.ToString() == si.FullName)
+                    {
+                        SymbolsTabControl.SelectedItem = item;
+                        break;
+                    }
+                }
+            }
+            dvm.SetCurrentDrawing(chart);            
         }
 
         void SymbolTab_SelectionChanged(object sender, SelectionChangedEventArgs a)
         {
             TabItem activeTab = (TabItem)((TabControl)a.Source).SelectedItem;
-            GetDVM().SetCurrentDrawing((Chart)activeTab.Content);
+            GetDVM().SetCurrentDrawing(activeTab.Content as Chart);
         }
 
         void SymbolTab_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
