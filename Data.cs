@@ -13,6 +13,7 @@ using System.Globalization;
 
 using HtmlAgilityPack;
 using Newtonsoft.Json;
+using System.Windows;
 
 namespace WpfApplication3
 {
@@ -51,12 +52,12 @@ namespace WpfApplication3
                 SymbolInfoList.Add(this);
             }
         }
+
+        #region Members
+
         public static List<SymbolInfo> SymbolInfoList = new List<SymbolInfo>();
 
-        public static void SerializeToJson()
-        {
-            string output = JsonConvert.SerializeObject(SymbolInfoList);
-        }
+        #endregion
 
         public static List<SymbolInfo> GetSymbolsFromWeb()
         {
@@ -116,6 +117,12 @@ namespace WpfApplication3
             StreamReader sr = new StreamReader(resp.GetResponseStream());
             string csv = sr.ReadToEnd();
 
+            if (csv == "Przekroczony dzienny limit wywolan")
+            {
+                // hmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
+                MessageBox.Show(csv, "ERROR");
+            }
+
             bool header = true;
             foreach(string line in csv.Split('\n'))
             {
@@ -154,6 +161,34 @@ namespace WpfApplication3
 
         public Dictionary<string, Chart> SymbolsDrawings { get; set; }
         public Chart CurrentDrawing { get; set;  }
+        
+        public Dictionary<string, Chart.DataToSerialize> SymbolsDrawingsToSerialize { get; set; }
+
+        public string SerializeToJson()
+        {
+            SymbolsDrawingsToSerialize = new Dictionary<string, Chart.DataToSerialize>();
+
+            foreach (KeyValuePair<string, Chart> pairSymbolsDrawings in SymbolsDrawings)
+            {
+                Chart.DataToSerialize data = pairSymbolsDrawings.Value.SerializeToJson();
+                string key = pairSymbolsDrawings.Key;
+                SymbolsDrawingsToSerialize.Add(key, data);
+            }
+
+            string output = JsonConvert.SerializeObject(SymbolsDrawingsToSerialize, Formatting.Indented);
+            return output;
+        }
+
+        public void DeserializeFromJson(string input)
+        {
+            SymbolsDrawingsToSerialize = new Dictionary<string, Chart.DataToSerialize>();
+            SymbolsDrawingsToSerialize = JsonConvert.DeserializeObject<Dictionary<string, Chart.DataToSerialize>>(input);
+            
+            foreach (Data.SymbolInfo symbolInfo in SymbolsInfoList)
+            {
+
+            }
+        }
 
         public DataViewModel()
         {
@@ -165,8 +200,7 @@ namespace WpfApplication3
             SymbolsInfoList = new List<Data.SymbolInfo>();
             SymbolsInfoList.Add(new Data.SymbolInfo("DOMDEV", "DOM"));
             SymbolsInfoList.Add(new Data.SymbolInfo("11BIT", "11B"));
-
-            Data.SerializeToJson();
+            SymbolsInfoList.Add(new Data.SymbolInfo("KGHM", "KGH"));
         }
 
         public void SetCurrentDrawing(Chart currentChart)

@@ -29,6 +29,7 @@
                 <Button Command="{StaticResource Command_SelectMode}">select</Button>
                 <Button Command="{StaticResource Command_DrawMode}">draw</Button>
                 <Button x:Name="buttonSave" Content="save" Click="buttonSave_Click" />
+                <Button x:Name="buttonLoad" Content="load" Click="buttonLoad_Click" />
             </ToolBar>
         </ToolBarTray>
         <StatusBar DockPanel.Dock="Bottom">

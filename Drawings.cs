@@ -158,21 +158,19 @@ namespace WpfApplication3
             public IList<ChartLine.DataToSerialize> chartLines { get; set; }
         }
 
-        public string SerializeToJson()
+        public DataToSerialize SerializeToJson()
         {
             DataToSerialize toSerialize = new DataToSerialize()
             {
                 chartLines = new List<ChartLine.DataToSerialize>()
             };
-
             foreach (ChartLine line in chartLines)
             {
                 toSerialize.chartLines.Add(line.SerializeToJson());
             }
 
-            string output = JsonConvert.SerializeObject(toSerialize, Formatting.Indented);
-            return output;
-        }
+            return toSerialize;
+        }        
 
         public static float RemapRange(float value, float from1, float to1, float from2, float to2)
         {
@@ -187,6 +185,9 @@ namespace WpfApplication3
 
         public Canvas CreateDrawing(DrawingInfo di, List<Data.SymbolDayData> sddList)
         {
+            if (sddList.Count == 0)
+                return null;
+
             di.candleWidth = 5;
             di.candleMargin = 1;
 
