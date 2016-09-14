@@ -44,12 +44,21 @@ namespace WpfApplication3
                 }
             }
 
+            public bool IsSelected()
+            {
+                return mode == Mode.Selected;
+            }
+            
             public Path linePath { get; }
             public Path rectPath { get; }
+
+            public Point getP1() { return line.StartPoint; }
+            public Point getP2() { return line.EndPoint; }
 
             private LineGeometry line;
             private RectangleGeometry p1Rect;
             private RectangleGeometry p2Rect;
+            private RectangleGeometry midRect;
 
             private Chart chart;
             private static int nextId = 0;
@@ -72,12 +81,15 @@ namespace WpfApplication3
                 rectPath = new Path();
                 rectPath.StrokeThickness = 1;
                 rectPath.Stroke = Brushes.Black;
+                rectPath.Fill = Brushes.White;
 
                 GeometryGroup geom = new GeometryGroup();
                 p1Rect = new RectangleGeometry(new Rect(new Size(selectionRectWidth2 * 2, selectionRectWidth2 * 2)));
                 p2Rect = new RectangleGeometry(new Rect(new Size(selectionRectWidth2 * 2, selectionRectWidth2 * 2)));
+                midRect = new RectangleGeometry(new Rect(new Size(selectionRectWidth2 * 2, selectionRectWidth2 * 2)));
                 geom.Children.Add(p1Rect);
                 geom.Children.Add(p2Rect);
+                geom.Children.Add(midRect);
                 rectPath.Data = geom;
                 rectPath.Name = "rect_".ToString() + id.ToString();
             }
@@ -90,7 +102,9 @@ namespace WpfApplication3
 
             public void MoveP2(Point p)
             {
+                Point p1 = line.StartPoint;
                 line.EndPoint = p;
+                midRect.Transform = new TranslateTransform(p1.X + (p.X - p1.X) / 2 - selectionRectWidth2, p1.Y + (p.Y - p1.Y) / 2 - selectionRectWidth2);
                 p2Rect.Transform = new TranslateTransform(p.X - selectionRectWidth2, p.Y - selectionRectWidth2);
             }
 
@@ -160,9 +174,15 @@ namespace WpfApplication3
             return output;
         }
 
-        public static float Remap(float value, float from1, float to1, float from2, float to2)
+        public static float RemapRange(float value, float from1, float to1, float from2, float to2)
         {
             return (value - from1) / (from2 - from1) * (to2 - to1) + to1;
+        }
+
+        public static float LinePointDistance(Point p1, Point p2, Point p)
+        {
+            return (float)(Math.Abs((p2.Y - p1.Y) * p.X - (p2.X - p1.X) * p.Y + p2.X * p1.Y - p2.Y * p1.X) /
+                Math.Sqrt(Math.Pow(p2.Y - p1.Y, 2) + Math.Pow(p2.X - p1.X, 2)));
         }
 
         public Canvas CreateDrawing(DrawingInfo di, List<Data.SymbolDayData> sddList)
@@ -171,8 +191,9 @@ namespace WpfApplication3
             di.candleMargin = 1;
 
             canvas = new Canvas();
-            canvas.SnapsToDevicePixels = true;
             canvas.SetValue(RenderOptions.EdgeModeProperty, EdgeMode.Aliased);
+            canvas.SnapsToDevicePixels = true;
+            canvas.UseLayoutRounding = true;
 
             GeometryGroup frameGeom = new GeometryGroup();
             frameGeom.Children.Add(new RectangleGeometry(new Rect(
@@ -217,10 +238,10 @@ namespace WpfApplication3
                     int minV = di.viewMargin + (int)framePath.StrokeThickness + di.candleMargin;
                     int maxV = di.viewHeight - minV;
 
-                    vals[0] = Remap(vals[0], minLow, maxV, maxHi, minV);
-                    vals[1] = Remap(vals[1], minLow, maxV, maxHi, minV);
-                    vals[2] = Remap(vals[2], minLow, maxV, maxHi, minV);
-                    vals[3] = Remap(vals[3], minLow, maxV, maxHi, minV);
+                    vals[0] = RemapRange(vals[0], minLow, maxV, maxHi, minV);
+                    vals[1] = RemapRange(vals[1], minLow, maxV, maxHi, minV);
+                    vals[2] = RemapRange(vals[2], minLow, maxV, maxHi, minV);
+                    vals[3] = RemapRange(vals[3], minLow, maxV, maxHi, minV);
                 }
 
                 GeometryGroup shadowGeom = new GeometryGroup();

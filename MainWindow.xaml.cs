@@ -156,21 +156,23 @@ namespace WpfApplication3
 
             if (workMode == WorkMode.Selecting)
             {
-                // check what user selected
-                if (e.OriginalSource is System.Windows.Shapes.Path)
-                {
-                    var path = e.OriginalSource as System.Windows.Shapes.Path;
-                    if (path.Name.StartsWith("line_"))
-                    {
-                        Chart activeChart = GetDVM().CurrentDrawing;
-                        Chart.ChartLine line = activeChart.chartLines.First(l => l.linePath.Name == path.Name);
+                Chart activeChart = GetDVM().CurrentDrawing;
 
-                        if (activeChart.selectedLines.Exists(l => l.linePath.Name == line.linePath.Name) == false)
-                        {
-                            line.Select(true);
-                        }
+                // calc distance to neares object
+                // lines
+
+                float minDist = float.MaxValue;
+                Chart.ChartLine closestLine = null;
+                foreach (Chart.ChartLine line in activeChart.chartLines)
+                {
+                    float dist = Chart.LinePointDistance(line.getP1(), line.getP2(), mousePosition);
+                    if (dist < minDist)
+                    {
+                        minDist = dist; closestLine = line;
                     }
                 }
+                
+                closestLine.Select(!closestLine.IsSelected());
             }
         }
 
