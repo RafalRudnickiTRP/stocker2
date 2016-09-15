@@ -26,7 +26,13 @@ namespace WpfApplication3
                 Selected
             }
 
+            public enum DrawingMode
+            {
+                Invalid, P1, P2, Mid
+            }
+
             public Mode mode;
+            public DrawingMode drawingMode;
 
             public void Select(bool selected)
             {
@@ -68,6 +74,7 @@ namespace WpfApplication3
             {
                 chart = parentChart;
                 mode = Mode.Invalid;
+                drawingMode = DrawingMode.Invalid;
                 id = nextId;
                 nextId++;
 
@@ -183,6 +190,11 @@ namespace WpfApplication3
         {
             return (float)(Math.Abs((p2.Y - p1.Y) * p.X - (p2.X - p1.X) * p.Y + p2.X * p1.Y - p2.Y * p1.X) /
                 Math.Sqrt(Math.Pow(p2.Y - p1.Y, 2) + Math.Pow(p2.X - p1.X, 2)));
+        }
+
+        public static float PointPointDistance(Point p1, Point p2)
+        {
+            return (float)Math.Sqrt(Math.Pow(p1.X - p2.X, 2) + Math.Pow(p1.Y - p2.Y, 2));
         }
 
         public Canvas CreateDrawing(DrawingInfo di, List<Data.SymbolDayData> sddList)

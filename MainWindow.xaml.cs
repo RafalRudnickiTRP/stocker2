@@ -83,29 +83,65 @@ namespace WpfApplication3
             {
                 DrawLine(mousePosition);
             }
+            else if (workMode == WorkMode.Selecting)
+            {
+                // check if we clicked on a controll point of selected line
+
+                Chart activeChart = GetDVM().CurrentDrawing;
+
+                float minDist = 4;
+                Chart.ChartLine choosenLine = null;
+                Point choosenPoint;
+                Chart.ChartLine.DrawingMode drawingMode = Chart.ChartLine.DrawingMode.Invalid;
+
+                foreach (Chart.ChartLine line in activeChart.selectedLines)
+                {
+                    float distP1 = Chart.PointPointDistance(line.getP1(), mousePosition);
+                    if (distP1 < minDist)
+                    {
+                        choosenLine = line;
+                        choosenPoint = line.getP1();
+                        drawingMode = Chart.ChartLine.DrawingMode.P1;
+                    }
+
+                    float distP2 = Chart.PointPointDistance(line.getP2(), mousePosition);
+                    if (distP2 < minDist)
+                    {
+                        choosenLine = line;
+                        choosenPoint = line.getP2();
+                        drawingMode = Chart.ChartLine.DrawingMode.P2;
+                    }
+                }
+
+                if (choosenLine != null)
+                {
+                    choosenLine.mode = Chart.ChartLine.Mode.Drawing;
+                    choosenLine.drawingMode = drawingMode;
+                }           
+            }
         }
         
         private void DrawLine(Point mousePosition)
         {
             Chart activeChart = GetDVM().CurrentDrawing;
 
-            // if there is no selected lines, create a new line and select it
-            if (activeChart.selectedLines.Count == 0)
+            // if there is no lines in drawing state, create a new line
+            Chart.ChartLine line = activeChart.chartLines.FirstOrDefault(l => l.mode == Chart.ChartLine.Mode.Drawing);
+
+            if (line == null)
             {
-                Chart.ChartLine line = new Chart.ChartLine(activeChart);
+                line = new Chart.ChartLine(activeChart);
+                line.mode = Chart.ChartLine.Mode.Drawing;
+
                 activeChart.chartLines.Add(line);
                 activeChart.canvas.Children.Add(line.linePath);
                 activeChart.canvas.Children.Add(line.rectPath);
-
-                line.mode = Chart.ChartLine.Mode.Drawing;
-                activeChart.selectedLines.Add(line);
 
                 line.MoveP1(mousePosition);
                 line.MoveP2(mousePosition);
             }
             else
             {
-                Chart.ChartLine line = activeChart.selectedLines[0];
                 line.MoveP2(mousePosition);
             }
         }
@@ -114,13 +150,10 @@ namespace WpfApplication3
         {
             Chart activeChart = GetDVM().CurrentDrawing;
             if (activeChart == null) return;
-
-            if (workMode != WorkMode.Drawing)
-                return;
             
-            if (activeChart.selectedLines.Count > 0)
+            Chart.ChartLine line = activeChart.chartLines.FirstOrDefault(l => l.mode == Chart.ChartLine.Mode.Drawing);
+            if (line != null)
             {
-                Chart.ChartLine line = activeChart.selectedLines[0];
                 if (line.mode == Chart.ChartLine.Mode.Drawing)
                 {
                     Point mousePosition = e.MouseDevice.GetPosition((Canvas)line.linePath.Parent);
@@ -134,14 +167,13 @@ namespace WpfApplication3
             Chart activeChart = GetDVM().CurrentDrawing;
             if (activeChart == null) return;
 
-            if (activeChart.selectedLines.Count > 0)
+            Chart.ChartLine line = activeChart.chartLines.FirstOrDefault(l => l.mode == Chart.ChartLine.Mode.Drawing);
+            if (line != null)
             {
-                Chart.ChartLine line = activeChart.selectedLines[0];
-                if (line.mode == Chart.ChartLine.Mode.Drawing)
-                {
-                    line.Select(false);
-                    workMode = WorkMode.Selecting;
-                }
+                line.drawingMode = Chart.ChartLine.DrawingMode.Invalid;
+                line.mode = Chart.ChartLine.Mode.Normal;
+                line.Select(false);
+                workMode = WorkMode.Selecting;
             }
         }
 
@@ -160,6 +192,8 @@ namespace WpfApplication3
 
                 // calc distance to neares object
                 // lines
+
+                // TODO: limit min distance to some value
 
                 float minDist = float.MaxValue;
                 Chart.ChartLine closestLine = null;
