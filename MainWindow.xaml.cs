@@ -41,33 +41,51 @@ namespace WpfApplication3
             var dataContext = ((FrameworkElement)e.OriginalSource).DataContext;
             if ((dataContext is Data.SymbolInfo) == false) return;
 
-            Data.SymbolInfo si = (Data.SymbolInfo)dataContext;           
-            List<Data.SymbolDayData> sdd = Data.GetSymbolDataFromWeb(si.ShortName);
+            AddToSymbolList(dataContext as Data.SymbolInfo);      
+        }
 
-            TabItem newTab = new TabItem();
-            newTab.Header = si.FullName;
-
-            SymbolsTabControl.Items.Add(newTab);
-            SymbolsTabControl.SelectedItem = newTab;
-
-            Chart.DrawingInfo di = new Chart.DrawingInfo();
-            di.viewHeight = (int)SymbolsTabControl.ActualHeight;
-            di.viewWidth = (int)SymbolsTabControl.ActualWidth;
-            di.viewMargin = 3;
-            di.viewAutoScale = true;
+        private void AddToSymbolList(Data.SymbolInfo symbolInfo)
+        {
+            List<Data.SymbolDayData> sdd = Data.GetSymbolDataFromWeb(symbolInfo.ShortName);
 
             var dvm = DataContext as DataViewModel;
-            Chart chart = new Chart();
-            dvm.SymbolsDrawings.Add(si.FullName, chart);
+            Chart chart = null;
+            if (dvm.SymbolsDrawings.TryGetValue(symbolInfo.FullName, out chart) == false)
+            {
+                TabItem newTab = new TabItem();
+                newTab.Header = symbolInfo.FullName;
+
+                SymbolsTabControl.Items.Add(newTab);
+                SymbolsTabControl.SelectedItem = newTab;
+
+                Chart.DrawingInfo di = new Chart.DrawingInfo();
+                di.viewHeight = (int)SymbolsTabControl.ActualHeight;
+                di.viewWidth = (int)SymbolsTabControl.ActualWidth;
+                di.viewMargin = 3;
+                di.viewAutoScale = true;
+
+                chart = new Chart();
+                dvm.SymbolsDrawings.Add(symbolInfo.FullName, chart);
+                newTab.Content = chart.CreateDrawing(di, sdd);
+            }
+            else
+            {
+                foreach (TabItem item in SymbolsTabControl.Items)
+                {
+                    if (item.Header.ToString() == symbolInfo.FullName)
+                    {
+                        SymbolsTabControl.SelectedItem = item;
+                        break;
+                    }
+                }
+            }
             dvm.SetCurrentDrawing(chart);
-            
-            newTab.Content = chart.CreateDrawing(di, sdd);
         }
 
         void SymbolTab_SelectionChanged(object sender, SelectionChangedEventArgs a)
         {
             TabItem activeTab = (TabItem)((TabControl)a.Source).SelectedItem;
-            GetDVM().SetCurrentDrawing((Chart)activeTab.Content);
+            GetDVM().SetCurrentDrawing(activeTab.Content as Chart);
         }
 
         void SymbolTab_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -124,6 +142,8 @@ namespace WpfApplication3
         private void DrawLine(Point mousePosition)
         {
             Chart activeChart = GetDVM().CurrentDrawing;
+            if (activeChart == null)
+                return;
 
             // if there is no lines in drawing state, create a new line
             Chart.ChartLine line = activeChart.chartLines.FirstOrDefault(l => l.mode == Chart.ChartLine.Mode.Drawing);
@@ -212,13 +232,27 @@ namespace WpfApplication3
 
         private void buttonSave_Click(object sender, RoutedEventArgs e)
         {
-            string output = GetDVM().CurrentDrawing.SerializeToJson();
+            string output = GetDVM().SerializeToJson();
 
             string mydocpath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
             using (StreamWriter outputFile = new StreamWriter(mydocpath + @"\charts.json"))
             {
                 outputFile.WriteLine(output);
             }
+        }
+
+        private void buttonLoad_Click(object sender, RoutedEventArgs e)
+        {
+            string input;
+            string mydocpath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            // Open the text file using a stream reader.
+            using (StreamReader sr = new StreamReader(mydocpath + @"\charts.json"))
+            {
+                // Read the stream to a string, and write the string to the console.
+                input = sr.ReadToEnd();
+            }
+
+            GetDVM().DeserializeFromJson(input);            
         }
     }    
 }
