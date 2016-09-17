@@ -41,8 +41,8 @@ namespace WpfApplication3
 
         public class SymbolInfo
         {
-            public string FullName { get; }
-            public string ShortName { get; }
+            public string FullName { get; set; }
+            public string ShortName { get; set; }
 
             public SymbolInfo(string fullName, string shortName)
             {
@@ -61,8 +61,6 @@ namespace WpfApplication3
 
         public static List<SymbolInfo> GetSymbolsFromWeb()
         {
-            GetSymbolDataFromWeb("Aaa");
-
             List<SymbolInfo> symbols = new List<SymbolInfo>();
 
             HtmlWeb web = new HtmlWeb();
@@ -106,7 +104,7 @@ namespace WpfApplication3
             return symbols;
         }
 
-        public static List<SymbolDayData> GetSymbolDataFromWeb(string symbolName)
+        public static List<SymbolDayData> GetSymbolData(string symbolName)
         {
             string csv = "";
             string today = DateTime.Today.ToString("dd-MM-yyyy");
@@ -119,7 +117,7 @@ namespace WpfApplication3
                     // Read the stream to a string, and write the string to the console.
                     csv = reader.ReadToEnd();
                 }
-            } catch (Exception e)
+            } catch (Exception)
             {
             }
 
@@ -158,14 +156,15 @@ namespace WpfApplication3
 
                 string l = line.Substring(0, line.Length - 1);
                 string[] data = l.Split(',');
-                Debug.Assert(data.Length == 6);
 
                 DateTime date = DateTime.ParseExact(data[0], "yyyy-MM-dd", CultureInfo.InvariantCulture);
                 float open = float.Parse(data[1], CultureInfo.InvariantCulture);
                 float hi = float.Parse(data[2], CultureInfo.InvariantCulture);
                 float low = float.Parse(data[3], CultureInfo.InvariantCulture);
                 float close = float.Parse(data[4], CultureInfo.InvariantCulture);
-                uint volume = uint.Parse(data[5]);
+                uint volume = 0;
+                if (data.Length == 6)
+                    volume = uint.Parse(data[5]);
 
                 SymbolDayData sdd = new SymbolDayData(date, open, hi, low, close, volume);
 
@@ -189,7 +188,7 @@ namespace WpfApplication3
         public string SerializeToJson()
         {
             SymbolsDrawingsToSerialize = new Dictionary<string, Chart.DataToSerialize>();
-
+            
             foreach (KeyValuePair<string, Chart> pairSymbolsDrawings in SymbolsDrawings)
             {
                 Chart.DataToSerialize data = pairSymbolsDrawings.Value.SerializeToJson();
@@ -206,9 +205,15 @@ namespace WpfApplication3
             SymbolsDrawingsToSerialize = new Dictionary<string, Chart.DataToSerialize>();
             SymbolsDrawingsToSerialize = JsonConvert.DeserializeObject<Dictionary<string, Chart.DataToSerialize>>(input);
             
-            foreach (Data.SymbolInfo symbolInfo in SymbolsInfoList)
+            foreach (var data in SymbolsDrawingsToSerialize)
             {
-
+                foreach (var info in SymbolsInfoList)
+                {   
+                    if (data.Key == info.FullName)
+                    {
+                        break;
+                    }
+                }
             }
         }
 
@@ -216,13 +221,13 @@ namespace WpfApplication3
         {
             SymbolsDrawings = new Dictionary<string, Chart>();
 
-            //  SymbolsInfoList = new List<Data.SymbolInfo>(Data.GetSymbolsFromWeb());
+            SymbolsInfoList = new List<Data.SymbolInfo>(Data.GetSymbolsFromWeb());
 
             // debug
-            SymbolsInfoList = new List<Data.SymbolInfo>();
-            SymbolsInfoList.Add(new Data.SymbolInfo("DOMDEV", "DOM"));
-            SymbolsInfoList.Add(new Data.SymbolInfo("11BIT", "11B"));
-            SymbolsInfoList.Add(new Data.SymbolInfo("KGHM", "KGH"));
+            //SymbolsInfoList = new List<Data.SymbolInfo>();
+            //SymbolsInfoList.Add(new Data.SymbolInfo("DOMDEV", "DOM"));
+            //SymbolsInfoList.Add(new Data.SymbolInfo("11BIT", "11B"));
+            //SymbolsInfoList.Add(new Data.SymbolInfo("KGHM", "KGH"));
         }
 
         public void SetCurrentDrawing(Chart currentChart)

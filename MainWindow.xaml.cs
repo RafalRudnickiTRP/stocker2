@@ -50,7 +50,7 @@ namespace WpfApplication3
             Chart chart = null;
             if (dvm.SymbolsDrawings.TryGetValue(symbolInfo.FullName, out chart) == false)
             {
-                List<Data.SymbolDayData> sdd = Data.GetSymbolDataFromWeb(symbolInfo.ShortName);
+                List<Data.SymbolDayData> sdd = Data.GetSymbolData(symbolInfo.ShortName);
                 
                 TabItem newTab = new TabItem();
                 newTab.Header = symbolInfo.FullName;
@@ -106,36 +106,38 @@ namespace WpfApplication3
                 // check if we clicked on a controll point of selected line
 
                 Chart activeChart = GetDVM().CurrentDrawing;
-
-                float minDist = 4;
-                Chart.ChartLine choosenLine = null;
-                Point choosenPoint;
-                Chart.ChartLine.DrawingMode drawingMode = Chart.ChartLine.DrawingMode.Invalid;
-
-                foreach (Chart.ChartLine line in activeChart.selectedLines)
+                if (activeChart != null)
                 {
-                    float distP1 = Chart.PointPointDistance(line.getP1(), mousePosition);
-                    if (distP1 < minDist)
+                    float minDist = 4;
+                    Chart.ChartLine choosenLine = null;
+                    Point choosenPoint;
+                    Chart.ChartLine.DrawingMode drawingMode = Chart.ChartLine.DrawingMode.Invalid;
+
+                    foreach (Chart.ChartLine line in activeChart.selectedLines)
                     {
-                        choosenLine = line;
-                        choosenPoint = line.getP1();
-                        drawingMode = Chart.ChartLine.DrawingMode.P1;
+                        float distP1 = Chart.PointPointDistance(line.getP1(), mousePosition);
+                        if (distP1 < minDist)
+                        {
+                            choosenLine = line;
+                            choosenPoint = line.getP1();
+                            drawingMode = Chart.ChartLine.DrawingMode.P1;
+                        }
+
+                        float distP2 = Chart.PointPointDistance(line.getP2(), mousePosition);
+                        if (distP2 < minDist)
+                        {
+                            choosenLine = line;
+                            choosenPoint = line.getP2();
+                            drawingMode = Chart.ChartLine.DrawingMode.P2;
+                        }
                     }
 
-                    float distP2 = Chart.PointPointDistance(line.getP2(), mousePosition);
-                    if (distP2 < minDist)
+                    if (choosenLine != null)
                     {
-                        choosenLine = line;
-                        choosenPoint = line.getP2();
-                        drawingMode = Chart.ChartLine.DrawingMode.P2;
+                        choosenLine.mode = Chart.ChartLine.Mode.Drawing;
+                        choosenLine.drawingMode = drawingMode;
                     }
                 }
-
-                if (choosenLine != null)
-                {
-                    choosenLine.mode = Chart.ChartLine.Mode.Drawing;
-                    choosenLine.drawingMode = drawingMode;
-                }           
             }
         }
         
