@@ -46,12 +46,12 @@ namespace WpfApplication3
 
         private void AddToSymbolList(Data.SymbolInfo symbolInfo)
         {
-            List<Data.SymbolDayData> sdd = Data.GetSymbolDataFromWeb(symbolInfo.ShortName);
-
             var dvm = DataContext as DataViewModel;
             Chart chart = null;
             if (dvm.SymbolsDrawings.TryGetValue(symbolInfo.FullName, out chart) == false)
             {
+                List<Data.SymbolDayData> sdd = Data.GetSymbolDataFromWeb(symbolInfo.ShortName);
+                
                 TabItem newTab = new TabItem();
                 newTab.Header = symbolInfo.FullName;
 
@@ -209,24 +209,26 @@ namespace WpfApplication3
             if (workMode == WorkMode.Selecting)
             {
                 Chart activeChart = GetDVM().CurrentDrawing;
+                if (activeChart != null)
+                { 
+                    // calc distance to neares object
+                    // lines
 
-                // calc distance to neares object
-                // lines
+                    // TODO: limit min distance to some value
 
-                // TODO: limit min distance to some value
-
-                float minDist = float.MaxValue;
-                Chart.ChartLine closestLine = null;
-                foreach (Chart.ChartLine line in activeChart.chartLines)
-                {
-                    float dist = Chart.LinePointDistance(line.getP1(), line.getP2(), mousePosition);
-                    if (dist < minDist)
+                    float minDist = float.MaxValue;
+                    Chart.ChartLine closestLine = null;
+                    foreach (Chart.ChartLine line in activeChart.chartLines)
                     {
-                        minDist = dist; closestLine = line;
+                        float dist = Chart.LinePointDistance(line.getP1(), line.getP2(), mousePosition);
+                        if (dist < minDist)
+                        {
+                            minDist = dist; closestLine = line;
+                        }
                     }
+
+                    closestLine.Select(!closestLine.IsSelected());
                 }
-                
-                closestLine.Select(!closestLine.IsSelected());
             }
         }
 

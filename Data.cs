@@ -108,20 +108,42 @@ namespace WpfApplication3
 
         public static List<SymbolDayData> GetSymbolDataFromWeb(string symbolName)
         {
-            List<SymbolDayData> result = new List<SymbolDayData>();
-            
-            string url = "http://stooq.pl/q/d/l/?s=" + symbolName + "&i=d";
+            string csv = "";
+            string today = DateTime.Today.ToString("dd-MM-yyyy");
+            string filename = "stocker_" + today + "_" + symbolName + ".csv";
+            string mydocpath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            try
+            {
+                using (StreamReader reader = new StreamReader(mydocpath + @"\" + filename))
+                {
+                    // Read the stream to a string, and write the string to the console.
+                    csv = reader.ReadToEnd();
+                }
+            } catch (Exception e)
+            {
+            }
 
-            HttpWebRequest req = (HttpWebRequest)WebRequest.Create(url);
-            HttpWebResponse resp = (HttpWebResponse)req.GetResponse();
-            StreamReader sr = new StreamReader(resp.GetResponseStream());
-            string csv = sr.ReadToEnd();
+            if (csv == "")
+            {
+                string url = "http://stooq.pl/q/d/l/?s=" + symbolName + "&i=d";
+
+                HttpWebRequest req = (HttpWebRequest)WebRequest.Create(url);
+                HttpWebResponse resp = (HttpWebResponse)req.GetResponse();
+                StreamReader sr = new StreamReader(resp.GetResponseStream());
+                csv = sr.ReadToEnd();
+
+                using (StreamWriter outputFile = new StreamWriter(mydocpath + @"\" + filename))
+                {
+                    outputFile.Write(csv);
+                }
+            }
 
             if (csv == "Przekroczony dzienny limit wywolan")
             {
-                // hmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
                 MessageBox.Show(csv, "ERROR");
             }
+
+            List<SymbolDayData> result = new List<SymbolDayData>();
 
             bool header = true;
             foreach(string line in csv.Split('\n'))
