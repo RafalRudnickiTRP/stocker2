@@ -70,6 +70,7 @@ namespace WpfApplication3
 
             public Point getP1() { return line.StartPoint; }
             public Point getP2() { return line.EndPoint; }
+            public Point getMidP() { return line.StartPoint + (line.EndPoint - line.StartPoint) / 2; }
 
             private LineGeometry line;
             private RectangleGeometry p1Rect;
@@ -125,6 +126,22 @@ namespace WpfApplication3
                 line.EndPoint = p;
                 midRect.Transform = new TranslateTransform(p1.X + (p.X - p1.X) / 2 - selectionRectWidth2, p1.Y + (p.Y - p1.Y) / 2 - selectionRectWidth2);
                 p2Rect.Transform = new TranslateTransform(p.X - selectionRectWidth2, p.Y - selectionRectWidth2);
+            }
+
+            public void MoveMid(Point p)
+            {
+                Point p1 = line.StartPoint;
+                Point p2 = line.EndPoint;
+
+                Point midP = p1 + (p2 - p1) / 2;
+                Vector delta = p - midP;
+                
+                line.StartPoint = new Point(p1.X + delta.X, p1.Y + delta.Y);
+                line.EndPoint = new Point(p2.X + delta.X, p2.Y + delta.Y);
+
+                p1Rect.Transform = new TranslateTransform(p1.X + delta.X, p1.Y + delta.Y);
+                p2Rect.Transform = new TranslateTransform(p2.X + delta.X, p2.Y + delta.Y);
+                midRect.Transform = new TranslateTransform(midP.X + delta.X, midP.Y + delta.Y);
             }
 
             public struct DataToSerialize

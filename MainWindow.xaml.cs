@@ -99,7 +99,7 @@ namespace WpfApplication3
 
             if (workMode == WorkMode.Drawing)
             {
-                DrawLine(mousePosition);
+                DrawNewLine(mousePosition);
             }
             else if (workMode == WorkMode.Selecting)
             {
@@ -130,6 +130,14 @@ namespace WpfApplication3
                             choosenPoint = line.getP2();
                             drawingMode = Chart.ChartLine.DrawingMode.P2;
                         }
+
+                        float distMidP = Chart.PointPointDistance(line.getMidP(), mousePosition);
+                        if (distMidP < minDist)
+                        {
+                            choosenLine = line;
+                            choosenPoint = line.getMidP();
+                            drawingMode = Chart.ChartLine.DrawingMode.Mid;
+                        }
                     }
 
                     if (choosenLine != null)
@@ -141,7 +149,7 @@ namespace WpfApplication3
             }
         }
         
-        private void DrawLine(Point mousePosition)
+        private void DrawNewLine(Point mousePosition)
         {
             Chart activeChart = GetDVM().CurrentDrawing;
             if (activeChart == null)
@@ -149,24 +157,19 @@ namespace WpfApplication3
 
             // if there is no lines in drawing state, create a new line
             Chart.ChartLine line = activeChart.chartLines.FirstOrDefault(l => l.mode == Chart.ChartLine.Mode.Drawing);
+            // only one line is drawn at a time
+            Debug.Assert(line == null);
+            
+            line = new Chart.ChartLine(activeChart);
+            line.mode = Chart.ChartLine.Mode.Drawing;
+            line.drawingMode = Chart.ChartLine.DrawingMode.P2;
 
-            if (line == null)
-            {
-                line = new Chart.ChartLine(activeChart);
-                line.mode = Chart.ChartLine.Mode.Drawing;
-                line.drawingMode = Chart.ChartLine.DrawingMode.P2;
+            activeChart.chartLines.Add(line);
+            activeChart.canvas.Children.Add(line.linePath);
+            activeChart.canvas.Children.Add(line.rectPath);
 
-                activeChart.chartLines.Add(line);
-                activeChart.canvas.Children.Add(line.linePath);
-                activeChart.canvas.Children.Add(line.rectPath);
-
-                line.MoveP1(mousePosition);
-                line.MoveP2(mousePosition);
-            }
-            else
-            {
-                line.MoveP2(mousePosition);
-            }
+            line.MoveP1(mousePosition);
+            line.MoveP2(mousePosition);           
         }
 
         void SymbolTab_MouseMove(object sender, MouseEventArgs e)
@@ -185,6 +188,8 @@ namespace WpfApplication3
                         line.MoveP1(mousePosition);
                     else if (line.drawingMode == Chart.ChartLine.DrawingMode.P2)
                         line.MoveP2(mousePosition);
+                    else if (line.drawingMode == Chart.ChartLine.DrawingMode.Mid)
+                        line.MoveMid(mousePosition);
                 }
             }
         }
