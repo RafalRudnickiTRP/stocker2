@@ -7,6 +7,7 @@ using System.Windows;
 using System.Windows.Shapes;
 using System.Windows.Controls;
 using System.Windows.Media;
+using System.Diagnostics;
 
 using Newtonsoft.Json;
 
@@ -30,9 +31,18 @@ namespace WpfApplication3
             {
                 Invalid, P1, P2, Mid
             }
-
-            public Mode mode;
             public DrawingMode drawingMode;
+
+            private Mode _mode;
+            public Mode mode
+            {
+                get { return _mode; }
+                set
+                {
+                    _mode = value;
+                    //Debug.WriteLine("" + _mode);
+                }
+            }
 
             public void Select(bool selected)
             {
@@ -103,7 +113,9 @@ namespace WpfApplication3
 
             public void MoveP1(Point p)
             {
+                Point p2 = line.EndPoint;
                 line.StartPoint = p;
+                midRect.Transform = new TranslateTransform(p.X + (p2.X - p.X) / 2 - selectionRectWidth2, p.Y + (p2.Y - p.Y) / 2 - selectionRectWidth2);
                 p1Rect.Transform = new TranslateTransform(p.X - selectionRectWidth2, p.Y - selectionRectWidth2);
             }
 

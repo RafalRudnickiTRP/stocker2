@@ -154,6 +154,7 @@ namespace WpfApplication3
             {
                 line = new Chart.ChartLine(activeChart);
                 line.mode = Chart.ChartLine.Mode.Drawing;
+                line.drawingMode = Chart.ChartLine.DrawingMode.P2;
 
                 activeChart.chartLines.Add(line);
                 activeChart.canvas.Children.Add(line.linePath);
@@ -179,7 +180,11 @@ namespace WpfApplication3
                 if (line.mode == Chart.ChartLine.Mode.Drawing)
                 {
                     Point mousePosition = e.MouseDevice.GetPosition((Canvas)line.linePath.Parent);
-                    line.MoveP2(mousePosition);
+
+                    if (line.drawingMode == Chart.ChartLine.DrawingMode.P1)
+                        line.MoveP1(mousePosition);
+                    else if (line.drawingMode == Chart.ChartLine.DrawingMode.P2)
+                        line.MoveP2(mousePosition);
                 }
             }
         }
@@ -193,8 +198,7 @@ namespace WpfApplication3
             if (line != null)
             {
                 line.drawingMode = Chart.ChartLine.DrawingMode.Invalid;
-                line.mode = Chart.ChartLine.Mode.Normal;
-                line.Select(false);
+                line.mode = Chart.ChartLine.Mode.Selected;
                 workMode = WorkMode.Selecting;
             }
         }
@@ -208,29 +212,29 @@ namespace WpfApplication3
             Canvas canvas = (Canvas)tabItem.Content;
             Point mousePosition = e.MouseDevice.GetPosition(canvas);
 
-            if (workMode == WorkMode.Selecting)
+            Chart activeChart = GetDVM().CurrentDrawing;
+            if (activeChart != null)
             {
-                Chart activeChart = GetDVM().CurrentDrawing;
-                if (activeChart != null)
-                { 
-                    // calc distance to neares object
-                    // lines
+                // calc distance to neares object
+                // lines
 
-                    // TODO: limit min distance to some value
+                // TODO: limit min distance to some value
 
-                    float minDist = float.MaxValue;
-                    Chart.ChartLine closestLine = null;
-                    foreach (Chart.ChartLine line in activeChart.chartLines)
+                float minDist = float.MaxValue;
+                Chart.ChartLine closestLine = null;
+                foreach (Chart.ChartLine line in activeChart.chartLines)
+                {
+                    float dist = Chart.LinePointDistance(line.getP1(), line.getP2(), mousePosition);
+                    if (dist < minDist)
                     {
-                        float dist = Chart.LinePointDistance(line.getP1(), line.getP2(), mousePosition);
-                        if (dist < minDist)
-                        {
-                            minDist = dist; closestLine = line;
-                        }
+                        minDist = dist; closestLine = line;
                     }
+                }
 
-                    if (closestLine != null)
-                        closestLine.Select(!closestLine.IsSelected());
+                if (closestLine != null)
+                {
+                    closestLine.Select(!closestLine.IsSelected());
+                    workMode = WorkMode.Selecting;
                 }
             }
         }
