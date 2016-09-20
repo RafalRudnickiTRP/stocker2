@@ -167,10 +167,11 @@ namespace WpfApplication3
                     volume = uint.Parse(data[5]);
 
                 SymbolDayData sdd = new SymbolDayData(date, open, hi, low, close, volume);
-
+                
                 result.Add(sdd);
             }
 
+            result.Reverse();
             return result;
         }
 

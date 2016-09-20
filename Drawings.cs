@@ -222,6 +222,7 @@ namespace WpfApplication3
             int frameWidth = di.viewWidth - 2 * di.viewMargin - 2 * (int)framePath.StrokeThickness;
             int candleWidth = di.candleWidth + di.candleMargin * 2;
             int numCandlesToDraw = frameWidth / candleWidth;
+            numCandlesToDraw = Math.Min(sddList.Count, numCandlesToDraw);
 
             int minLow = 1000000, maxHi = 0;
             if (di.viewAutoScale)
