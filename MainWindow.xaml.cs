@@ -229,7 +229,8 @@ namespace WpfApplication3
                         }
                     }
 
-                    closestLine.Select(!closestLine.IsSelected());
+                    if (closestLine != null)
+                        closestLine.Select(!closestLine.IsSelected());
                 }
             }
         }
