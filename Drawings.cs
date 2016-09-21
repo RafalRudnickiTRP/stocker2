@@ -167,7 +167,11 @@ namespace WpfApplication3
         {
             public int viewHeight;
             public int viewWidth;
-            public int viewMargin;
+
+            public int viewMarginTop;
+            public int viewMarginBottom;
+            public int viewMarginLeft;
+            public int viewMarginRight;
 
             public bool viewAutoScale;
 
@@ -239,8 +243,8 @@ namespace WpfApplication3
 
             GeometryGroup frameGeom = new GeometryGroup();
             frameGeom.Children.Add(new RectangleGeometry(new Rect(
-                new Point(di.viewMargin, di.viewMargin),
-                new Point(di.viewWidth - di.viewMargin, di.viewHeight - di.viewMargin))));
+                new Point(di.viewMarginLeft, di.viewMarginTop),
+                new Point(di.viewWidth - di.viewMarginRight, di.viewHeight - di.viewMarginBottom))));
 
             Path framePath = new Path();
             framePath.StrokeThickness = 1;
@@ -248,7 +252,7 @@ namespace WpfApplication3
             framePath.Data = frameGeom;
             canvas.Children.Add(framePath);
 
-            int frameWidth = di.viewWidth - 2 * di.viewMargin - 2 * (int)framePath.StrokeThickness;
+            int frameWidth = di.viewWidth - di.viewMarginLeft - di.viewMarginRight - 2 * (int)framePath.StrokeThickness;
             int candleWidth = di.candleWidth + di.candleMargin * 2;
             int numCandlesToDraw = frameWidth / candleWidth;
             numCandlesToDraw = Math.Min(sddList.Count, numCandlesToDraw);
@@ -266,7 +270,9 @@ namespace WpfApplication3
                 }
             }
 
-            int start = di.viewWidth - di.viewMargin - di.candleMargin - (int)framePath.StrokeThickness - di.candleWidth / 2;
+            int start = di.viewWidth - di.viewMarginRight - di.candleMargin - 
+                (int)framePath.StrokeThickness - di.candleWidth / 2;
+
             foreach (Data.SymbolDayData sdd in sddList.GetRange(0, numCandlesToDraw))
             {
                 float[] vals = {
@@ -278,7 +284,7 @@ namespace WpfApplication3
 
                 if (di.viewAutoScale)
                 {
-                    int minV = di.viewMargin + (int)framePath.StrokeThickness + di.candleMargin;
+                    int minV = di.viewMarginBottom + (int)framePath.StrokeThickness + di.candleMargin;
                     int maxV = di.viewHeight - minV;
 
                     vals[0] = RemapRange(vals[0], minLow, maxV, maxHi, minV);

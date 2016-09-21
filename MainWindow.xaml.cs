@@ -61,7 +61,10 @@ namespace WpfApplication3
                 Chart.DrawingInfo di = new Chart.DrawingInfo();
                 di.viewHeight = (int)SymbolsTabControl.ActualHeight;
                 di.viewWidth = (int)SymbolsTabControl.ActualWidth;
-                di.viewMargin = 3;
+                di.viewMarginTop = 3;
+                di.viewMarginBottom = 30 /* TODO: status bar h */ + 20;
+                di.viewMarginLeft = 3;
+                di.viewMarginRight = 100;
                 di.viewAutoScale = true;
 
                 chart = new Chart();
