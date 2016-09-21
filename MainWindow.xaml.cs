@@ -169,7 +169,9 @@ namespace WpfApplication3
             activeChart.canvas.Children.Add(line.rectPath);
 
             line.MoveP1(mousePosition);
-            line.MoveP2(mousePosition);           
+            line.MoveP2(mousePosition);
+
+            activeChart.selectedLines.Add(line);
         }
 
         void SymbolTab_MouseMove(object sender, MouseEventArgs e)
