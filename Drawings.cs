@@ -135,9 +135,9 @@ namespace WpfApplication3
 
                 Point midP = p1 + (p2 - p1) / 2;
                 Vector delta = p - midP;
-                
-                line.StartPoint = new Point(p1.X + delta.X, p1.Y + delta.Y);
-                line.EndPoint = new Point(p2.X + delta.X, p2.Y + delta.Y);
+
+                line.StartPoint = new Point(p1.X + delta.X + selectionRectWidth2, p1.Y + delta.Y + selectionRectWidth2);
+                line.EndPoint = new Point(p2.X + delta.X + selectionRectWidth2, p2.Y + delta.Y + selectionRectWidth2);
 
                 p1Rect.Transform = new TranslateTransform(p1.X + delta.X, p1.Y + delta.Y);
                 p2Rect.Transform = new TranslateTransform(p2.X + delta.X, p2.Y + delta.Y);
