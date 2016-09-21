@@ -91,7 +91,7 @@ namespace WpfApplication3
             GetDVM().SetCurrentDrawing(activeTab.Content as Chart);
         }
 
-        void SymbolTab_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        void SymbolTab_MouseDown(object sender, MouseButtonEventArgs e)
         {
             TabControl tabCtrl = (TabControl)sender;
             if (tabCtrl.Items.Count == 0) return;
@@ -100,55 +100,62 @@ namespace WpfApplication3
             Canvas canvas = (Canvas)tabItem.Content;
             Point mousePosition = e.MouseDevice.GetPosition(canvas);
 
-            if (workMode == WorkMode.Drawing)
+            if(e.ChangedButton == MouseButton.Left)
             {
-                DrawNewLine(mousePosition);
-            }
-            else if (workMode == WorkMode.Selecting)
-            {
-                // check if we clicked on a controll point of selected line
-
-                Chart activeChart = GetDVM().CurrentDrawing;
-                if (activeChart != null)
+                if (workMode == WorkMode.Drawing)
                 {
-                    float minDist = 4;
-                    Chart.ChartLine choosenLine = null;
-                    Point choosenPoint;
-                    Chart.ChartLine.DrawingMode drawingMode = Chart.ChartLine.DrawingMode.Invalid;
+                    DrawNewLine(mousePosition);
+                }
+                else if (workMode == WorkMode.Selecting)
+                {
+                    // check if we clicked on a controll point of selected line
 
-                    foreach (Chart.ChartLine line in activeChart.selectedLines)
+                    Chart activeChart = GetDVM().CurrentDrawing;
+                    if (activeChart != null)
                     {
-                        float distP1 = Chart.PointPointDistance(line.getP1(), mousePosition);
-                        if (distP1 < minDist)
+                        float minDist = 4;
+                        Chart.ChartLine choosenLine = null;
+                        Point choosenPoint;
+                        Chart.ChartLine.DrawingMode drawingMode = Chart.ChartLine.DrawingMode.Invalid;
+
+                        foreach (Chart.ChartLine line in activeChart.selectedLines)
                         {
-                            choosenLine = line;
-                            choosenPoint = line.getP1();
-                            drawingMode = Chart.ChartLine.DrawingMode.P1;
+                            float distP1 = Chart.PointPointDistance(line.getP1(), mousePosition);
+                            if (distP1 < minDist)
+                            {
+                                choosenLine = line;
+                                choosenPoint = line.getP1();
+                                drawingMode = Chart.ChartLine.DrawingMode.P1;
+                            }
+
+                            float distP2 = Chart.PointPointDistance(line.getP2(), mousePosition);
+                            if (distP2 < minDist)
+                            {
+                                choosenLine = line;
+                                choosenPoint = line.getP2();
+                                drawingMode = Chart.ChartLine.DrawingMode.P2;
+                            }
+
+                            float distMidP = Chart.PointPointDistance(line.getMidP(), mousePosition);
+                            if (distMidP < minDist)
+                            {
+                                choosenLine = line;
+                                choosenPoint = line.getMidP();
+                                drawingMode = Chart.ChartLine.DrawingMode.Mid;
+                            }
                         }
 
-                        float distP2 = Chart.PointPointDistance(line.getP2(), mousePosition);
-                        if (distP2 < minDist)
+                        if (choosenLine != null)
                         {
-                            choosenLine = line;
-                            choosenPoint = line.getP2();
-                            drawingMode = Chart.ChartLine.DrawingMode.P2;
+                            choosenLine.mode = Chart.ChartLine.Mode.Drawing;
+                            choosenLine.drawingMode = drawingMode;
                         }
-
-                        float distMidP = Chart.PointPointDistance(line.getMidP(), mousePosition);
-                        if (distMidP < minDist)
-                        {
-                            choosenLine = line;
-                            choosenPoint = line.getMidP();
-                            drawingMode = Chart.ChartLine.DrawingMode.Mid;
-                        }
-                    }
-
-                    if (choosenLine != null)
-                    {
-                        choosenLine.mode = Chart.ChartLine.Mode.Drawing;
-                        choosenLine.drawingMode = drawingMode;
                     }
                 }
+            }
+            else if (e.ChangedButton == MouseButton.Middle)
+            {
+                workMode = WorkMode.Cross;
             }
         }
         
@@ -199,7 +206,7 @@ namespace WpfApplication3
             }
         }
 
-        void SymbolTab_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        void SymbolTab_MouseUp(object sender, MouseButtonEventArgs e)
         {
             Chart activeChart = GetDVM().CurrentDrawing;
             if (activeChart == null) return;
@@ -209,6 +216,12 @@ namespace WpfApplication3
             {
                 line.drawingMode = Chart.ChartLine.DrawingMode.Invalid;
                 line.mode = Chart.ChartLine.Mode.Selected;
+                workMode = WorkMode.Selecting;
+            }
+
+            if (e.ChangedButton == MouseButton.Middle &&
+                workMode == WorkMode.Cross)
+            {
                 workMode = WorkMode.Selecting;
             }
         }
@@ -272,6 +285,11 @@ namespace WpfApplication3
             }
 
             GetDVM().DeserializeFromJson(input);            
+        }
+
+        private void SymbolsTab_MouseWheel(object sender, MouseWheelEventArgs e)
+        {
+
         }
     }    
 }

@@ -13,12 +13,14 @@
     <!-- RESOURCES -->
     <Window.Resources>
         <RoutedUICommand x:Key="Command_SelectMode" Text="Select mode" />
+        <RoutedUICommand x:Key="Command_CrossMode" Text="Cross mode" />
         <RoutedUICommand x:Key="Command_DrawMode" Text="Draw mode" />
     </Window.Resources>
 
     <!-- COMMANDS -->
     <Window.CommandBindings>
         <CommandBinding Command="{StaticResource Command_SelectMode}" CanExecute="CanExecute_SelectMode" Executed="Command_SelectMode" />
+        <CommandBinding Command="{StaticResource Command_CrossMode}" CanExecute="CanExecute_CrossMode" Executed="Command_CrossMode" />
         <CommandBinding Command="{StaticResource Command_DrawMode}" CanExecute="CanExecute_DrawMode" Executed="Command_DrawMode" />
     </Window.CommandBindings>
 
@@ -27,6 +29,7 @@
         <ToolBarTray DockPanel.Dock="Top">
             <ToolBar>
                 <Button Command="{StaticResource Command_SelectMode}">select</Button>
+                <Button Command="{StaticResource Command_CrossMode}">cross</Button>
                 <Button Command="{StaticResource Command_DrawMode}">draw</Button>
                 <Button x:Name="buttonSave" Content="save" Click="buttonSave_Click" />
                 <Button x:Name="buttonLoad" Content="load" Click="buttonLoad_Click" />
@@ -63,8 +66,8 @@
         </DockPanel>
         <TabControl Name="SymbolsTabControl" 
                     SelectionChanged="SymbolTab_SelectionChanged"
-                    MouseLeftButtonDown="SymbolTab_MouseLeftButtonDown"
-                    MouseLeftButtonUp="SymbolTab_MouseLeftButtonUp"
+                    MouseDown="SymbolTab_MouseDown"
+                    MouseUp="SymbolTab_MouseUp"
                     MouseDoubleClick="SymbolTab_MouseDoubleClick"
                     MouseMove="SymbolTab_MouseMove">
         </TabControl>
