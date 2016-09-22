@@ -69,7 +69,9 @@ namespace WpfApplication3
             public Path rectPath { get; }
 
             public Point getP1() { return line.StartPoint; }
+            public void setP1(Point p) { line.StartPoint = p; }
             public Point getP2() { return line.EndPoint; }
+            public void setP2(Point p) { line.EndPoint = p; }
             public Point getMidP() { return line.StartPoint + (line.EndPoint - line.StartPoint) / 2; }
 
             private LineGeometry line;
@@ -148,16 +150,14 @@ namespace WpfApplication3
             {
                 public string StartPoint { get; set; }
                 public string EndPoint { get; set; }
-                public string id { get; set; }
             }
 
             public DataToSerialize SerializeToJson()
             {
-                DataToSerialize toSerialize = new DataToSerialize
+                DataToSerialize toSerialize = new DataToSerialize()
                 {
                     StartPoint = line.StartPoint.ToString(),
                     EndPoint = line.EndPoint.ToString(),
-                    id = id.ToString(),
                 };
                 return toSerialize;
             }

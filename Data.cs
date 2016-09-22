@@ -208,10 +208,35 @@ namespace WpfApplication3
             
             foreach (var data in SymbolsDrawingsToSerialize)
             {
-                foreach (var info in SymbolsInfoList)
-                {   
-                    if (data.Key == info.FullName)
+                foreach (var drawing in SymbolsDrawings)
+                {
+                    if(data.Key == drawing.Key)
                     {
+                        // found drawing for symbol
+                        foreach(var line in data.Value.chartLines)
+                        {
+                            Chart.ChartLine lineToAdd = new Chart.ChartLine(drawing.Value);
+                            
+                            string[] P1Coords = line.StartPoint.Split(';');
+                            lineToAdd.setP1(
+                                new Point(double.Parse(P1Coords[0].Replace('.', ',')), double.Parse(P1Coords[1].Replace('.', ','))));
+                            string[] P2Coords = line.EndPoint.Split(';');
+                            lineToAdd.setP2(
+                                new Point(double.Parse(P2Coords[0].Replace('.', ',')), double.Parse(P2Coords[1].Replace('.', ','))));
+                            
+                            lineToAdd.mode = Chart.ChartLine.Mode.Normal;
+                            lineToAdd.drawingMode = Chart.ChartLine.DrawingMode.Invalid;
+                            lineToAdd.Select(false);
+
+                            drawing.Value.chartLines.Add(lineToAdd);
+                            drawing.Value.canvas.Children.Add(lineToAdd.linePath);
+                            drawing.Value.canvas.Children.Add(lineToAdd.rectPath);
+
+                            lineToAdd.MoveP1(lineToAdd.getP1());
+                            lineToAdd.MoveP2(lineToAdd.getP2());
+
+                            drawing.Value.selectedLines.Add(lineToAdd);
+                        }
                         break;
                     }
                 }
