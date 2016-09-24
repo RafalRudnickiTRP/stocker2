@@ -88,8 +88,12 @@ namespace WpfApplication3
         void SymbolTab_SelectionChanged(object sender, SelectionChangedEventArgs a)
         {
             TabItem activeTab = (TabItem)((TabControl)a.Source).SelectedItem;
-            //Chart chart = activeTab.Content as Chart;
-            //GetDVM().SetCurrentDrawing(chart);
+
+            Chart chart = null;
+            if (GetDVM().SymbolsDrawings.TryGetValue(activeTab.Header.ToString(), out chart))
+            {
+                GetDVM().SetCurrentDrawing(chart);
+            }
         }
 
         void SymbolTab_MouseDown(object sender, MouseButtonEventArgs e)
