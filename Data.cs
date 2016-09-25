@@ -112,7 +112,7 @@ namespace WpfApplication3
             string mydocpath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
             try
             {
-                using (StreamReader reader = new StreamReader(mydocpath + @"\" + filename))
+                using (StreamReader reader = new StreamReader(mydocpath + @"\stocker\temp\" + filename))
                 {
                     // Read the stream to a string, and write the string to the console.
                     csv = reader.ReadToEnd();
@@ -130,7 +130,8 @@ namespace WpfApplication3
                 StreamReader sr = new StreamReader(resp.GetResponseStream());
                 csv = sr.ReadToEnd();
 
-                using (StreamWriter outputFile = new StreamWriter(mydocpath + @"\" + filename))
+                Directory.CreateDirectory(mydocpath + @"\stocker\temp\");
+                using (StreamWriter outputFile = new StreamWriter(mydocpath + @"\stocker\temp\" + filename))
                 {
                     outputFile.Write(csv);
                 }

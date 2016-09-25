@@ -277,7 +277,8 @@ namespace WpfApplication3
             string output = GetDVM().SerializeToJson();
 
             string mydocpath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-            using (StreamWriter outputFile = new StreamWriter(mydocpath + @"\charts.json"))
+            Directory.CreateDirectory(mydocpath + @"\stocker\");
+            using (StreamWriter outputFile = new StreamWriter(mydocpath + @"\stocker\charts.json"))
             {
                 outputFile.WriteLine(output);
             }
@@ -288,7 +289,7 @@ namespace WpfApplication3
             string input;
             string mydocpath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
             // Open the text file using a stream reader.
-            using (StreamReader sr = new StreamReader(mydocpath + @"\charts.json"))
+            using (StreamReader sr = new StreamReader(mydocpath + @"\stocker\charts.json"))
             {
                 // Read the stream to a string, and write the string to the console.
                 input = sr.ReadToEnd();
