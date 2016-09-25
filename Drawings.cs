@@ -96,7 +96,7 @@ namespace WpfApplication3
                 linePath.Stroke = Brushes.Black;
                 line = new LineGeometry();
                 linePath.Data = line;
-                linePath.Name = "line_".ToString() + id.ToString();
+                linePath.Name = "line_" + id;
 
                 rectPath = new Path();
                 rectPath.StrokeThickness = 1;
@@ -111,7 +111,7 @@ namespace WpfApplication3
                 geom.Children.Add(p2Rect);
                 geom.Children.Add(midRect);
                 rectPath.Data = geom;
-                rectPath.Name = "rect_".ToString() + id.ToString();
+                rectPath.Name = "rect_" + id;
             }
 
             public void MoveP1(Point p)
@@ -162,7 +162,7 @@ namespace WpfApplication3
                 return toSerialize;
             }
         }
-
+        
         public struct DrawingInfo
         {
             public int viewHeight;
@@ -184,7 +184,7 @@ namespace WpfApplication3
             chartLines = new List<ChartLine>();
             selectedLines = new List<ChartLine>();
         }
-
+        
         #region Members
 
         public Canvas canvas;

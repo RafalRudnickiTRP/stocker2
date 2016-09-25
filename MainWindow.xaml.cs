@@ -52,11 +52,10 @@ namespace WpfApplication3
             {
                 List<Data.SymbolDayData> sdd = Data.GetSymbolData(symbolInfo.ShortName);
                 
-                TabItem newTab = new TabItem();
+                MyTabItem newTab = new MyTabItem();
                 newTab.Header = symbolInfo.FullName;
 
                 SymbolsTabControl.Items.Add(newTab);
-                SymbolsTabControl.SelectedItem = newTab;
 
                 Chart.DrawingInfo di = new Chart.DrawingInfo();
                 di.viewHeight = (int)SymbolsTabControl.ActualHeight;
@@ -70,10 +69,12 @@ namespace WpfApplication3
                 chart = new Chart();
                 dvm.SymbolsDrawings.Add(symbolInfo.FullName, chart);
                 newTab.Content = chart.CreateDrawing(di, sdd);
+
+                SymbolsTabControl.SelectedItem = newTab;
             }
             else
             {
-                foreach (TabItem item in SymbolsTabControl.Items)
+                foreach (MyTabItem item in SymbolsTabControl.Items)
                 {
                     if (item.Header.ToString() == symbolInfo.FullName)
                     {
@@ -87,21 +88,25 @@ namespace WpfApplication3
 
         void SymbolTab_SelectionChanged(object sender, SelectionChangedEventArgs a)
         {
-            TabItem activeTab = (TabItem)((TabControl)a.Source).SelectedItem;
+            MyTabItem activeTab = (MyTabItem)((TabControl)a.Source).SelectedItem;
 
             Chart chart = null;
             if (GetDVM().SymbolsDrawings.TryGetValue(activeTab.Header.ToString(), out chart))
             {
                 GetDVM().SetCurrentDrawing(chart);
+                activeTab.chart = chart;
             }
-        }
+
+            activeTab.Focus();
+            UpdateLayout();
+        }        
 
         void SymbolTab_MouseDown(object sender, MouseButtonEventArgs e)
         {
             TabControl tabCtrl = (TabControl)sender;
             if (tabCtrl.Items.Count == 0) return;
 
-            TabItem tabItem = (TabItem)tabCtrl.Items[tabCtrl.SelectedIndex];
+            MyTabItem tabItem = (MyTabItem)tabCtrl.Items[tabCtrl.SelectedIndex];
             Canvas canvas = (Canvas)tabItem.Content;
             Point mousePosition = e.MouseDevice.GetPosition(canvas);
 
@@ -236,7 +241,7 @@ namespace WpfApplication3
             TabControl tabCtrl = (TabControl)sender;
             if (tabCtrl.Items.Count == 0) return;
 
-            TabItem tabItem = (TabItem)tabCtrl.Items[tabCtrl.SelectedIndex];
+            MyTabItem tabItem = (MyTabItem)tabCtrl.Items[tabCtrl.SelectedIndex];
             Canvas canvas = (Canvas)tabItem.Content;
             Point mousePosition = e.MouseDevice.GetPosition(canvas);
 
@@ -292,9 +297,45 @@ namespace WpfApplication3
             GetDVM().DeserializeFromJson(input);            
         }
 
-        private void SymbolsTab_MouseWheel(object sender, MouseWheelEventArgs e)
+        class MyTabItem : TabItem
         {
+            public Chart chart;
+            
+            private static bool LineSelected(Chart.ChartLine line)
+            {
+                return line.IsSelected();
+            }
 
+            protected override void OnKeyDown(KeyEventArgs e)
+            {
+                // delete lines from chart
+                List<System.Windows.Shapes.Path> toDel = new List<System.Windows.Shapes.Path>();
+                foreach (Chart.ChartLine l in chart.chartLines)
+                {
+                    if (l.IsSelected())
+                    {
+                        foreach (System.Windows.Shapes.Path p in chart.canvas.Children)
+                        {
+                            if (p.Name == "rect_" + l.id)
+                            {
+                                toDel.Add(p);
+                            }
+                            if (p.Name == "line_" + l.id)
+                            {
+                                toDel.Add(p);
+                            }
+                        }
+                    }
+                }
+                for (int i = 0; i < toDel.Count; i++)
+                {
+                    chart.canvas.Children.Remove(toDel.ElementAt(i));
+                }
+                chart.chartLines.RemoveAll(LineSelected);
+                chart.selectedLines.Clear();
+            }
         }
-    }    
+
+    }
+
 }
