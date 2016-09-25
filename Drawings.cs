@@ -18,7 +18,7 @@ namespace WpfApplication3
         public class ChartLine
         {
             private static int selectionRectWidth2 = 2;
-
+            
             public enum Mode
             {
                 Invalid,
@@ -32,6 +32,8 @@ namespace WpfApplication3
                 Invalid, P1, P2, Mid
             }
             public DrawingMode drawingMode;
+
+            public Color color { get; set; }
 
             private Mode _mode;
             public Mode mode
@@ -150,6 +152,7 @@ namespace WpfApplication3
             {
                 public string StartPoint { get; set; }
                 public string EndPoint { get; set; }
+                public string Color { get; set; }
             }
 
             public DataToSerialize SerializeToJson()
@@ -158,6 +161,7 @@ namespace WpfApplication3
                 {
                     StartPoint = line.StartPoint.ToString(),
                     EndPoint = line.EndPoint.ToString(),
+                    Color = color.ToString()
                 };
                 return toSerialize;
             }

@@ -337,6 +337,37 @@ namespace WpfApplication3
             }
         }
 
+        private void changeColor(Brush color)
+        {
+            Chart activeChart = GetDVM().CurrentDrawing;
+            if (activeChart != null)
+            {
+                foreach (Chart.ChartLine l in activeChart.chartLines)
+                {
+                    if (l.IsSelected())
+                    {
+                        foreach (System.Windows.Shapes.Path p in activeChart.canvas.Children)
+                        {
+                            if (p.Name == "line_" + l.id)
+                            {
+                                p.Stroke = color;
+                            }
+                        }
+                    }
+                }
+            }
+            UpdateLayout();
+        }
+
+        private void button_black_Click(object sender, RoutedEventArgs e)
+        {
+            changeColor(Brushes.Black);
+        }
+
+        private void button_red_Click(object sender, RoutedEventArgs e)
+        {
+            changeColor(Brushes.Red);
+        }
     }
 
 }

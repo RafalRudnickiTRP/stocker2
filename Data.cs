@@ -224,7 +224,9 @@ namespace WpfApplication3
                             string[] P2Coords = line.EndPoint.Split(';');
                             lineToAdd.setP2(
                                 new Point(double.Parse(P2Coords[0].Replace('.', ',')), double.Parse(P2Coords[1].Replace('.', ','))));
-                            
+
+                            // TODO: lineToAdd.color = new System.Windows.Media.Color();
+
                             lineToAdd.mode = Chart.ChartLine.Mode.Normal;
                             lineToAdd.drawingMode = Chart.ChartLine.DrawingMode.Invalid;
                             lineToAdd.Select(false);

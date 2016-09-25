@@ -31,8 +31,19 @@
                 <Button Command="{StaticResource Command_SelectMode}">select</Button>
                 <Button Command="{StaticResource Command_CrossMode}">cross</Button>
                 <Button Command="{StaticResource Command_DrawMode}">draw</Button>
-                <Button x:Name="buttonSave" Content="save" Click="buttonSave_Click" />
-                <Button x:Name="buttonLoad" Content="load" Click="buttonLoad_Click" />
+                <Button Name="buttonSave" Content="save" Click="buttonSave_Click" />
+                <Button Name="buttonLoad" Content="load" Click="buttonLoad_Click" />
+                <Label x:Name="label" Content="line color:"/>
+                <Grid>
+                    <Button x:Name="button_black"
+                            Content="" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Center" Width="15" Background="Black" Click="button_black_Click"/>
+                    <Button x:Name="button_red"
+                            Content="" HorizontalAlignment="Left" Margin="20,0,0,0" VerticalAlignment="Center" Width="15" Background="Red" Click="button_red_Click"/>
+                    <Button x:Name="button_green"
+                            Content="" HorizontalAlignment="Left" Margin="40,0,0,0" VerticalAlignment="Center" Width="15" Background="Lime"/>
+                    <Button x:Name="button_blue"
+                            Content="" HorizontalAlignment="Left" Margin="60,0,0,0" VerticalAlignment="Center" Width="15" Background="Blue"/>
+                </Grid>                
             </ToolBar>
         </ToolBarTray>
         <StatusBar DockPanel.Dock="Bottom">
