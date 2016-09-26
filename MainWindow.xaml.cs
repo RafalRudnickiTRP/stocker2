@@ -28,6 +28,8 @@ namespace WpfApplication3
             DataViewModel dvm = new DataViewModel();
             DataContext = dvm;
 
+            currentColor = Brushes.Black;
+
             InitializeCommands();
         }
 
@@ -184,6 +186,9 @@ namespace WpfApplication3
             line.mode = Chart.ChartLine.Mode.Drawing;
             line.drawingMode = Chart.ChartLine.DrawingMode.P2;
 
+            line.color = currentColor;
+            line.linePath.Stroke = currentColor;
+
             activeChart.chartLines.Add(line);
             activeChart.canvas.Children.Add(line.linePath);
             activeChart.canvas.Children.Add(line.rectPath);
@@ -319,7 +324,7 @@ namespace WpfApplication3
             GetDVM().DeserializeFromJson(input);
         }
 
-        private void changeColor(Brush color)
+        private void changeColor()
         {
             Chart activeChart = GetDVM().CurrentDrawing;
             if (activeChart != null)
@@ -332,34 +337,60 @@ namespace WpfApplication3
                         {
                             if (p.Name == "line_" + l.id)
                             {
-                                p.Stroke = color;
+                                p.Stroke = currentColor;
                             }
                         }
-                        l.color = color;
+                        l.color = currentColor;
                     }
                 }
             }
             UpdateLayout();
         }
 
+        static public Brush currentColor;
+
+        private void clearColorsBorder(Grid g)
+        {
+            foreach (Button b in g.Children)
+            {
+                b.BorderThickness = new Thickness(0);
+            }
+        }
+
         private void button_black_Click(object sender, RoutedEventArgs e)
         {
-            changeColor(Brushes.Black);
+            clearColorsBorder((Grid)((Button)sender).Parent);
+            ((Button)sender).BorderThickness = new Thickness(2);
+
+            currentColor = Brushes.Black;
+            changeColor();
         }
 
         private void button_red_Click(object sender, RoutedEventArgs e)
         {
-            changeColor(Brushes.Red);
+            clearColorsBorder((Grid)((Button)sender).Parent);
+            ((Button)sender).BorderThickness = new Thickness(2);
+
+            currentColor = Brushes.Red;
+            changeColor();
         }
 
         private void button_lime_Click(object sender, RoutedEventArgs e)
         {
-            changeColor(Brushes.Lime);
+            clearColorsBorder((Grid)((Button)sender).Parent);
+            ((Button)sender).BorderThickness = new Thickness(2);
+
+            currentColor = Brushes.Lime;
+            changeColor();
         }
 
         private void button_blue_Click(object sender, RoutedEventArgs e)
         {
-            changeColor(Brushes.Blue);
+            clearColorsBorder((Grid)((Button)sender).Parent);
+            ((Button)sender).BorderThickness = new Thickness(2);
+
+            currentColor = Brushes.Blue;
+            changeColor();
         }
 
     }
