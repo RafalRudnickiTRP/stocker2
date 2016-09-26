@@ -30,18 +30,18 @@ namespace WpfApplication3
 
             InitializeCommands();
         }
-        
+
         public DataViewModel GetDVM()
         {
             return (DataViewModel)DataContext;
-        } 
-        
+        }
+
         void SymbolsList_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
             var dataContext = ((FrameworkElement)e.OriginalSource).DataContext;
             if ((dataContext is Data.SymbolInfo) == false) return;
 
-            AddToSymbolList(dataContext as Data.SymbolInfo);      
+            AddToSymbolList(dataContext as Data.SymbolInfo);
         }
 
         private void AddToSymbolList(Data.SymbolInfo symbolInfo)
@@ -51,7 +51,7 @@ namespace WpfApplication3
             if (dvm.SymbolsDrawings.TryGetValue(symbolInfo.FullName, out chart) == false)
             {
                 List<Data.SymbolDayData> sdd = Data.GetSymbolData(symbolInfo.ShortName);
-                
+
                 MyTabItem newTab = new MyTabItem();
                 newTab.Header = symbolInfo.FullName;
 
@@ -99,7 +99,7 @@ namespace WpfApplication3
 
             activeTab.Focus();
             UpdateLayout();
-        }        
+        }
 
         void SymbolTab_MouseDown(object sender, MouseButtonEventArgs e)
         {
@@ -110,7 +110,7 @@ namespace WpfApplication3
             Canvas canvas = (Canvas)tabItem.Content;
             Point mousePosition = e.MouseDevice.GetPosition(canvas);
 
-            if(e.ChangedButton == MouseButton.Left)
+            if (e.ChangedButton == MouseButton.Left)
             {
                 if (workMode == WorkMode.Drawing)
                 {
@@ -168,7 +168,7 @@ namespace WpfApplication3
                 workMode = WorkMode.Cross;
             }
         }
-        
+
         private void DrawNewLine(Point mousePosition)
         {
             Chart activeChart = GetDVM().CurrentDrawing;
@@ -179,7 +179,7 @@ namespace WpfApplication3
             Chart.ChartLine line = activeChart.chartLines.FirstOrDefault(l => l.mode == Chart.ChartLine.Mode.Drawing);
             // only one line is drawn at a time
             Debug.Assert(line == null);
-            
+
             line = new Chart.ChartLine(activeChart);
             line.mode = Chart.ChartLine.Mode.Drawing;
             line.drawingMode = Chart.ChartLine.DrawingMode.P2;
@@ -198,10 +198,31 @@ namespace WpfApplication3
         {
             Chart activeChart = GetDVM().CurrentDrawing;
             if (activeChart == null) return;
-            
+
             Chart.ChartLine line = activeChart.chartLines.FirstOrDefault(l => l.mode == Chart.ChartLine.Mode.Drawing);
             if (line != null)
             {
+                if (Chart.copyMode == Chart.CopyModes.NotYet)
+                {
+                    Chart.copyMode = Chart.CopyModes.Copied;
+
+                    // copy line
+                    Chart.ChartLine newLine = new Chart.ChartLine(activeChart);
+                    newLine.mode = Chart.ChartLine.Mode.Normal;
+                    newLine.drawingMode = Chart.ChartLine.DrawingMode.Invalid;
+                    newLine.Select(false);
+
+                    newLine.color = line.color;
+                    newLine.linePath.Stroke = line.linePath.Stroke;                  
+
+                    activeChart.chartLines.Add(newLine);
+                    activeChart.canvas.Children.Add(newLine.linePath);
+                    activeChart.canvas.Children.Add(newLine.rectPath);
+
+                    newLine.MoveP1(line.getP1());
+                    newLine.MoveP2(line.getP2());
+                }
+
                 if (line.mode == Chart.ChartLine.Mode.Drawing)
                 {
                     Point mousePosition = e.MouseDevice.GetPosition((Canvas)line.linePath.Parent);
@@ -295,7 +316,7 @@ namespace WpfApplication3
                 input = sr.ReadToEnd();
             }
 
-            GetDVM().DeserializeFromJson(input);            
+            GetDVM().DeserializeFromJson(input);
         }
 
         private void changeColor(Brush color)
@@ -340,8 +361,8 @@ namespace WpfApplication3
         {
             changeColor(Brushes.Blue);
         }
-    }
 
+    }
     //=========================================================================
 
     class MyTabItem : TabItem
@@ -355,32 +376,54 @@ namespace WpfApplication3
 
         protected override void OnKeyDown(KeyEventArgs e)
         {
-            // delete lines from chart
-            List<System.Windows.Shapes.Path> toDel = new List<System.Windows.Shapes.Path>();
-            foreach (Chart.ChartLine l in chart.chartLines)
+            if (e.Key == Key.Delete)
             {
-                if (l.IsSelected())
+                // delete lines from chart
+                List<System.Windows.Shapes.Path> toDel = new List<System.Windows.Shapes.Path>();
+                foreach (Chart.ChartLine l in chart.chartLines)
                 {
-                    foreach (System.Windows.Shapes.Path p in chart.canvas.Children)
+                    if (l.IsSelected())
                     {
-                        if (p.Name == "rect_" + l.id)
+                        foreach (System.Windows.Shapes.Path p in chart.canvas.Children)
                         {
-                            toDel.Add(p);
-                        }
-                        if (p.Name == "line_" + l.id)
-                        {
-                            toDel.Add(p);
+                            if (p.Name == "rect_" + l.id)
+                            {
+                                toDel.Add(p);
+                            }
+                            if (p.Name == "line_" + l.id)
+                            {
+                                toDel.Add(p);
+                            }
                         }
                     }
                 }
+                for (int i = 0; i < toDel.Count; i++)
+                {
+                    chart.canvas.Children.Remove(toDel.ElementAt(i));
+                }
+                chart.chartLines.RemoveAll(LineSelected);
+                chart.selectedLines.Clear();
             }
-            for (int i = 0; i < toDel.Count; i++)
+            else if (e.Key == Key.LeftCtrl)
             {
-                chart.canvas.Children.Remove(toDel.ElementAt(i));
+                if (Chart.copyMode == Chart.CopyModes.No)
+                {
+                    Chart.copyMode = Chart.CopyModes.NotYet;
+                }
             }
-            chart.chartLines.RemoveAll(LineSelected);
-            chart.selectedLines.Clear();
+
+            base.OnKeyDown(e);
         }
+        
+        protected override void OnKeyUp(KeyEventArgs e)
+        {
+            if (e.Key == Key.LeftCtrl)
+            {
+                Chart.copyMode = Chart.CopyModes.No;
+            }
+
+            base.OnKeyUp(e);
+        }     
     }
 
 }

@@ -198,12 +198,20 @@ namespace WpfApplication3
             chartLines = new List<ChartLine>();
             selectedLines = new List<ChartLine>();
         }
+
+        public enum CopyModes
+        {
+            No,
+            NotYet,
+            Copied
+        };
         
         #region Members
 
         public Canvas canvas;
         public List<ChartLine> chartLines;
         public List<ChartLine> selectedLines;
+        static public CopyModes copyMode;
 
         #endregion
 
