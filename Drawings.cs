@@ -33,7 +33,7 @@ namespace WpfApplication3
             }
             public DrawingMode drawingMode;
 
-            public Color color { get; set; }
+            public Brush color { get; set; }
 
             private Mode _mode;
             public Mode mode
@@ -114,6 +114,8 @@ namespace WpfApplication3
                 geom.Children.Add(midRect);
                 rectPath.Data = geom;
                 rectPath.Name = "rect_" + id;
+
+                color = linePath.Stroke;
             }
 
             public void MoveP1(Point p)
@@ -160,9 +162,17 @@ namespace WpfApplication3
                 DataToSerialize toSerialize = new DataToSerialize()
                 {
                     StartPoint = line.StartPoint.ToString(),
-                    EndPoint = line.EndPoint.ToString(),
-                    Color = color.ToString()
+                    EndPoint = line.EndPoint.ToString()
                 };
+                if (color == Brushes.Black)
+                    toSerialize.Color = "Black";
+                if (color == Brushes.Lime)
+                    toSerialize.Color = "Lime";
+                if (color == Brushes.Blue)
+                    toSerialize.Color = "Blue";
+                if (color == Brushes.Red)
+                    toSerialize.Color = "Red";
+
                 return toSerialize;
             }
         }

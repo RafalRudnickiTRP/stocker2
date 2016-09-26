@@ -33,16 +33,16 @@
                 <Button Command="{StaticResource Command_DrawMode}">draw</Button>
                 <Button Name="buttonSave" Content="save" Click="buttonSave_Click" />
                 <Button Name="buttonLoad" Content="load" Click="buttonLoad_Click" />
-                <Label x:Name="label" Content="line color:"/>
+                <Label x:Name="label" Content="line color:" IsEnabled="False" />
                 <Grid>
                     <Button x:Name="button_black"
                             Content="" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Center" Width="15" Background="Black" Click="button_black_Click"/>
                     <Button x:Name="button_red"
                             Content="" HorizontalAlignment="Left" Margin="20,0,0,0" VerticalAlignment="Center" Width="15" Background="Red" Click="button_red_Click"/>
-                    <Button x:Name="button_green"
-                            Content="" HorizontalAlignment="Left" Margin="40,0,0,0" VerticalAlignment="Center" Width="15" Background="Lime"/>
+                    <Button x:Name="button_lime"
+                            Content="" HorizontalAlignment="Left" Margin="40,0,0,0" VerticalAlignment="Center" Width="15" Background="Lime" Click="button_lime_Click"/>
                     <Button x:Name="button_blue"
-                            Content="" HorizontalAlignment="Left" Margin="60,0,0,0" VerticalAlignment="Center" Width="15" Background="Blue"/>
+                            Content="" HorizontalAlignment="Left" Margin="60,0,0,0" VerticalAlignment="Center" Width="15" Background="Blue" Click="button_blue_Click"/>
                 </Grid>                
             </ToolBar>
         </ToolBarTray>

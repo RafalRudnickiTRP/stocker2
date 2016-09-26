@@ -69,8 +69,10 @@ namespace WpfApplication3
 
             while (true)
             {
+                // TODO: read from disk!
+
                 string url = "http://stooq.pl/t/?i=513&v=1&l=" + page.ToString();
-                HtmlDocument doc = web.Load(url);
+                HtmlDocument doc = web.Load(url);               
 
                 // XPath of symbol name
                 // *[@id="f10"]
@@ -225,7 +227,15 @@ namespace WpfApplication3
                             lineToAdd.setP2(
                                 new Point(double.Parse(P2Coords[0].Replace('.', ',')), double.Parse(P2Coords[1].Replace('.', ','))));
 
-                            // TODO: lineToAdd.color = new System.Windows.Media.Color();
+                            if (line.Color == "Black")
+                                lineToAdd.color = System.Windows.Media.Brushes.Black;
+                            if (line.Color == "Blue")
+                                lineToAdd.color = System.Windows.Media.Brushes.Blue;
+                            if (line.Color == "Lime")
+                                lineToAdd.color = System.Windows.Media.Brushes.Lime;
+                            if (line.Color == "Red")
+                                lineToAdd.color = System.Windows.Media.Brushes.Red;
+                            lineToAdd.linePath.Stroke = lineToAdd.color;
 
                             lineToAdd.mode = Chart.ChartLine.Mode.Normal;
                             lineToAdd.drawingMode = Chart.ChartLine.DrawingMode.Invalid;

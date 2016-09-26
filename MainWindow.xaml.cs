@@ -298,45 +298,6 @@ namespace WpfApplication3
             GetDVM().DeserializeFromJson(input);            
         }
 
-        class MyTabItem : TabItem
-        {
-            public Chart chart;
-            
-            private static bool LineSelected(Chart.ChartLine line)
-            {
-                return line.IsSelected();
-            }
-
-            protected override void OnKeyDown(KeyEventArgs e)
-            {
-                // delete lines from chart
-                List<System.Windows.Shapes.Path> toDel = new List<System.Windows.Shapes.Path>();
-                foreach (Chart.ChartLine l in chart.chartLines)
-                {
-                    if (l.IsSelected())
-                    {
-                        foreach (System.Windows.Shapes.Path p in chart.canvas.Children)
-                        {
-                            if (p.Name == "rect_" + l.id)
-                            {
-                                toDel.Add(p);
-                            }
-                            if (p.Name == "line_" + l.id)
-                            {
-                                toDel.Add(p);
-                            }
-                        }
-                    }
-                }
-                for (int i = 0; i < toDel.Count; i++)
-                {
-                    chart.canvas.Children.Remove(toDel.ElementAt(i));
-                }
-                chart.chartLines.RemoveAll(LineSelected);
-                chart.selectedLines.Clear();
-            }
-        }
-
         private void changeColor(Brush color)
         {
             Chart activeChart = GetDVM().CurrentDrawing;
@@ -353,6 +314,7 @@ namespace WpfApplication3
                                 p.Stroke = color;
                             }
                         }
+                        l.color = color;
                     }
                 }
             }
@@ -367,6 +329,57 @@ namespace WpfApplication3
         private void button_red_Click(object sender, RoutedEventArgs e)
         {
             changeColor(Brushes.Red);
+        }
+
+        private void button_lime_Click(object sender, RoutedEventArgs e)
+        {
+            changeColor(Brushes.Lime);
+        }
+
+        private void button_blue_Click(object sender, RoutedEventArgs e)
+        {
+            changeColor(Brushes.Blue);
+        }
+    }
+
+    //=========================================================================
+
+    class MyTabItem : TabItem
+    {
+        public Chart chart;
+
+        private static bool LineSelected(Chart.ChartLine line)
+        {
+            return line.IsSelected();
+        }
+
+        protected override void OnKeyDown(KeyEventArgs e)
+        {
+            // delete lines from chart
+            List<System.Windows.Shapes.Path> toDel = new List<System.Windows.Shapes.Path>();
+            foreach (Chart.ChartLine l in chart.chartLines)
+            {
+                if (l.IsSelected())
+                {
+                    foreach (System.Windows.Shapes.Path p in chart.canvas.Children)
+                    {
+                        if (p.Name == "rect_" + l.id)
+                        {
+                            toDel.Add(p);
+                        }
+                        if (p.Name == "line_" + l.id)
+                        {
+                            toDel.Add(p);
+                        }
+                    }
+                }
+            }
+            for (int i = 0; i < toDel.Count; i++)
+            {
+                chart.canvas.Children.Remove(toDel.ElementAt(i));
+            }
+            chart.chartLines.RemoveAll(LineSelected);
+            chart.selectedLines.Clear();
         }
     }
 
