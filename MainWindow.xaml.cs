@@ -56,9 +56,11 @@ namespace WpfApplication3
             {
                 List<Data.SymbolDayData> sdd = Data.GetSymbolData(symbolInfo.ShortName);
 
-                MyTabItem newTab = new MyTabItem();
-                newTab.Header = symbolInfo.FullName;
+                TabItem newTab = new TabItem();
+                newTab.KeyDown += TabItem_OnKeyDown;
+                newTab.KeyUp += TabItem_OnKeyUp;
 
+                newTab.Header = symbolInfo.FullName;
                 SymbolsTabControl.Items.Add(newTab);
 
                 Chart.DrawingInfo di = new Chart.DrawingInfo();
@@ -78,7 +80,7 @@ namespace WpfApplication3
             }
             else
             {
-                foreach (MyTabItem item in SymbolsTabControl.Items)
+                foreach (TabItem item in SymbolsTabControl.Items)
                 {
                     if (item.Header.ToString() == symbolInfo.FullName)
                     {
@@ -92,13 +94,12 @@ namespace WpfApplication3
 
         void SymbolTab_SelectionChanged(object sender, SelectionChangedEventArgs a)
         {
-            MyTabItem activeTab = (MyTabItem)((TabControl)a.Source).SelectedItem;
+            TabItem activeTab = (TabItem)((TabControl)a.Source).SelectedItem;
 
             Chart chart = null;
             if (GetDVM().SymbolsDrawings.TryGetValue(activeTab.Header.ToString(), out chart))
             {
                 GetDVM().SetCurrentDrawing(chart);
-                activeTab.chart = chart;
             }
 
             activeTab.Focus();
@@ -110,7 +111,7 @@ namespace WpfApplication3
             TabControl tabCtrl = (TabControl)sender;
             if (tabCtrl.Items.Count == 0) return;
 
-            MyTabItem tabItem = (MyTabItem)tabCtrl.Items[tabCtrl.SelectedIndex];
+            TabItem tabItem = (TabItem)tabCtrl.Items[tabCtrl.SelectedIndex];
             Canvas canvas = (Canvas)tabItem.Content;
             Point mousePosition = e.MouseDevice.GetPosition(canvas);
 
@@ -224,7 +225,7 @@ namespace WpfApplication3
                     newLine.Select(false);
 
                     newLine.color = line.color;
-                    newLine.linePath.Stroke = line.linePath.Stroke;                  
+                    newLine.linePath.Stroke = line.linePath.Stroke;
 
                     activeChart.chartLines.Add(newLine);
                     activeChart.canvas.Children.Add(newLine.linePath);
@@ -277,7 +278,7 @@ namespace WpfApplication3
             TabControl tabCtrl = (TabControl)sender;
             if (tabCtrl.Items.Count == 0) return;
 
-            MyTabItem tabItem = (MyTabItem)tabCtrl.Items[tabCtrl.SelectedIndex];
+            TabItem tabItem = (TabItem)tabCtrl.Items[tabCtrl.SelectedIndex];
             Canvas canvas = (Canvas)tabItem.Content;
             Point mousePosition = e.MouseDevice.GetPosition(canvas);
 
@@ -403,20 +404,16 @@ namespace WpfApplication3
             changeColor();
         }
 
-    }
-    //=========================================================================
-
-    class MyTabItem : TabItem
-    {
-        public Chart chart;
 
         private static bool LineSelected(Chart.ChartLine line)
         {
             return line.IsSelected();
         }
 
-        protected override void OnKeyDown(KeyEventArgs e)
+        public void TabItem_OnKeyDown(object sender, KeyEventArgs e)
         {
+            Chart chart = GetDVM().CurrentDrawing;
+
             if (e.Key == Key.Delete)
             {
                 // delete lines from chart
@@ -452,19 +449,14 @@ namespace WpfApplication3
                     Chart.copyMode = Chart.CopyModes.NotYet;
                 }
             }
-
-            base.OnKeyDown(e);
         }
-        
-        protected override void OnKeyUp(KeyEventArgs e)
+
+        public void TabItem_OnKeyUp(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.LeftCtrl)
             {
                 Chart.copyMode = Chart.CopyModes.No;
             }
-
-            base.OnKeyUp(e);
-        }     
+        }
     }
-
 }
