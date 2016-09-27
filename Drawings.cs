@@ -17,7 +17,7 @@ namespace WpfApplication3
     {
         public class ChartLine
         {
-            private static int selectionRectWidth2 = 2;
+            private static int selectionRectWidth2 = 3;
             
             public enum Mode
             {

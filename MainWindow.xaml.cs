@@ -22,6 +22,8 @@ namespace WpfApplication3
     /// </summary>
     public partial class MainWindow : Window
     {
+        static int minControllPointDistance = 6;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -43,10 +45,10 @@ namespace WpfApplication3
             var dataContext = ((FrameworkElement)e.OriginalSource).DataContext;
             if ((dataContext is Data.SymbolInfo) == false) return;
 
-            AddToSymbolList(dataContext as Data.SymbolInfo);
+            ShowSymbolTab(dataContext as Data.SymbolInfo);
         }
 
-        private void AddToSymbolList(Data.SymbolInfo symbolInfo)
+        private void ShowSymbolTab(Data.SymbolInfo symbolInfo)
         {
             var dvm = DataContext as DataViewModel;
             Chart chart = null;
@@ -121,53 +123,57 @@ namespace WpfApplication3
                 else if (workMode == WorkMode.Selecting)
                 {
                     // check if we clicked on a controll point of selected line
-
-                    Chart activeChart = GetDVM().CurrentDrawing;
-                    if (activeChart != null)
-                    {
-                        float minDist = 4;
-                        Chart.ChartLine choosenLine = null;
-                        Point choosenPoint;
-                        Chart.ChartLine.DrawingMode drawingMode = Chart.ChartLine.DrawingMode.Invalid;
-
-                        foreach (Chart.ChartLine line in activeChart.selectedLines)
-                        {
-                            float distP1 = Chart.PointPointDistance(line.getP1(), mousePosition);
-                            if (distP1 < minDist)
-                            {
-                                choosenLine = line;
-                                choosenPoint = line.getP1();
-                                drawingMode = Chart.ChartLine.DrawingMode.P1;
-                            }
-
-                            float distP2 = Chart.PointPointDistance(line.getP2(), mousePosition);
-                            if (distP2 < minDist)
-                            {
-                                choosenLine = line;
-                                choosenPoint = line.getP2();
-                                drawingMode = Chart.ChartLine.DrawingMode.P2;
-                            }
-
-                            float distMidP = Chart.PointPointDistance(line.getMidP(), mousePosition);
-                            if (distMidP < minDist)
-                            {
-                                choosenLine = line;
-                                choosenPoint = line.getMidP();
-                                drawingMode = Chart.ChartLine.DrawingMode.Mid;
-                            }
-                        }
-
-                        if (choosenLine != null)
-                        {
-                            choosenLine.mode = Chart.ChartLine.Mode.Drawing;
-                            choosenLine.drawingMode = drawingMode;
-                        }
-                    }
+                    SelectControllPoints(mousePosition);
                 }
             }
             else if (e.ChangedButton == MouseButton.Middle)
             {
                 workMode = WorkMode.Cross;
+            }
+        }
+
+        private void SelectControllPoints(Point mousePosition)
+        {
+            Chart activeChart = GetDVM().CurrentDrawing;
+            if (activeChart != null)
+            {
+                float minDist = minControllPointDistance;
+                Chart.ChartLine choosenLine = null;
+                Point choosenPoint;
+                Chart.ChartLine.DrawingMode drawingMode = Chart.ChartLine.DrawingMode.Invalid;
+
+                foreach (Chart.ChartLine line in activeChart.selectedLines)
+                {
+                    float distP1 = Chart.PointPointDistance(line.getP1(), mousePosition);
+                    if (distP1 < minDist)
+                    {
+                        choosenLine = line;
+                        choosenPoint = line.getP1();
+                        drawingMode = Chart.ChartLine.DrawingMode.P1;
+                    }
+
+                    float distP2 = Chart.PointPointDistance(line.getP2(), mousePosition);
+                    if (distP2 < minDist)
+                    {
+                        choosenLine = line;
+                        choosenPoint = line.getP2();
+                        drawingMode = Chart.ChartLine.DrawingMode.P2;
+                    }
+
+                    float distMidP = Chart.PointPointDistance(line.getMidP(), mousePosition);
+                    if (distMidP < minDist)
+                    {
+                        choosenLine = line;
+                        choosenPoint = line.getMidP();
+                        drawingMode = Chart.ChartLine.DrawingMode.Mid;
+                    }
+                }
+
+                if (choosenLine != null)
+                {
+                    choosenLine.mode = Chart.ChartLine.Mode.Drawing;
+                    choosenLine.drawingMode = drawingMode;
+                }
             }
         }
 
@@ -231,15 +237,19 @@ namespace WpfApplication3
                 if (line.mode == Chart.ChartLine.Mode.Drawing)
                 {
                     Point mousePosition = e.MouseDevice.GetPosition((Canvas)line.linePath.Parent);
-
-                    if (line.drawingMode == Chart.ChartLine.DrawingMode.P1)
-                        line.MoveP1(mousePosition);
-                    else if (line.drawingMode == Chart.ChartLine.DrawingMode.P2)
-                        line.MoveP2(mousePosition);
-                    else if (line.drawingMode == Chart.ChartLine.DrawingMode.Mid)
-                        line.MoveMid(mousePosition);
+                    MoveControllPoint(line, mousePosition);
                 }
             }
+        }
+
+        void MoveControllPoint(Chart.ChartLine line, Point mousePosition)
+        {
+            if (line.drawingMode == Chart.ChartLine.DrawingMode.P1)
+                line.MoveP1(mousePosition);
+            else if (line.drawingMode == Chart.ChartLine.DrawingMode.P2)
+                line.MoveP2(mousePosition);
+            else if (line.drawingMode == Chart.ChartLine.DrawingMode.Mid)
+                line.MoveMid(mousePosition);
         }
 
         void SymbolTab_MouseUp(object sender, MouseButtonEventArgs e)
