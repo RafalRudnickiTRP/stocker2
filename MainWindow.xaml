@@ -47,7 +47,8 @@
                     <Button x:Name="button_blue"
                             BorderThickness="0" BorderBrush="Cyan"
                             Content="" HorizontalAlignment="Left" Margin="60,0,0,0" VerticalAlignment="Center" Width="15" Background="Blue" Click="button_blue_Click"/>
-                </Grid>                
+                </Grid>
+                <Button Name="buttonInverse" Content="yInverse" Click="buttonInverse_Click" />
             </ToolBar>
         </ToolBarTray>
         <StatusBar DockPanel.Dock="Bottom">

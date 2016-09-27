@@ -217,19 +217,7 @@ namespace WpfApplication3
                 if (Chart.copyMode == Chart.CopyModes.NotYet)
                 {
                     Chart.copyMode = Chart.CopyModes.Copied;
-
-                    // copy line
-                    Chart.ChartLine newLine = new Chart.ChartLine(activeChart);
-                    newLine.mode = Chart.ChartLine.Mode.Normal;
-                    newLine.drawingMode = Chart.ChartLine.DrawingMode.Invalid;
-                    newLine.Select(false);
-
-                    newLine.color = line.color;
-                    newLine.linePath.Stroke = line.linePath.Stroke;
-
-                    activeChart.chartLines.Add(newLine);
-                    activeChart.canvas.Children.Add(newLine.linePath);
-                    activeChart.canvas.Children.Add(newLine.rectPath);
+                    Chart.ChartLine newLine = CopyLine(activeChart, line);
 
                     newLine.MoveP1(line.getP1());
                     newLine.MoveP2(line.getP2());
@@ -241,6 +229,24 @@ namespace WpfApplication3
                     MoveControlPoint(line, mousePosition);
                 }
             }
+        }
+
+        Chart.ChartLine CopyLine(Chart chart, Chart.ChartLine line)
+        {
+            // copy line
+            Chart.ChartLine newLine = new Chart.ChartLine(chart);
+            newLine.mode = Chart.ChartLine.Mode.Normal;
+            newLine.drawingMode = Chart.ChartLine.DrawingMode.Invalid;
+            newLine.Select(false);
+
+            newLine.color = line.color;
+            newLine.linePath.Stroke = line.linePath.Stroke;
+
+            chart.chartLines.Add(newLine);
+            chart.canvas.Children.Add(newLine.linePath);
+            chart.canvas.Children.Add(newLine.rectPath);
+
+            return newLine;
         }
 
         void MoveControlPoint(Chart.ChartLine line, Point mousePosition)
@@ -335,6 +341,33 @@ namespace WpfApplication3
             GetDVM().DeserializeFromJson(input);
         }
 
+        private void buttonInverse_Click(object sender, RoutedEventArgs e)
+        {
+            Chart activeChart = GetDVM().CurrentDrawing;
+            if (activeChart == null)
+                return;
+
+            Chart.ChartLine[] linesToInverse = new Chart.ChartLine[activeChart.selectedLines.Count];
+            activeChart.selectedLines.CopyTo(linesToInverse);
+
+            foreach (Chart.ChartLine line in linesToInverse)
+            {
+                Chart.ChartLine newLine = CopyLine(activeChart, line);
+                line.Select(false);
+
+                Point p1, p2, midP;
+                p1 = line.getP1();
+                p2 = line.getP2();
+                midP = line.getMidP();
+
+                newLine.MoveP1(new Point(p1.X, midP.Y - p1.Y));
+                newLine.MoveP2(new Point(p2.X, midP.Y - p2.Y));
+                newLine.MoveMid(midP);
+
+                newLine.Select(true);
+            }
+        }
+
         private void changeColor()
         {
             Chart activeChart = GetDVM().CurrentDrawing;
@@ -404,7 +437,6 @@ namespace WpfApplication3
             changeColor();
         }
 
-
         private static bool LineSelected(Chart.ChartLine line)
         {
             return line.IsSelected();
@@ -442,7 +474,8 @@ namespace WpfApplication3
                 chart.chartLines.RemoveAll(LineSelected);
                 chart.selectedLines.Clear();
             }
-            else if (e.Key == Key.LeftCtrl)
+            else if (e.Key == Key.LeftCtrl || 
+                     e.Key == Key.RightCtrl)
             {
                 if (Chart.copyMode == Chart.CopyModes.No)
                 {
