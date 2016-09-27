@@ -22,7 +22,7 @@ namespace WpfApplication3
     /// </summary>
     public partial class MainWindow : Window
     {
-        static int minControllPointDistance = 6;
+        static int minControlPointDistance = 6;
 
         public MainWindow()
         {
@@ -123,8 +123,8 @@ namespace WpfApplication3
                 }
                 else if (workMode == WorkMode.Selecting)
                 {
-                    // check if we clicked on a controll point of selected line
-                    SelectControllPoints(mousePosition);
+                    // check if we clicked on a control point of selected line
+                    SelectControlPoints(mousePosition);
                 }
             }
             else if (e.ChangedButton == MouseButton.Middle)
@@ -133,12 +133,12 @@ namespace WpfApplication3
             }
         }
 
-        private void SelectControllPoints(Point mousePosition)
+        private void SelectControlPoints(Point mousePosition)
         {
             Chart activeChart = GetDVM().CurrentDrawing;
             if (activeChart != null)
             {
-                float minDist = minControllPointDistance;
+                float minDist = minControlPointDistance;
                 Chart.ChartLine choosenLine = null;
                 Point choosenPoint;
                 Chart.ChartLine.DrawingMode drawingMode = Chart.ChartLine.DrawingMode.Invalid;
@@ -238,12 +238,12 @@ namespace WpfApplication3
                 if (line.mode == Chart.ChartLine.Mode.Drawing)
                 {
                     Point mousePosition = e.MouseDevice.GetPosition((Canvas)line.linePath.Parent);
-                    MoveControllPoint(line, mousePosition);
+                    MoveControlPoint(line, mousePosition);
                 }
             }
         }
 
-        void MoveControllPoint(Chart.ChartLine line, Point mousePosition)
+        void MoveControlPoint(Chart.ChartLine line, Point mousePosition)
         {
             if (line.drawingMode == Chart.ChartLine.DrawingMode.P1)
                 line.MoveP1(mousePosition);
