@@ -23,6 +23,7 @@ namespace WpfApplication3
     public partial class MainWindow : Window
     {
         static int minControlPointDistance = 6;
+        static public Brush currentColor = Brushes.Black;
 
         public MainWindow()
         {
@@ -367,9 +368,35 @@ namespace WpfApplication3
                 newLine.Select(true);
             }
         }
-
-        private void changeColor()
+        
+        private void buttonColor_Click(object sender, RoutedEventArgs e)
         {
+            foreach (Button b in ((Grid)((Button)sender).Parent).Children)
+            {
+                b.BorderThickness = new Thickness(0);
+            }
+
+            ((Button)sender).BorderThickness = new Thickness(2);
+            
+            switch (((Button)sender).Name.ToString())
+            {
+                case "button_black":
+                    currentColor = Brushes.Black;
+                    break;
+                case "button_red":
+                    currentColor = Brushes.Red;
+                    break;
+                case "button_lime":
+                    currentColor = Brushes.Lime;
+                    break;
+                case "button_blue":
+                    currentColor = Brushes.Blue;
+                    break;
+                default:
+                    Debug.Assert(false);
+                    break;
+            }
+
             Chart activeChart = GetDVM().CurrentDrawing;
             if (activeChart != null)
             {
@@ -390,53 +417,7 @@ namespace WpfApplication3
             }
             UpdateLayout();
         }
-
-        static public Brush currentColor;
-
-        private void clearColorsBorder(Grid g)
-        {
-            foreach (Button b in g.Children)
-            {
-                b.BorderThickness = new Thickness(0);
-            }
-        }
-
-        private void button_black_Click(object sender, RoutedEventArgs e)
-        {
-            clearColorsBorder((Grid)((Button)sender).Parent);
-            ((Button)sender).BorderThickness = new Thickness(2);
-
-            currentColor = Brushes.Black;
-            changeColor();
-        }
-
-        private void button_red_Click(object sender, RoutedEventArgs e)
-        {
-            clearColorsBorder((Grid)((Button)sender).Parent);
-            ((Button)sender).BorderThickness = new Thickness(2);
-
-            currentColor = Brushes.Red;
-            changeColor();
-        }
-
-        private void button_lime_Click(object sender, RoutedEventArgs e)
-        {
-            clearColorsBorder((Grid)((Button)sender).Parent);
-            ((Button)sender).BorderThickness = new Thickness(2);
-
-            currentColor = Brushes.Lime;
-            changeColor();
-        }
-
-        private void button_blue_Click(object sender, RoutedEventArgs e)
-        {
-            clearColorsBorder((Grid)((Button)sender).Parent);
-            ((Button)sender).BorderThickness = new Thickness(2);
-
-            currentColor = Brushes.Blue;
-            changeColor();
-        }
-        
+                
         public void TabItem_OnKeyDown(object sender, KeyEventArgs e)
         {
             Chart chart = GetDVM().CurrentDrawing;

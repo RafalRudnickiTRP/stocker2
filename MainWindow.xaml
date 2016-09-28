@@ -37,16 +37,16 @@
                 <Grid x:Name="colors">
                     <Button x:Name="button_black"
                             BorderThickness="2" BorderBrush="Cyan"
-                            Content="" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Center" Width="15" Background="Black" Click="button_black_Click"/>
+                            Content="" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Center" Width="15" Background="Black" Click="buttonColor_Click"/>
                     <Button x:Name="button_red"
                             BorderThickness="0" BorderBrush="Cyan"
-                            Content="" HorizontalAlignment="Left" Margin="20,0,0,0" VerticalAlignment="Center" Width="15" Background="Red" Click="button_red_Click"/>
+                            Content="" HorizontalAlignment="Left" Margin="20,0,0,0" VerticalAlignment="Center" Width="15" Background="Red" Click="buttonColor_Click"/>
                     <Button x:Name="button_lime"
                             BorderThickness="0" BorderBrush="Cyan"
-                            Content="" HorizontalAlignment="Left" Margin="40,0,0,0" VerticalAlignment="Center" Width="15" Background="Lime" Click="button_lime_Click"/>
+                            Content="" HorizontalAlignment="Left" Margin="40,0,0,0" VerticalAlignment="Center" Width="15" Background="Lime" Click="buttonColor_Click"/>
                     <Button x:Name="button_blue"
                             BorderThickness="0" BorderBrush="Cyan"
-                            Content="" HorizontalAlignment="Left" Margin="60,0,0,0" VerticalAlignment="Center" Width="15" Background="Blue" Click="button_blue_Click"/>
+                            Content="" HorizontalAlignment="Left" Margin="60,0,0,0" VerticalAlignment="Center" Width="15" Background="Blue" Click="buttonColor_Click"/>
                 </Grid>
                 <Button Name="buttonInverse" Content="yInverse" Click="buttonInverse_Click" />
             </ToolBar>
