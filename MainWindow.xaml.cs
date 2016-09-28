@@ -436,12 +436,7 @@ namespace WpfApplication3
             currentColor = Brushes.Blue;
             changeColor();
         }
-
-        private static bool LineSelected(Chart.ChartLine line)
-        {
-            return line.IsSelected();
-        }
-
+        
         public void TabItem_OnKeyDown(object sender, KeyEventArgs e)
         {
             Chart chart = GetDVM().CurrentDrawing;
@@ -471,7 +466,7 @@ namespace WpfApplication3
                 {
                     chart.canvas.Children.Remove(toDel.ElementAt(i));
                 }
-                chart.chartLines.RemoveAll(LineSelected);
+                chart.chartLines.RemoveAll(l => l.IsSelected());
                 chart.selectedLines.Clear();
             }
             else if (e.Key == Key.LeftCtrl || 
