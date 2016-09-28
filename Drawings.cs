@@ -15,9 +15,12 @@ namespace WpfApplication3
 {
     public class Chart
     {
+        private static int selectionRectWidth2 = 3;
+        private static int candleWidth = 5;
+        private static int candleMargin = 1;
+
         public class ChartLine
         {
-            private static int selectionRectWidth2 = 3;
             
             public enum Mode
             {
@@ -80,7 +83,7 @@ namespace WpfApplication3
             private RectangleGeometry p1Rect;
             private RectangleGeometry p2Rect;
             private RectangleGeometry midRect;
-
+            
             private Chart chart;
             private static int nextId = 0;
             public int id;
@@ -176,7 +179,33 @@ namespace WpfApplication3
                 return toSerialize;
             }
         }
-        
+
+        public void MoveCross(Point p)
+        {
+            Debug.Assert(crossGeom.Children.Count == 4);
+
+            // top
+            ((LineGeometry)crossGeom.Children[0]).StartPoint = new Point(p.X, drawingInfo.viewMarginTop);
+            ((LineGeometry)crossGeom.Children[0]).EndPoint = new Point(p.X, p.Y - drawingInfo.crossMargin);
+
+            // bottom
+            ((LineGeometry)crossGeom.Children[1]).StartPoint = new Point(p.X, p.Y + drawingInfo.crossMargin);
+            ((LineGeometry)crossGeom.Children[1]).EndPoint = new Point(p.X, drawingInfo.viewHeight - drawingInfo.viewMarginBottom);
+
+            // left
+            ((LineGeometry)crossGeom.Children[2]).StartPoint = new Point(drawingInfo.viewMarginLeft, p.Y);
+            ((LineGeometry)crossGeom.Children[2]).EndPoint = new Point(p.X - drawingInfo.crossMargin, p.Y);
+
+            // right
+            ((LineGeometry)crossGeom.Children[3]).StartPoint = new Point(p.X + drawingInfo.crossMargin, p.Y);
+            ((LineGeometry)crossGeom.Children[3]).EndPoint = new Point(drawingInfo.viewWidth - drawingInfo.viewMarginRight, p.Y);
+        }
+
+        public void ShowCross(bool show)
+        {
+            crossPath.Visibility = show ? Visibility.Visible : Visibility.Hidden;
+        }
+
         public struct DrawingInfo
         {
             public int viewHeight;
@@ -191,12 +220,17 @@ namespace WpfApplication3
 
             public int candleWidth;
             public int candleMargin;
-        }
 
-        public Chart()
+            public int crossMargin;
+        }
+        private DrawingInfo drawingInfo;
+
+        public Chart(DrawingInfo di)
         {
             chartLines = new List<ChartLine>();
             selectedLines = new List<ChartLine>();
+
+            drawingInfo = di;
         }
 
         public enum CopyModes
@@ -212,6 +246,9 @@ namespace WpfApplication3
         public List<ChartLine> chartLines;
         public List<ChartLine> selectedLines;
         static public CopyModes copyMode;
+
+        private GeometryGroup crossGeom;
+        private Path crossPath;
 
         #endregion
 
@@ -250,13 +287,13 @@ namespace WpfApplication3
             return (float)Math.Sqrt(Math.Pow(p1.X - p2.X, 2) + Math.Pow(p1.Y - p2.Y, 2));
         }
 
-        public Canvas CreateDrawing(DrawingInfo di, List<Data.SymbolDayData> sddList)
+        public Canvas CreateDrawing(List<Data.SymbolDayData> sddList)
         {
             if (sddList.Count == 0)
                 return null;
-
-            di.candleWidth = 5;
-            di.candleMargin = 1;
+            
+            drawingInfo.candleWidth = candleWidth;
+            drawingInfo.candleMargin = candleMargin;
 
             canvas = new Canvas();
             canvas.SetValue(RenderOptions.EdgeModeProperty, EdgeMode.Aliased);
@@ -265,8 +302,10 @@ namespace WpfApplication3
 
             GeometryGroup frameGeom = new GeometryGroup();
             frameGeom.Children.Add(new RectangleGeometry(new Rect(
-                new Point(di.viewMarginLeft, di.viewMarginTop),
-                new Point(di.viewWidth - di.viewMarginRight, di.viewHeight - di.viewMarginBottom))));
+                new Point(drawingInfo.viewMarginLeft, 
+                          drawingInfo.viewMarginTop),
+                new Point(drawingInfo.viewWidth - drawingInfo.viewMarginRight, 
+                          drawingInfo.viewHeight - drawingInfo.viewMarginBottom))));
 
             Path framePath = new Path();
             framePath.StrokeThickness = 1;
@@ -274,13 +313,13 @@ namespace WpfApplication3
             framePath.Data = frameGeom;
             canvas.Children.Add(framePath);
 
-            int frameWidth = di.viewWidth - di.viewMarginLeft - di.viewMarginRight - 2 * (int)framePath.StrokeThickness;
-            int candleWidth = di.candleWidth + di.candleMargin * 2;
-            int numCandlesToDraw = frameWidth / candleWidth;
+            int frameWidth = drawingInfo.viewWidth - drawingInfo.viewMarginLeft - drawingInfo.viewMarginRight - 2 * (int)framePath.StrokeThickness;
+            int candleWidthTotal = drawingInfo.candleWidth + drawingInfo.candleMargin * 2;
+            int numCandlesToDraw = frameWidth / candleWidthTotal;
             numCandlesToDraw = Math.Min(sddList.Count, numCandlesToDraw);
 
             int minLow = 1000000, maxHi = 0;
-            if (di.viewAutoScale)
+            if (drawingInfo.viewAutoScale)
             {
                 foreach(Data.SymbolDayData sdd in sddList.GetRange(0, numCandlesToDraw))
                 {
@@ -292,8 +331,8 @@ namespace WpfApplication3
                 }
             }
 
-            int start = di.viewWidth - di.viewMarginRight - di.candleMargin - 
-                (int)framePath.StrokeThickness - di.candleWidth / 2;
+            int start = drawingInfo.viewWidth - drawingInfo.viewMarginRight - drawingInfo.candleMargin - 
+                (int)framePath.StrokeThickness - drawingInfo.candleWidth / 2;
 
             foreach (Data.SymbolDayData sdd in sddList.GetRange(0, numCandlesToDraw))
             {
@@ -304,10 +343,10 @@ namespace WpfApplication3
                     sdd.Low
                 };
 
-                if (di.viewAutoScale)
+                if (drawingInfo.viewAutoScale)
                 {
-                    int minV = di.viewMarginBottom + (int)framePath.StrokeThickness + di.candleMargin;
-                    int maxV = di.viewHeight - minV;
+                    int minV = drawingInfo.viewMarginBottom + (int)framePath.StrokeThickness + drawingInfo.candleMargin;
+                    int maxV = drawingInfo.viewHeight - minV;
 
                     vals[0] = RemapRange(vals[0], minLow, maxV, maxHi, minV);
                     vals[1] = RemapRange(vals[1], minLow, maxV, maxHi, minV);
@@ -331,8 +370,8 @@ namespace WpfApplication3
 
                 GeometryGroup bodyGeom = new GeometryGroup();
                 bodyGeom.Children.Add(new RectangleGeometry(new Rect(
-                    new Point(start - di.candleWidth / 2, vals[1]),
-                    new Point(start + di.candleWidth / 2, vals[2]))));
+                    new Point(start - drawingInfo.candleWidth / 2, vals[1]),
+                    new Point(start + drawingInfo.candleWidth / 2, vals[2]))));
                 Path bodyPath = new Path();
                 bodyPath.StrokeThickness = 1;
                 bodyPath.Stroke = Brushes.Black;
@@ -341,8 +380,20 @@ namespace WpfApplication3
 
                 canvas.Children.Add(bodyPath);
 
-                start -= di.candleWidth + di.candleMargin * 2;
+                start -= candleWidthTotal;
             }
+
+            crossGeom = new GeometryGroup();
+            crossGeom.Children.Add(new LineGeometry());
+            crossGeom.Children.Add(new LineGeometry());
+            crossGeom.Children.Add(new LineGeometry());
+            crossGeom.Children.Add(new LineGeometry());
+            crossPath = new Path();
+            crossPath.StrokeThickness = 1;
+            crossPath.Stroke = Brushes.Black;
+            crossPath.Data = crossGeom;
+            crossPath.Visibility = Visibility.Hidden;
+            canvas.Children.Add(crossPath);
 
             return canvas;
         }

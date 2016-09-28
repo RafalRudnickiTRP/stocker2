@@ -72,10 +72,11 @@ namespace WpfApplication3
                 di.viewMarginLeft = 3;
                 di.viewMarginRight = 100;
                 di.viewAutoScale = true;
+                di.crossMargin = 5;
 
-                chart = new Chart();
+                chart = new Chart(di);
                 dvm.SymbolsDrawings.Add(symbolInfo.FullName, chart);
-                newTab.Content = chart.CreateDrawing(di, sdd);
+                newTab.Content = chart.CreateDrawing(sdd);
 
                 SymbolsTabControl.SelectedItem = newTab;
             }
@@ -131,6 +132,8 @@ namespace WpfApplication3
             else if (e.ChangedButton == MouseButton.Middle)
             {
                 workMode = WorkMode.Cross;
+                Chart activeChart = GetDVM().CurrentDrawing;
+                activeChart.ShowCross(true);
             }
         }
 
@@ -211,10 +214,11 @@ namespace WpfApplication3
         {
             Chart activeChart = GetDVM().CurrentDrawing;
             if (activeChart == null) return;
-
+            
             Chart.ChartLine line = activeChart.chartLines.FirstOrDefault(l => l.mode == Chart.ChartLine.Mode.Drawing);
             if (line != null)
             {
+                Point mousePosition = e.MouseDevice.GetPosition((Canvas)line.linePath.Parent);
                 if (Chart.copyMode == Chart.CopyModes.NotYet)
                 {
                     Chart.copyMode = Chart.CopyModes.Copied;
@@ -226,9 +230,18 @@ namespace WpfApplication3
 
                 if (line.mode == Chart.ChartLine.Mode.Drawing)
                 {
-                    Point mousePosition = e.MouseDevice.GetPosition((Canvas)line.linePath.Parent);
                     MoveControlPoint(line, mousePosition);
                 }
+            }
+
+            if (workMode == WorkMode.Cross)
+            {
+                TabControl tabCtrl = (TabControl)sender;
+                TabItem tabItem = (TabItem)tabCtrl.Items[tabCtrl.SelectedIndex];
+                Canvas canvas = (Canvas)tabItem.Content;
+                Point mousePosition = e.MouseDevice.GetPosition(canvas);
+
+                activeChart.MoveCross(mousePosition);
             }
         }
 
@@ -273,10 +286,11 @@ namespace WpfApplication3
                 workMode = WorkMode.Selecting;
             }
 
-            if (e.ChangedButton == MouseButton.Middle &&
+            if (e.ChangedButton == MouseButton.Left &&
                 workMode == WorkMode.Cross)
             {
                 workMode = WorkMode.Selecting;
+                activeChart.ShowCross(false);
             }
         }
 
