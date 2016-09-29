@@ -199,11 +199,21 @@ namespace WpfApplication3
             // right
             ((LineGeometry)crossGeom.Children[3]).StartPoint = new Point(p.X + drawingInfo.crossMargin, p.Y);
             ((LineGeometry)crossGeom.Children[3]).EndPoint = new Point(drawingInfo.viewWidth - drawingInfo.viewMarginRight, p.Y);
+
+            // value
+            double val = RemapRange(p.Y, 
+                drawingInfo.viewMarginBottom, drawingInfo.maxVal, 
+                drawingInfo.viewHeight - drawingInfo.viewMarginTop, drawingInfo.minVal);
+            string valStr = String.Format("{0:F2}", val);
+            crossValue.Text = valStr;
+            Canvas.SetLeft(crossValue, drawingInfo.viewWidth - drawingInfo.viewMarginRight + 2);
+            Canvas.SetTop(crossValue, p.Y - crossValue.ActualHeight / 2);
         }
 
         public void ShowCross(bool show)
         {
             crossPath.Visibility = show ? Visibility.Visible : Visibility.Hidden;
+            crossValue.Visibility = show ? Visibility.Visible : Visibility.Hidden;            
         }
 
         public struct DrawingInfo
@@ -222,6 +232,8 @@ namespace WpfApplication3
             public int candleMargin;
 
             public int crossMargin;
+
+            public double maxVal, minVal;
         }
         private DrawingInfo drawingInfo;
 
@@ -248,6 +260,8 @@ namespace WpfApplication3
         static public CopyModes copyMode;
 
         private GeometryGroup crossGeom;
+        private TextBlock crossValue;
+        private TextBlock crossDate;
         private Path crossPath;
 
         #endregion
@@ -271,7 +285,7 @@ namespace WpfApplication3
             return toSerialize;
         }        
 
-        public static float RemapRange(float value, float from1, float to1, float from2, float to2)
+        public static double RemapRange(double value, double from1, double to1, double from2, double to2)
         {
             return (value - from1) / (from2 - from1) * (to2 - to1) + to1;
         }
@@ -331,12 +345,15 @@ namespace WpfApplication3
                 }
             }
 
+            drawingInfo.maxVal = maxHi;
+            drawingInfo.minVal = minLow;
+
             int start = drawingInfo.viewWidth - drawingInfo.viewMarginRight - drawingInfo.candleMargin - 
                 (int)framePath.StrokeThickness - drawingInfo.candleWidth / 2;
 
             foreach (Data.SymbolDayData sdd in sddList.GetRange(0, numCandlesToDraw))
             {
-                float[] vals = {
+                double[] vals = {
                     sdd.Hi,
                     sdd.Open >= sdd.Close ? sdd.Open : sdd.Close,
                     sdd.Open > sdd.Close ? sdd.Close : sdd.Open,
@@ -393,7 +410,20 @@ namespace WpfApplication3
             crossPath.Stroke = Brushes.Black;
             crossPath.Data = crossGeom;
             crossPath.Visibility = Visibility.Hidden;
+
+            crossValue = new TextBlock();
+            crossValue.Text = "aa";
+            crossValue.TextAlignment = TextAlignment.Left;
+            crossValue.FontSize = 11;
+            crossValue.Width = 100;
+            crossValue.Background = Brushes.Black;
+            crossValue.Foreground = Brushes.White;
+            crossValue.Visibility = Visibility.Hidden;
+            Canvas.SetLeft(crossValue, 0);
+            Canvas.SetBottom(crossValue, 0);
+
             canvas.Children.Add(crossPath);
+            canvas.Children.Add(crossValue);
 
             return canvas;
         }

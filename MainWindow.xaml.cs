@@ -72,7 +72,7 @@ namespace WpfApplication3
                 di.viewMarginLeft = 3;
                 di.viewMarginRight = 100;
                 di.viewAutoScale = true;
-                di.crossMargin = 5;
+                di.crossMargin = 15;
 
                 chart = new Chart(di);
                 dvm.SymbolsDrawings.Add(symbolInfo.FullName, chart);
@@ -134,6 +134,7 @@ namespace WpfApplication3
                 workMode = WorkMode.Cross;
                 Chart activeChart = GetDVM().CurrentDrawing;
                 activeChart.ShowCross(true);
+                activeChart.MoveCross(mousePosition);
             }
         }
 
