@@ -419,11 +419,15 @@ namespace WpfApplication3
                 {
                     if (l.IsSelected())
                     {
-                        foreach (System.Windows.Shapes.Path p in activeChart.canvas.Children)
+                        foreach (var p in activeChart.canvas.Children)
                         {
-                            if (p.Name == "line_" + l.id)
+                            if (p.GetType() == typeof(System.Windows.Shapes.Path))
                             {
-                                p.Stroke = currentColor;
+                                System.Windows.Shapes.Path path = p as System.Windows.Shapes.Path;
+                                if (path.Name == "line_" + l.id)
+                                {
+                                    path.Stroke = currentColor;
+                                }
                             }
                         }
                         l.color = currentColor;
@@ -445,15 +449,19 @@ namespace WpfApplication3
                 {
                     if (l.IsSelected())
                     {
-                        foreach (System.Windows.Shapes.Path p in chart.canvas.Children)
+                        foreach (var p in chart.canvas.Children)
                         {
-                            if (p.Name == "rect_" + l.id)
+                            if (p.GetType() == typeof(System.Windows.Shapes.Path))
                             {
-                                toDel.Add(p);
-                            }
-                            if (p.Name == "line_" + l.id)
-                            {
-                                toDel.Add(p);
+                                System.Windows.Shapes.Path path = p as System.Windows.Shapes.Path;
+                                if (path.Name == "rect_" + l.id)
+                                {
+                                    toDel.Add(path);
+                                }
+                                if (path.Name == "line_" + l.id)
+                                {
+                                    toDel.Add(path);
+                                }
                             }
                         }
                     }
