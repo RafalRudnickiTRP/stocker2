@@ -203,8 +203,8 @@ namespace WpfApplication3
             // value
             double val = RemapRange(p.Y, 
                 drawingInfo.viewMarginBottom, drawingInfo.maxVal, 
-                drawingInfo.viewHeight - drawingInfo.viewMarginTop, drawingInfo.minVal);
-            string valStr = String.Format("{0:F2}", val);
+                drawingInfo.viewHeight - drawingInfo.viewMarginBottom, drawingInfo.minVal);
+            string valStr = string.Format("{0:F2}", val);
             crossValue.Text = valStr;
             Canvas.SetLeft(crossValue, drawingInfo.viewWidth - drawingInfo.viewMarginRight + 2);
             Canvas.SetTop(crossValue, p.Y - crossValue.ActualHeight / 2);
