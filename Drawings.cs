@@ -21,7 +21,7 @@ namespace WpfApplication3
 
         public class ChartLine
         {
-            
+
             public enum Mode
             {
                 Invalid,
@@ -69,7 +69,7 @@ namespace WpfApplication3
             {
                 return mode == Mode.Selected;
             }
-            
+
             public Path linePath { get; }
             public Path rectPath { get; }
 
@@ -83,7 +83,7 @@ namespace WpfApplication3
             private RectangleGeometry p1Rect;
             private RectangleGeometry p2Rect;
             private RectangleGeometry midRect;
-            
+
             private Chart chart;
             private static int nextId = 0;
             public int id;
@@ -180,6 +180,46 @@ namespace WpfApplication3
             }
         }
 
+        public class PriceLabel
+        {
+            private TextBlock valueTextBlock;
+
+            public PriceLabel(Canvas canvas)
+            {
+                valueTextBlock = new TextBlock();
+                valueTextBlock.Text = "aa";
+                valueTextBlock.TextAlignment = TextAlignment.Left;
+                valueTextBlock.FontSize = 11;
+                valueTextBlock.Width = 100;
+                valueTextBlock.Background = Brushes.Black;
+                valueTextBlock.Foreground = Brushes.White;
+                valueTextBlock.Visibility = Visibility.Hidden;
+                Canvas.SetLeft(valueTextBlock, 0);
+                Canvas.SetBottom(valueTextBlock, 0);
+                canvas.Children.Add(valueTextBlock);
+            }
+
+            public void Show(bool show)
+            {
+                valueTextBlock.Visibility = show ? Visibility.Visible : Visibility.Hidden;
+            }
+
+            public void SetValue(double val)
+            {
+                string valStr = string.Format(" {0:F2}", val);
+                valueTextBlock.Text = valStr;
+            }
+
+            public void SetPosition(Point pos)
+            {
+                Canvas.SetLeft(valueTextBlock, pos.X);
+                double yOffset = VerticalCenterAlignment ? -valueTextBlock.ActualHeight / 2 : 0;
+                Canvas.SetTop(valueTextBlock, pos.Y + yOffset);
+            }
+
+            public bool VerticalCenterAlignment { get; set; }
+        }
+
         public void MoveCross(Point p)
         {
             Debug.Assert(crossGeom.Children.Count == 4);
@@ -204,16 +244,14 @@ namespace WpfApplication3
             double val = RemapRange(p.Y, 
                 drawingInfo.viewMarginBottom, drawingInfo.maxVal, 
                 drawingInfo.viewHeight - drawingInfo.viewMarginBottom, drawingInfo.minVal);
-            string valStr = string.Format("{0:F2}", val);
-            crossValue.Text = valStr;
-            Canvas.SetLeft(crossValue, drawingInfo.viewWidth - drawingInfo.viewMarginRight + 2);
-            Canvas.SetTop(crossValue, p.Y - crossValue.ActualHeight / 2);
+            crossValue.SetValue(val);
+            crossValue.SetPosition(new Point(drawingInfo.viewWidth - drawingInfo.viewMarginRight + 2, p.Y));            
         }
 
         public void ShowCross(bool show)
         {
             crossPath.Visibility = show ? Visibility.Visible : Visibility.Hidden;
-            crossValue.Visibility = show ? Visibility.Visible : Visibility.Hidden;            
+            crossValue.Show(show);       
         }
 
         public struct DrawingInfo
@@ -260,9 +298,11 @@ namespace WpfApplication3
         static public CopyModes copyMode;
 
         private GeometryGroup crossGeom;
-        private TextBlock crossValue;
         private TextBlock crossDate;
         private Path crossPath;
+        private PriceLabel crossValue;
+
+        private PriceLabel currentValue;
 
         #endregion
 
@@ -313,7 +353,7 @@ namespace WpfApplication3
             canvas.SetValue(RenderOptions.EdgeModeProperty, EdgeMode.Aliased);
             canvas.SnapsToDevicePixels = true;
             canvas.UseLayoutRounding = true;
-
+            
             GeometryGroup frameGeom = new GeometryGroup();
             frameGeom.Children.Add(new RectangleGeometry(new Rect(
                 new Point(drawingInfo.viewMarginLeft, 
@@ -350,10 +390,12 @@ namespace WpfApplication3
 
             int start = drawingInfo.viewWidth - drawingInfo.viewMarginRight - drawingInfo.candleMargin - 
                 (int)framePath.StrokeThickness - drawingInfo.candleWidth / 2;
+            int minViewport = drawingInfo.viewMarginBottom + (int)framePath.StrokeThickness + drawingInfo.candleMargin;
+            int maxViewport = drawingInfo.viewHeight - minViewport;
 
             foreach (Data.SymbolDayData sdd in sddList.GetRange(0, numCandlesToDraw))
             {
-                double[] vals = {
+                double[] sortedVals = {
                     sdd.Hi,
                     sdd.Open >= sdd.Close ? sdd.Open : sdd.Close,
                     sdd.Open > sdd.Close ? sdd.Close : sdd.Open,
@@ -362,22 +404,19 @@ namespace WpfApplication3
 
                 if (drawingInfo.viewAutoScale)
                 {
-                    int minV = drawingInfo.viewMarginBottom + (int)framePath.StrokeThickness + drawingInfo.candleMargin;
-                    int maxV = drawingInfo.viewHeight - minV;
-
-                    vals[0] = RemapRange(vals[0], minLow, maxV, maxHi, minV);
-                    vals[1] = RemapRange(vals[1], minLow, maxV, maxHi, minV);
-                    vals[2] = RemapRange(vals[2], minLow, maxV, maxHi, minV);
-                    vals[3] = RemapRange(vals[3], minLow, maxV, maxHi, minV);
+                    sortedVals[0] = RemapRange(sortedVals[0], minLow, maxViewport, maxHi, minViewport);
+                    sortedVals[1] = RemapRange(sortedVals[1], minLow, maxViewport, maxHi, minViewport);
+                    sortedVals[2] = RemapRange(sortedVals[2], minLow, maxViewport, maxHi, minViewport);
+                    sortedVals[3] = RemapRange(sortedVals[3], minLow, maxViewport, maxHi, minViewport);
                 }
 
                 GeometryGroup shadowGeom = new GeometryGroup();
                 shadowGeom.Children.Add(new LineGeometry(
-                    new Point(start, vals[0]),
-                    new Point(start, vals[1])));
+                    new Point(start, sortedVals[0]),
+                    new Point(start, sortedVals[1])));
                 shadowGeom.Children.Add(new LineGeometry(
-                    new Point(start, vals[2]),
-                    new Point(start, vals[3])));
+                    new Point(start, sortedVals[2]),
+                    new Point(start, sortedVals[3])));
 
                 Path shadowPath = new Path();
                 shadowPath.StrokeThickness = 1;
@@ -387,8 +426,8 @@ namespace WpfApplication3
 
                 GeometryGroup bodyGeom = new GeometryGroup();
                 bodyGeom.Children.Add(new RectangleGeometry(new Rect(
-                    new Point(start - drawingInfo.candleWidth / 2, vals[1]),
-                    new Point(start + drawingInfo.candleWidth / 2, vals[2]))));
+                    new Point(start - drawingInfo.candleWidth / 2, sortedVals[1]),
+                    new Point(start + drawingInfo.candleWidth / 2, sortedVals[2]))));
                 Path bodyPath = new Path();
                 bodyPath.StrokeThickness = 1;
                 bodyPath.Stroke = Brushes.Black;
@@ -410,20 +449,18 @@ namespace WpfApplication3
             crossPath.Stroke = Brushes.Black;
             crossPath.Data = crossGeom;
             crossPath.Visibility = Visibility.Hidden;
-
-            crossValue = new TextBlock();
-            crossValue.Text = "aa";
-            crossValue.TextAlignment = TextAlignment.Left;
-            crossValue.FontSize = 11;
-            crossValue.Width = 100;
-            crossValue.Background = Brushes.Black;
-            crossValue.Foreground = Brushes.White;
-            crossValue.Visibility = Visibility.Hidden;
-            Canvas.SetLeft(crossValue, 0);
-            Canvas.SetBottom(crossValue, 0);
-
             canvas.Children.Add(crossPath);
-            canvas.Children.Add(crossValue);
+
+            crossValue = new PriceLabel(canvas);
+            crossValue.Show(false);
+            crossValue.VerticalCenterAlignment = true;
+            
+            currentValue = new PriceLabel(canvas);
+            currentValue.SetValue(sddList[0].Close);
+            currentValue.SetPosition(new Point(
+                drawingInfo.viewWidth - drawingInfo.viewMarginRight + 2,
+                RemapRange(sddList[0].Close, minLow, maxViewport, maxHi, minViewport)));
+            currentValue.Show(true);
 
             return canvas;
         }
