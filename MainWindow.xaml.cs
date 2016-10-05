@@ -24,6 +24,7 @@ namespace WpfApplication3
     {
         static int minControlPointDistance = 6;
         static public Brush currentColor = Brushes.Black;
+        static bool shiftPressed = false;
 
         public MainWindow()
         {
@@ -267,9 +268,9 @@ namespace WpfApplication3
         void MoveControlPoint(Chart.ChartLine line, Point mousePosition)
         {
             if (line.drawingMode == Chart.ChartLine.DrawingMode.P1)
-                line.MoveP1(mousePosition);
+                line.MoveP1(mousePosition, shiftPressed);
             else if (line.drawingMode == Chart.ChartLine.DrawingMode.P2)
-                line.MoveP2(mousePosition);
+                line.MoveP2(mousePosition, shiftPressed);
             else if (line.drawingMode == Chart.ChartLine.DrawingMode.Mid)
                 line.MoveMid(mousePosition);
         }
@@ -481,6 +482,11 @@ namespace WpfApplication3
                     Chart.copyMode = Chart.CopyModes.NotYet;
                 }
             }
+            else if (e.Key == Key.LeftShift ||
+                     e.Key == Key.RightShift)
+            {
+                shiftPressed = true;
+            }
         }
 
         public void TabItem_OnKeyUp(object sender, KeyEventArgs e)
@@ -488,6 +494,11 @@ namespace WpfApplication3
             if (e.Key == Key.LeftCtrl)
             {
                 Chart.copyMode = Chart.CopyModes.No;
+            }
+            else if (e.Key == Key.LeftShift ||
+                     e.Key == Key.RightShift)
+            {
+                shiftPressed = false;
             }
         }
     }

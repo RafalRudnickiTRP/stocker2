@@ -21,7 +21,6 @@ namespace WpfApplication3
 
         public class ChartLine
         {
-
             public enum Mode
             {
                 Invalid,
@@ -121,19 +120,33 @@ namespace WpfApplication3
                 color = linePath.Stroke;
             }
 
-            public void MoveP1(Point p)
+            public void MoveP1(Point p, bool resize = false)
             {
+                if (resize)
+                {
+                    Vector v = line.StartPoint - line.EndPoint;
+                    v.Normalize();
+                    p.Y = line.StartPoint.Y + (line.StartPoint.X - p.X) * v.Y;
+                }
+
                 Point p2 = line.EndPoint;
                 line.StartPoint = p;
-                midRect.Transform = new TranslateTransform(p.X + (p2.X - p.X) / 2 - selectionRectWidth2, p.Y + (p2.Y - p.Y) / 2 - selectionRectWidth2);
+                midRect.Transform = new TranslateTransform((p.X + p2.X) / 2 - selectionRectWidth2, (p.Y + p2.Y) / 2 - selectionRectWidth2);
                 p1Rect.Transform = new TranslateTransform(p.X - selectionRectWidth2, p.Y - selectionRectWidth2);
             }
 
-            public void MoveP2(Point p)
+            public void MoveP2(Point p, bool resize = false)
             {
+                if (resize)
+                {
+                    Vector v = line.StartPoint - line.EndPoint;
+                    v.Normalize();
+                    p.Y = line.EndPoint.Y + (line.EndPoint.X - p.X) * v.Y;
+                }
+
                 Point p1 = line.StartPoint;
                 line.EndPoint = p;
-                midRect.Transform = new TranslateTransform(p1.X + (p.X - p1.X) / 2 - selectionRectWidth2, p1.Y + (p.Y - p1.Y) / 2 - selectionRectWidth2);
+                midRect.Transform = new TranslateTransform((p1.X + p.X) / 2 - selectionRectWidth2, (p1.Y + p.Y) / 2 - selectionRectWidth2);
                 p2Rect.Transform = new TranslateTransform(p.X - selectionRectWidth2, p.Y - selectionRectWidth2);
             }
 
