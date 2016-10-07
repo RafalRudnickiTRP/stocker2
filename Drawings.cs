@@ -239,6 +239,14 @@ namespace WpfApplication3
                 valueTextBlock.Text = valStr;
             }
 
+            public void SetDate(DateTime? date)
+            {
+                if (date.HasValue)
+                    valueTextBlock.Text = ((DateTime)date).ToShortDateString();
+                else
+                    valueTextBlock.Text = "";
+            }
+
             public void SetPosition(Point pos)
             {
                 double xOffset = HorizontalCenterAlignment ? -valueTextBlock.ActualWidth / 2 : 0;
@@ -280,7 +288,8 @@ namespace WpfApplication3
             crossValue.SetPosition(new Point(drawingInfo.viewWidth - drawingInfo.viewMarginRight + 2, p.Y));
 
             // date
-            crossDate.SetValue(352.4);
+            DateTime? dt = PixelToSdd(p);
+            crossDate.SetDate(dt);
             crossDate.SetPosition(new Point(p.X, drawingInfo.viewHeight - drawingInfo.viewMarginBottom + 2));
         }
 
@@ -310,6 +319,8 @@ namespace WpfApplication3
             public int crossMargin;
 
             public double maxVal, minVal;
+
+            public List<Data.SymbolDayData> sddList;
         }
         private DrawingInfo drawingInfo;
 
@@ -344,6 +355,26 @@ namespace WpfApplication3
         private Label crossDate;
 
         #endregion
+
+        public Nullable<DateTime> PixelToSdd(Point p)
+        {
+            int start = drawingInfo.viewWidth - drawingInfo.viewMarginRight - drawingInfo.candleMargin -
+                /*(int)framePath.StrokeThickness*/ 1 - drawingInfo.candleWidth / 2;
+            int candleWidthWithMargins = drawingInfo.candleWidth + drawingInfo.candleMargin * 2;
+
+            foreach (Data.SymbolDayData sddIt in drawingInfo.sddList)
+            {
+                if ((start - drawingInfo.candleWidth / 2) <= p.X && 
+                    (start + drawingInfo.candleWidth / 2) >= p.X)
+                {
+                    return sddIt.Date;
+                }
+
+                start -= candleWidthWithMargins;
+            }
+
+            return null;
+        }
 
         public struct DataToSerialize
         {
@@ -387,6 +418,7 @@ namespace WpfApplication3
             
             drawingInfo.candleWidth = candleWidth;
             drawingInfo.candleMargin = candleMargin;
+            drawingInfo.sddList = sddList;
 
             canvas = new Canvas();
             canvas.SetValue(RenderOptions.EdgeModeProperty, EdgeMode.Aliased);
@@ -407,8 +439,8 @@ namespace WpfApplication3
             canvas.Children.Add(framePath);
 
             int frameWidth = drawingInfo.viewWidth - drawingInfo.viewMarginLeft - drawingInfo.viewMarginRight - 2 * (int)framePath.StrokeThickness;
-            int candleWidthTotal = drawingInfo.candleWidth + drawingInfo.candleMargin * 2;
-            int numCandlesToDraw = frameWidth / candleWidthTotal;
+            int candleWidthWithMargins = drawingInfo.candleWidth + drawingInfo.candleMargin * 2;
+            int numCandlesToDraw = frameWidth / candleWidthWithMargins;
             numCandlesToDraw = Math.Min(sddList.Count, numCandlesToDraw);
 
             int minLow = 1000000, maxHi = 0;
@@ -475,7 +507,7 @@ namespace WpfApplication3
 
                 canvas.Children.Add(bodyPath);
 
-                start -= candleWidthTotal;
+                start -= candleWidthWithMargins;
             }
 
             crossGeom = new GeometryGroup();
