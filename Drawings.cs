@@ -242,7 +242,8 @@ namespace WpfApplication3
             public void SetDate(DateTime? date)
             {
                 if (date.HasValue)
-                    valueTextBlock.Text = ((DateTime)date).ToShortDateString();
+                    valueTextBlock.Text = ((DateTime)date).ToShortDateString() +
+                        " " + ((DateTime)date).DayOfWeek.ToString().Substring(0,3);
                 else
                     valueTextBlock.Text = "";
             }
@@ -464,6 +465,34 @@ namespace WpfApplication3
             int minViewport = drawingInfo.viewMarginBottom + (int)framePath.StrokeThickness + drawingInfo.candleMargin;
             int maxViewport = drawingInfo.viewHeight - minViewport;
 
+            // Weeks vertical lines
+            int ws = start;
+            DateTime prev = sddList[0].Date;
+            foreach (Data.SymbolDayData sdd in sddList.GetRange(0, numCandlesToDraw))
+            {
+                if (sdd.Date.DayOfWeek <= prev.DayOfWeek)
+                {
+                    prev = sdd.Date;
+                }
+                else
+                {
+                    GeometryGroup weekGeom = new GeometryGroup();
+                    weekGeom.Children.Add(new LineGeometry(
+                        new Point(ws + candleWidthWithMargins,
+                                    drawingInfo.viewMarginTop),
+                        new Point(ws + candleWidthWithMargins,
+                                    drawingInfo.viewHeight - drawingInfo.viewMarginBottom - 1)));
+                    Path weekPath = new Path();
+                    weekPath.StrokeThickness = 1;
+                    weekPath.Stroke = Brushes.LightGray;
+                    weekPath.Data = weekGeom;
+                    canvas.Children.Add(weekPath);
+
+                    prev = sdd.Date;
+                }
+                ws -= candleWidthWithMargins;
+            }
+
             foreach (Data.SymbolDayData sdd in sddList.GetRange(0, numCandlesToDraw))
             {
                 double[] sortedVals = {
@@ -506,7 +535,7 @@ namespace WpfApplication3
                 bodyPath.Data = bodyGeom;
 
                 canvas.Children.Add(bodyPath);
-
+            
                 start -= candleWidthWithMargins;
             }
 
