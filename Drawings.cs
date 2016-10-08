@@ -492,6 +492,23 @@ namespace WpfApplication3
                 }
                 ws -= candleWidthWithMargins;
             }
+            // Horizontal snap lines of prices
+            // Currently every 1.00 zł
+            for (int i = (int)drawingInfo.minVal; i < drawingInfo.maxVal; i++)
+            {
+                double x = RemapRange(i, drawingInfo.maxVal, maxViewport,
+                    drawingInfo.minVal, minViewport);
+
+                GeometryGroup snapGeom = new GeometryGroup();
+                snapGeom.Children.Add(new LineGeometry(
+                    new Point(drawingInfo.viewMarginLeft, x),
+                    new Point(drawingInfo.viewWidth - drawingInfo.viewMarginRight - 1, x)));
+                Path snapPath = new Path();
+                snapPath.StrokeThickness = 1;
+                snapPath.Stroke = Brushes.LightGray;
+                snapPath.Data = snapGeom;
+                canvas.Children.Add(snapPath);
+            }            
 
             foreach (Data.SymbolDayData sdd in sddList.GetRange(0, numCandlesToDraw))
             {
