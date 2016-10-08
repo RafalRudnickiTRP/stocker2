@@ -13,7 +13,7 @@ using Newtonsoft.Json;
 
 namespace WpfApplication3
 {
-    public class Chart
+    public partial class Chart
     {
         private static int selectionRectWidth2 = 3;
         private static int candleWidth = 5;
@@ -196,70 +196,6 @@ namespace WpfApplication3
             }
         }
 
-        public class Label
-        {
-            public enum Mode
-            {
-                Price,
-                Date
-            };
-
-            private Mode mode;
-            private TextBlock valueTextBlock;
-
-
-            public Label(Canvas canvas, Mode _mode)
-            {
-                mode = _mode;
-                VerticalCenterAlignment = false;
-                HorizontalCenterAlignment = false;
-
-                valueTextBlock = new TextBlock();
-                valueTextBlock.Text = "aa";
-                valueTextBlock.TextAlignment = TextAlignment.Left;
-                valueTextBlock.FontSize = 11;
-                valueTextBlock.Width = 100;
-                valueTextBlock.Background = Brushes.Black;
-                valueTextBlock.Foreground = Brushes.White;
-                valueTextBlock.Visibility = Visibility.Hidden;
-
-                Canvas.SetLeft(valueTextBlock, 0);
-                Canvas.SetBottom(valueTextBlock, 0);
-                canvas.Children.Add(valueTextBlock);
-            }
-
-            public void Show(bool show)
-            {
-                valueTextBlock.Visibility = show ? Visibility.Visible : Visibility.Hidden;
-            }
-
-            public void SetValue(double val)
-            {
-                string valStr = string.Format(" {0:F2}", val);
-                valueTextBlock.Text = valStr;
-            }
-
-            public void SetDate(DateTime? date)
-            {
-                if (date.HasValue)
-                    valueTextBlock.Text = ((DateTime)date).ToShortDateString();
-                else
-                    valueTextBlock.Text = "";
-            }
-
-            public void SetPosition(Point pos)
-            {
-                double xOffset = HorizontalCenterAlignment ? -valueTextBlock.ActualWidth / 2 : 0;
-                double yOffset = VerticalCenterAlignment ? -valueTextBlock.ActualHeight / 2 : 0;
-
-                Canvas.SetLeft(valueTextBlock, pos.X + xOffset);
-                Canvas.SetTop(valueTextBlock, pos.Y + yOffset);
-            }
-
-            public bool VerticalCenterAlignment { get; set; }
-            public bool HorizontalCenterAlignment { get; set; }
-        }
-
         public void MoveCross(Point p)
         {
             Debug.Assert(crossGeom.Children.Count == 4);
@@ -348,11 +284,6 @@ namespace WpfApplication3
 
         private GeometryGroup crossGeom;
         private Path crossPath;
-        private Label crossValue;
-
-        private Label currentValue;
-
-        private Label crossDate;
 
         #endregion
 
@@ -522,20 +453,7 @@ namespace WpfApplication3
             crossPath.Visibility = Visibility.Hidden;
             canvas.Children.Add(crossPath);
 
-            crossValue = new Label(canvas, Label.Mode.Price);
-            crossValue.Show(false);
-            crossValue.VerticalCenterAlignment = true;
-            
-            currentValue = new Label(canvas, Label.Mode.Price);
-            currentValue.SetValue(sddList[0].Close);
-            currentValue.SetPosition(new Point(
-                drawingInfo.viewWidth - drawingInfo.viewMarginRight + 2,
-                RemapRange(sddList[0].Close, minLow, maxViewport, maxHi, minViewport)));
-            currentValue.Show(true);
-
-            crossDate = new Label(canvas, Label.Mode.Date);
-            crossDate.Show(false);
-            crossDate.HorizontalCenterAlignment = true;
+            CreateLabels(canvas);
 
             return canvas;
         }
