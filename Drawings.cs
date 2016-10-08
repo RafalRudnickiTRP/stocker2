@@ -16,7 +16,7 @@ namespace WpfApplication3
     public class Chart
     {
         private static int selectionRectWidth2 = 3;
-        private static int candleWidth = 5;
+        private static int candleWidth = 7;
         private static int candleMargin = 1;
 
         public class ChartLine
@@ -478,9 +478,9 @@ namespace WpfApplication3
                 {
                     GeometryGroup weekGeom = new GeometryGroup();
                     weekGeom.Children.Add(new LineGeometry(
-                        new Point(ws + candleWidthWithMargins,
+                        new Point(ws + candleWidthWithMargins - drawingInfo.candleWidth / 2 - 1,
                                     drawingInfo.viewMarginTop),
-                        new Point(ws + candleWidthWithMargins,
+                        new Point(ws + candleWidthWithMargins - drawingInfo.candleWidth / 2 - 1,
                                     drawingInfo.viewHeight - drawingInfo.viewMarginBottom - 1)));
                     Path weekPath = new Path();
                     weekPath.StrokeThickness = 1;
