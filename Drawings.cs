@@ -492,9 +492,11 @@ namespace WpfApplication3
                 }
                 ws -= candleWidthWithMargins;
             }
+
             // Horizontal snap lines of prices
-            // Currently every 1.00 zł
-            for (int i = (int)drawingInfo.minVal; i < drawingInfo.maxVal; i++)
+            // Currently every 1.00 zł for delta < 5 zł else every 10zł
+            int step = (drawingInfo.maxVal - drawingInfo.minVal) / 10 > 5 ? 10 : 1;
+            for (int i = (int)drawingInfo.minVal % step; i < drawingInfo.maxVal; i += step)
             {
                 double x = RemapRange(i, drawingInfo.maxVal, maxViewport,
                     drawingInfo.minVal, minViewport);
