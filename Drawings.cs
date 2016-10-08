@@ -484,6 +484,7 @@ namespace WpfApplication3
                                     drawingInfo.viewHeight - drawingInfo.viewMarginBottom - 1)));
                     Path weekPath = new Path();
                     weekPath.StrokeThickness = 1;
+                    weekPath.StrokeDashArray = new DoubleCollection(new double[] { 2, 2 });
                     weekPath.Stroke = Brushes.LightGray;
                     weekPath.Data = weekGeom;
                     canvas.Children.Add(weekPath);
@@ -507,6 +508,7 @@ namespace WpfApplication3
                     new Point(drawingInfo.viewWidth - drawingInfo.viewMarginRight - 1, x)));
                 Path snapPath = new Path();
                 snapPath.StrokeThickness = 1;
+                snapPath.StrokeDashArray = new DoubleCollection(new double[] {2, 2});
                 snapPath.Stroke = Brushes.LightGray;
                 snapPath.Data = snapGeom;
                 canvas.Children.Add(snapPath);
