@@ -65,7 +65,10 @@ namespace WpfApplication3
             public void SetDate(DateTime? date)
             {
                 if (date.HasValue)
-                    valueTextBlock.Text = ((DateTime)date).ToShortDateString();
+                {
+                    valueTextBlock.Text = ((DateTime)date).ToShortDateString() + " " + 
+                        ((DateTime)date).DayOfWeek.ToString().Substring(0, 3);
+                }
                 else
                     valueTextBlock.Text = "";
             }
@@ -85,16 +88,14 @@ namespace WpfApplication3
         
         void CreateLabels(Canvas canvas)
         {
-
             crossValue = new Label(canvas, Label.Mode.Price);
             crossValue.Show(false);
             crossValue.VerticalCenterAlignment = true;
 
             currentValue = new Label(canvas, Label.Mode.Price);
-            currentValue.SetValue(sddList[0].Close);
-            currentValue.SetPosition(new Point(
-                drawingInfo.viewWidth - drawingInfo.viewMarginRight + 2,
-                RemapRange(sddList[0].Close, minLow, maxViewport, maxHi, minViewport)));
+            currentValue.SetValue(drawingInfo.sddList[0].Close);
+            double y = RemapRange(drawingInfo.sddList[0].Close, drawingInfo.minVal, drawingInfo.maxViewport, drawingInfo.maxVal, drawingInfo.minViewport);
+            currentValue.SetPosition(new Point(drawingInfo.viewWidth - drawingInfo.viewMarginRight + 2, y));
             currentValue.Show(true);
 
             crossDate = new Label(canvas, Label.Mode.Date);

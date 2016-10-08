@@ -256,6 +256,9 @@ namespace WpfApplication3
 
             public double maxVal, minVal;
 
+            public int minViewport;
+            public int maxViewport;
+
             public List<Data.SymbolDayData> sddList;
         }
         private DrawingInfo drawingInfo;
@@ -394,6 +397,58 @@ namespace WpfApplication3
                 (int)framePath.StrokeThickness - drawingInfo.candleWidth / 2;
             int minViewport = drawingInfo.viewMarginBottom + (int)framePath.StrokeThickness + drawingInfo.candleMargin;
             int maxViewport = drawingInfo.viewHeight - minViewport;
+
+            drawingInfo.minViewport = minViewport;
+            drawingInfo.maxViewport = maxViewport;
+
+            // Weeks vertical lines
+            int ws = start;
+            DateTime prev = sddList[0].Date;
+            foreach (Data.SymbolDayData sdd in sddList.GetRange(0, numCandlesToDraw))
+            {
+                if (sdd.Date.DayOfWeek <= prev.DayOfWeek)
+                {
+                    prev = sdd.Date;
+                }
+                else
+                {
+                    GeometryGroup weekGeom = new GeometryGroup();
+                    weekGeom.Children.Add(new LineGeometry(
+                        new Point(ws + candleWidthWithMargins - drawingInfo.candleWidth / 2 - 1,
+                                    drawingInfo.viewMarginTop),
+                        new Point(ws + candleWidthWithMargins - drawingInfo.candleWidth / 2 - 1,
+                                    drawingInfo.viewHeight - drawingInfo.viewMarginBottom - 1)));
+                    Path weekPath = new Path();
+                    weekPath.StrokeThickness = 1;
+                    weekPath.StrokeDashArray = new DoubleCollection(new double[] { 2, 2 });
+                    weekPath.Stroke = Brushes.LightGray;
+                    weekPath.Data = weekGeom;
+                    canvas.Children.Add(weekPath);
+
+                    prev = sdd.Date;
+                }
+                ws -= candleWidthWithMargins;
+            }
+
+            // Horizontal snap lines of prices
+            // Currently every 1.00 zł for delta < 5 zł else every 10zł
+            int step = (drawingInfo.maxVal - drawingInfo.minVal) / 10 > 5 ? 10 : 1;
+            for (int i = (int)drawingInfo.minVal % step; i < drawingInfo.maxVal; i += step)
+            {
+                double x = RemapRange(i, drawingInfo.maxVal, maxViewport,
+                    drawingInfo.minVal, minViewport);
+
+                GeometryGroup snapGeom = new GeometryGroup();
+                snapGeom.Children.Add(new LineGeometry(
+                    new Point(drawingInfo.viewMarginLeft, x),
+                    new Point(drawingInfo.viewWidth - drawingInfo.viewMarginRight - 1, x)));
+                Path snapPath = new Path();
+                snapPath.StrokeThickness = 1;
+                snapPath.StrokeDashArray = new DoubleCollection(new double[] { 2, 2 });
+                snapPath.Stroke = Brushes.LightGray;
+                snapPath.Data = snapGeom;
+                canvas.Children.Add(snapPath);
+            }
 
             foreach (Data.SymbolDayData sdd in sddList.GetRange(0, numCandlesToDraw))
             {
