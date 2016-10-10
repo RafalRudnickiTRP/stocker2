@@ -491,7 +491,8 @@ namespace WpfApplication3
 
         public void TabItem_OnKeyUp(object sender, KeyEventArgs e)
         {
-            if (e.Key == Key.LeftCtrl)
+            if (e.Key == Key.LeftCtrl ||
+                e.Key == Key.RightCtrl)
             {
                 Chart.copyMode = Chart.CopyModes.No;
             }
