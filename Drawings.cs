@@ -8,6 +8,7 @@ using System.Windows.Shapes;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Diagnostics;
+using System.Globalization;
 
 using Newtonsoft.Json;
 
@@ -177,8 +178,8 @@ namespace WpfApplication3
             {
                 DataToSerialize toSerialize = new DataToSerialize()
                 {
-                    StartPoint = line.StartPoint.ToString(),
-                    EndPoint = line.EndPoint.ToString()
+                    StartPoint = line.StartPoint.X.ToString(Data.numberFormat) + ";" + line.StartPoint.Y.ToString(Data.numberFormat),
+                    EndPoint = line.EndPoint.X.ToString(Data.numberFormat) + ";" + line.EndPoint.Y.ToString(Data.numberFormat)
                 };
 
                 if (color == Brushes.Black)
