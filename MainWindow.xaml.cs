@@ -24,6 +24,7 @@ namespace WpfApplication3
     {
         static int minControlPointDistance = 6;
         static public Brush currentColor = Brushes.Black;
+        static public Data.SymbolInfo currentSymbolInfo;
         static bool shiftPressed = false;
 
         public MainWindow()
@@ -48,6 +49,55 @@ namespace WpfApplication3
             if ((dataContext is Data.SymbolInfo) == false) return;
 
             ShowSymbolTab(dataContext as Data.SymbolInfo);
+        }
+
+        private void AddLoadedChartLines(string name, Chart chart)
+        {
+            var dvm = DataContext as DataViewModel;
+
+            // add loaded chart lines
+            foreach (var data in dvm.SymbolsDrawingsToSerialize)
+            {
+                if (data.Key == name)
+                {
+                    // found drawing for symbol
+                    foreach (var line in data.Value.chartLines)
+                    {
+                        Chart.ChartLine lineToAdd = new Chart.ChartLine(chart);
+
+                        string[] P1Coords = line.StartPoint.Split(';');
+                        lineToAdd.setP1(
+                            new Point(double.Parse(P1Coords[0], Data.numberFormat), double.Parse(P1Coords[1], Data.numberFormat)));
+                        string[] P2Coords = line.EndPoint.Split(';');
+                        lineToAdd.setP2(
+                            new Point(double.Parse(P2Coords[0], Data.numberFormat), double.Parse(P2Coords[1], Data.numberFormat)));
+
+                        if (line.Color == "Black")
+                            lineToAdd.color = System.Windows.Media.Brushes.Black;
+                        if (line.Color == "Blue")
+                            lineToAdd.color = System.Windows.Media.Brushes.Blue;
+                        if (line.Color == "Lime")
+                            lineToAdd.color = System.Windows.Media.Brushes.Lime;
+                        if (line.Color == "Red")
+                            lineToAdd.color = System.Windows.Media.Brushes.Red;
+                        lineToAdd.linePath.Stroke = lineToAdd.color;
+
+                        lineToAdd.mode = Chart.ChartLine.Mode.Normal;
+                        lineToAdd.drawingMode = Chart.ChartLine.DrawingMode.Invalid;
+                        lineToAdd.Select(false);
+
+                        chart.chartLines.Add(lineToAdd);
+                        chart.canvas.Children.Add(lineToAdd.linePath);
+                        chart.canvas.Children.Add(lineToAdd.rectPath);
+
+                        lineToAdd.MoveP1(lineToAdd.getP1());
+                        lineToAdd.MoveP2(lineToAdd.getP2());
+
+                        chart.selectedLines.Add(lineToAdd);
+                    }
+                    break;
+                }
+            }
         }
 
         private void ShowSymbolTab(Data.SymbolInfo symbolInfo)
@@ -79,50 +129,8 @@ namespace WpfApplication3
                 dvm.SymbolsDrawings.Add(symbolInfo.FullName, chart);
                 newTab.Content = chart.CreateDrawing(sdd);
 
-                // add loaded chart lines
-                foreach (var data in dvm.SymbolsDrawingsToSerialize)
-                {
-                    if (data.Key == symbolInfo.FullName)
-                    {
-                        // found drawing for symbol
-                        foreach (var line in data.Value.chartLines)
-                        {
-                            Chart.ChartLine lineToAdd = new Chart.ChartLine(chart);
-
-                            string[] P1Coords = line.StartPoint.Split(';');
-                            lineToAdd.setP1(
-                                new Point(double.Parse(P1Coords[0], Data.numberFormat), double.Parse(P1Coords[1], Data.numberFormat)));
-                            string[] P2Coords = line.EndPoint.Split(';');
-                            lineToAdd.setP2(
-                                new Point(double.Parse(P2Coords[0], Data.numberFormat), double.Parse(P2Coords[1], Data.numberFormat)));
-
-                            if (line.Color == "Black")
-                                lineToAdd.color = System.Windows.Media.Brushes.Black;
-                            if (line.Color == "Blue")
-                                lineToAdd.color = System.Windows.Media.Brushes.Blue;
-                            if (line.Color == "Lime")
-                                lineToAdd.color = System.Windows.Media.Brushes.Lime;
-                            if (line.Color == "Red")
-                                lineToAdd.color = System.Windows.Media.Brushes.Red;
-                            lineToAdd.linePath.Stroke = lineToAdd.color;
-
-                            lineToAdd.mode = Chart.ChartLine.Mode.Normal;
-                            lineToAdd.drawingMode = Chart.ChartLine.DrawingMode.Invalid;
-                            lineToAdd.Select(false);
-
-                            chart.chartLines.Add(lineToAdd);
-                            chart.canvas.Children.Add(lineToAdd.linePath);
-                            chart.canvas.Children.Add(lineToAdd.rectPath);
-
-                            lineToAdd.MoveP1(lineToAdd.getP1());
-                            lineToAdd.MoveP2(lineToAdd.getP2());
-
-                            chart.selectedLines.Add(lineToAdd);
-                        }
-                        break;
-                    }
-                }
-                // cleanup
+                AddLoadedChartLines(symbolInfo.FullName, chart);
+                // remove added symbol
                 dvm.SymbolsDrawingsToSerialize.Remove(symbolInfo.FullName);
 
                 SymbolsTabControl.SelectedItem = newTab;
@@ -139,6 +147,7 @@ namespace WpfApplication3
                 }
             }
             dvm.SetCurrentDrawing(chart);
+            currentSymbolInfo = symbolInfo;
         }
 
         void SymbolTab_SelectionChanged(object sender, SelectionChangedEventArgs a)
@@ -401,7 +410,14 @@ namespace WpfApplication3
                 input = sr.ReadToEnd();
             }
 
+            // clear all SymbolsDrawingsToSerialize and create new based on loaded data
             GetDVM().DeserializeFromJson(input);
+
+            // add loaded chart lines for this symbol
+            Chart activeChart = GetDVM().CurrentDrawing;
+            AddLoadedChartLines(currentSymbolInfo.FullName, activeChart);
+            // remove added symbol
+            GetDVM().SymbolsDrawingsToSerialize.Remove(currentSymbolInfo.FullName);
         }
 
         private void buttonInverse_Click(object sender, RoutedEventArgs e)
