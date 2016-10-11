@@ -56,6 +56,7 @@ namespace WpfApplication3
         #region Members
 
         public static List<SymbolInfo> SymbolInfoList = new List<SymbolInfo>();
+        public static NumberFormatInfo numberFormat = new NumberFormatInfo();
 
         #endregion
 
@@ -245,10 +246,10 @@ namespace WpfApplication3
                             
                             string[] P1Coords = line.StartPoint.Split(';');
                             lineToAdd.setP1(
-                                new Point(double.Parse(P1Coords[0].Replace('.', ',')), double.Parse(P1Coords[1].Replace('.', ','))));
+                                new Point(double.Parse(P1Coords[0], Data.numberFormat), double.Parse(P1Coords[1], Data.numberFormat)));
                             string[] P2Coords = line.EndPoint.Split(';');
                             lineToAdd.setP2(
-                                new Point(double.Parse(P2Coords[0].Replace('.', ',')), double.Parse(P2Coords[1].Replace('.', ','))));
+                                new Point(double.Parse(P2Coords[0], Data.numberFormat), double.Parse(P2Coords[1], Data.numberFormat)));
 
                             if (line.Color == "Black")
                                 lineToAdd.color = System.Windows.Media.Brushes.Black;
@@ -282,8 +283,10 @@ namespace WpfApplication3
         public DataViewModel()
         {
             SymbolsDrawings = new Dictionary<string, Chart>();
-
             SymbolsInfoList = new List<Data.SymbolInfo>(Data.GetSymbolsFromWeb());
+
+            Data.numberFormat.NumberGroupSeparator = ""; // thousands
+            Data.numberFormat.NumberDecimalSeparator = ".";
 
             // debug
             //SymbolsInfoList = new List<Data.SymbolInfo>();
