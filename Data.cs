@@ -64,15 +64,38 @@ namespace WpfApplication3
             List<SymbolInfo> symbols = new List<SymbolInfo>();
 
             HtmlWeb web = new HtmlWeb();
+            HtmlDocument doc = new HtmlDocument();
             int page = 1;
             int added = 0;
 
             while (true)
             {
-                // TODO: read from disk!
+                string data = "";
+                string filename = "stocker_symbols_" + page + ".html";
+                string mydocpath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+                try
+                {
+                    // try to load from disk
+                    using (StreamReader reader = new StreamReader(mydocpath + @"\stocker\temp\" + filename))
+                    {
+                        doc = web.Load(mydocpath + @"\stocker\temp\" + filename);
+                    }
+                } catch (Exception)
+                {
+                    // try to load from web
+                    data = "http://stooq.pl/t/?i=513&v=1&l=" + page.ToString();
+                    doc = web.Load(data);
 
-                string url = "http://stooq.pl/t/?i=513&v=1&l=" + page.ToString();
-                HtmlDocument doc = web.Load(url);               
+                    if (doc != null)
+                    {
+                        // save to disk
+                        Directory.CreateDirectory(mydocpath + @"\stocker\temp\");
+                        using (StreamWriter outputFile = new StreamWriter(mydocpath + @"\stocker\temp\" + filename))
+                        {
+                            outputFile.Write(data);
+                        }
+                    }
+                }             
 
                 // XPath of symbol name
                 // *[@id="f10"]

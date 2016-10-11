@@ -198,6 +198,8 @@ namespace WpfApplication3
 
         public void MoveCross(Point p)
         {
+            if (crossGeom == null)
+                return;
             Debug.Assert(crossGeom.Children.Count == 4);
 
             // top
