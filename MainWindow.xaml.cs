@@ -79,6 +79,52 @@ namespace WpfApplication3
                 dvm.SymbolsDrawings.Add(symbolInfo.FullName, chart);
                 newTab.Content = chart.CreateDrawing(sdd);
 
+                // add loaded chart lines
+                foreach (var data in dvm.SymbolsDrawingsToSerialize)
+                {
+                    if (data.Key == symbolInfo.FullName)
+                    {
+                        // found drawing for symbol
+                        foreach (var line in data.Value.chartLines)
+                        {
+                            Chart.ChartLine lineToAdd = new Chart.ChartLine(chart);
+
+                            string[] P1Coords = line.StartPoint.Split(';');
+                            lineToAdd.setP1(
+                                new Point(double.Parse(P1Coords[0], Data.numberFormat), double.Parse(P1Coords[1], Data.numberFormat)));
+                            string[] P2Coords = line.EndPoint.Split(';');
+                            lineToAdd.setP2(
+                                new Point(double.Parse(P2Coords[0], Data.numberFormat), double.Parse(P2Coords[1], Data.numberFormat)));
+
+                            if (line.Color == "Black")
+                                lineToAdd.color = System.Windows.Media.Brushes.Black;
+                            if (line.Color == "Blue")
+                                lineToAdd.color = System.Windows.Media.Brushes.Blue;
+                            if (line.Color == "Lime")
+                                lineToAdd.color = System.Windows.Media.Brushes.Lime;
+                            if (line.Color == "Red")
+                                lineToAdd.color = System.Windows.Media.Brushes.Red;
+                            lineToAdd.linePath.Stroke = lineToAdd.color;
+
+                            lineToAdd.mode = Chart.ChartLine.Mode.Normal;
+                            lineToAdd.drawingMode = Chart.ChartLine.DrawingMode.Invalid;
+                            lineToAdd.Select(false);
+
+                            chart.chartLines.Add(lineToAdd);
+                            chart.canvas.Children.Add(lineToAdd.linePath);
+                            chart.canvas.Children.Add(lineToAdd.rectPath);
+
+                            lineToAdd.MoveP1(lineToAdd.getP1());
+                            lineToAdd.MoveP2(lineToAdd.getP2());
+
+                            chart.selectedLines.Add(lineToAdd);
+                        }
+                        break;
+                    }
+                }
+                // cleanup
+                dvm.SymbolsDrawingsToSerialize.Remove(symbolInfo.FullName);
+
                 SymbolsTabControl.SelectedItem = newTab;
             }
             else

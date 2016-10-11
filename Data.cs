@@ -208,70 +208,21 @@ namespace WpfApplication3
         {
             SymbolsDrawingsToSerialize = new Dictionary<string, Chart.DataToSerialize>();
             SymbolsDrawingsToSerialize = JsonConvert.DeserializeObject<Dictionary<string, Chart.DataToSerialize>>(input);
-            
-            foreach (var data in SymbolsDrawingsToSerialize)
-            {
-                foreach (var drawing in SymbolsDrawings)
-                {
-                    if(data.Key == drawing.Key)
-                    {
-                        // found drawing for symbol
-                        foreach(var line in data.Value.chartLines)
-                        {
-                            Chart.ChartLine lineToAdd = new Chart.ChartLine(drawing.Value);
-                            
-                            string[] P1Coords = line.StartPoint.Split(';');
-                            lineToAdd.setP1(
-                                new Point(double.Parse(P1Coords[0], Data.numberFormat), double.Parse(P1Coords[1], Data.numberFormat)));
-                            string[] P2Coords = line.EndPoint.Split(';');
-                            lineToAdd.setP2(
-                                new Point(double.Parse(P2Coords[0], Data.numberFormat), double.Parse(P2Coords[1], Data.numberFormat)));
-
-                            if (line.Color == "Black")
-                                lineToAdd.color = System.Windows.Media.Brushes.Black;
-                            if (line.Color == "Blue")
-                                lineToAdd.color = System.Windows.Media.Brushes.Blue;
-                            if (line.Color == "Lime")
-                                lineToAdd.color = System.Windows.Media.Brushes.Lime;
-                            if (line.Color == "Red")
-                                lineToAdd.color = System.Windows.Media.Brushes.Red;
-                            lineToAdd.linePath.Stroke = lineToAdd.color;
-
-                            lineToAdd.mode = Chart.ChartLine.Mode.Normal;
-                            lineToAdd.drawingMode = Chart.ChartLine.DrawingMode.Invalid;
-                            lineToAdd.Select(false);
-
-                            drawing.Value.chartLines.Add(lineToAdd);
-                            drawing.Value.canvas.Children.Add(lineToAdd.linePath);
-                            drawing.Value.canvas.Children.Add(lineToAdd.rectPath);
-
-                            lineToAdd.MoveP1(lineToAdd.getP1());
-                            lineToAdd.MoveP2(lineToAdd.getP2());
-
-                            drawing.Value.selectedLines.Add(lineToAdd);
-                        }
-                        break;
-                    }
-                }
-            }
         }
 
-        public DataViewModel()
+        private void LoadSymbolsInfoList()
         {
-            SymbolsDrawings = new Dictionary<string, Chart>();
-
             // try to load from disk
             string mydocpath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
             string today = DateTime.Today.ToString("dd-MM-yyyy");
             string filename = "stocker_symbols_" + today + ".html";
             Directory.CreateDirectory(mydocpath + @"\stocker\temp\");
-            string loaded = "";
             try
             {
                 using (StreamReader reader = new StreamReader(mydocpath + @"\stocker\temp\" + filename))
                 {
                     // Read the stream to a string, and write the string to the console.
-                    loaded = reader.ReadToEnd();
+                    string loaded = reader.ReadToEnd();
                     SymbolsInfoList = JsonConvert.DeserializeObject<List<Data.SymbolInfo>>(loaded);
                 }
             }
@@ -290,7 +241,32 @@ namespace WpfApplication3
                     }
                 }
             }
-            
+        }
+
+        public DataViewModel()
+        {
+            SymbolsDrawings = new Dictionary<string, Chart>();
+
+            LoadSymbolsInfoList();
+
+            // try to load symbols drawings
+            try
+            {
+                // Open the text file using a stream reader.
+                string mydocpath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+                using (StreamReader reader = new StreamReader(mydocpath + @"\stocker\charts.json"))
+                {
+                    // Read the stream to a string, and write the string to the console.
+                    string input = reader.ReadToEnd();                    
+                    SymbolsDrawingsToSerialize =
+                        JsonConvert.DeserializeObject<Dictionary<string, Chart.DataToSerialize>>(input);
+                }
+            }
+            catch (FileNotFoundException)
+            {
+                // no problem
+            }
+
             Data.numberFormat.NumberGroupSeparator = ""; // thousands
             Data.numberFormat.NumberDecimalSeparator = ".";
 
