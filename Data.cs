@@ -71,32 +71,8 @@ namespace WpfApplication3
 
             while (true)
             {
-                string data = "";
-                string filename = "stocker_symbols_" + page + ".html";
-                string mydocpath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-                try
-                {
-                    // try to load from disk
-                    using (StreamReader reader = new StreamReader(mydocpath + @"\stocker\temp\" + filename))
-                    {
-                        doc = web.Load(mydocpath + @"\stocker\temp\" + filename);
-                    }
-                } catch (Exception)
-                {
-                    // try to load from web
-                    data = "http://stooq.pl/t/?i=513&v=1&l=" + page.ToString();
-                    doc = web.Load(data);
-
-                    if (doc != null)
-                    {
-                        // save to disk
-                        Directory.CreateDirectory(mydocpath + @"\stocker\temp\");
-                        using (StreamWriter outputFile = new StreamWriter(mydocpath + @"\stocker\temp\" + filename))
-                        {
-                            outputFile.Write(data);
-                        }
-                    }
-                }             
+                string data ="http://stooq.pl/t/?i=513&v=1&l=" + page.ToString();
+                doc = web.Load(data);
 
                 // XPath of symbol name
                 // *[@id="f10"]
@@ -283,8 +259,38 @@ namespace WpfApplication3
         public DataViewModel()
         {
             SymbolsDrawings = new Dictionary<string, Chart>();
-            SymbolsInfoList = new List<Data.SymbolInfo>(Data.GetSymbolsFromWeb());
 
+            // try to load from disk
+            string mydocpath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            string today = DateTime.Today.ToString("dd-MM-yyyy");
+            string filename = "stocker_symbols_" + today + ".html";
+            Directory.CreateDirectory(mydocpath + @"\stocker\temp\");
+            string loaded = "";
+            try
+            {
+                using (StreamReader reader = new StreamReader(mydocpath + @"\stocker\temp\" + filename))
+                {
+                    // Read the stream to a string, and write the string to the console.
+                    loaded = reader.ReadToEnd();
+                    SymbolsInfoList = JsonConvert.DeserializeObject<List<Data.SymbolInfo>>(loaded);
+                }
+            }
+            catch (FileNotFoundException)
+            {
+                if (SymbolsInfoList == null)
+                {
+                    // load from web
+                    SymbolsInfoList = new List<Data.SymbolInfo>(Data.GetSymbolsFromWeb());
+
+                    // save to disk
+                    string output = JsonConvert.SerializeObject(SymbolsInfoList, Formatting.Indented);
+                    using (StreamWriter outputFile = new StreamWriter(mydocpath + @"\stocker\temp\" + filename))
+                    {
+                        outputFile.Write(output);
+                    }
+                }
+            }
+            
             Data.numberFormat.NumberGroupSeparator = ""; // thousands
             Data.numberFormat.NumberDecimalSeparator = ".";
 
