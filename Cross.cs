@@ -15,32 +15,64 @@ namespace WpfApplication3
 {
     public partial class Chart
     {
-        private GeometryGroup crossGeom;
-        private Path crossPath;
+        public class CrossGeom : Shape
+        {
+            private GeometryGroup geo = new GeometryGroup();
+            private DrawingInfo drawingInfo;
 
+            public CrossGeom(DrawingInfo _drawingInfo)
+            {
+                drawingInfo = _drawingInfo;
+
+                geo.Children.Add(new LineGeometry());
+                geo.Children.Add(new LineGeometry());
+                geo.Children.Add(new LineGeometry());
+                geo.Children.Add(new LineGeometry());
+
+                Visibility = Visibility.Hidden;
+                StrokeThickness = 1;
+                Stroke = Brushes.Black;
+            }
+
+            public void Show(bool show)
+            {
+                Visibility = show ? Visibility.Visible : Visibility.Hidden;                
+            }
+
+            public void Move(Point p)
+            {
+                // top
+                ((LineGeometry)geo.Children[0]).StartPoint = new Point(p.X, drawingInfo.viewMarginTop);
+                ((LineGeometry)geo.Children[0]).EndPoint = new Point(p.X, p.Y - drawingInfo.crossMargin);
+
+                // bottom
+                ((LineGeometry)geo.Children[1]).StartPoint = new Point(p.X, p.Y + drawingInfo.crossMargin);
+                ((LineGeometry)geo.Children[1]).EndPoint = new Point(p.X, drawingInfo.viewHeight - drawingInfo.viewMarginBottom);
+
+                // left
+                ((LineGeometry)geo.Children[2]).StartPoint = new Point(drawingInfo.viewMarginLeft, p.Y);
+                ((LineGeometry)geo.Children[2]).EndPoint = new Point(p.X - drawingInfo.crossMargin, p.Y);
+
+                // right
+                ((LineGeometry)geo.Children[3]).StartPoint = new Point(p.X + drawingInfo.crossMargin, p.Y);
+                ((LineGeometry)geo.Children[3]).EndPoint = new Point(drawingInfo.viewWidth - drawingInfo.viewMarginRight, p.Y);
+            }
+
+            protected override Geometry DefiningGeometry
+            {
+                get { return geo; }
+            }
+        }
+
+        private CrossGeom cross;
 
         public void MoveCross(Point p)
         {
-            if (crossGeom == null)
+            if (cross == null)
                 return;
-            Debug.Assert(crossGeom.Children.Count == 4);
 
-            // top
-            ((LineGeometry)crossGeom.Children[0]).StartPoint = new Point(p.X, drawingInfo.viewMarginTop);
-            ((LineGeometry)crossGeom.Children[0]).EndPoint = new Point(p.X, p.Y - drawingInfo.crossMargin);
-
-            // bottom
-            ((LineGeometry)crossGeom.Children[1]).StartPoint = new Point(p.X, p.Y + drawingInfo.crossMargin);
-            ((LineGeometry)crossGeom.Children[1]).EndPoint = new Point(p.X, drawingInfo.viewHeight - drawingInfo.viewMarginBottom);
-
-            // left
-            ((LineGeometry)crossGeom.Children[2]).StartPoint = new Point(drawingInfo.viewMarginLeft, p.Y);
-            ((LineGeometry)crossGeom.Children[2]).EndPoint = new Point(p.X - drawingInfo.crossMargin, p.Y);
-
-            // right
-            ((LineGeometry)crossGeom.Children[3]).StartPoint = new Point(p.X + drawingInfo.crossMargin, p.Y);
-            ((LineGeometry)crossGeom.Children[3]).EndPoint = new Point(drawingInfo.viewWidth - drawingInfo.viewMarginRight, p.Y);
-
+            cross.Move(p);
+            
             // value
             double val = RemapRange(p.Y,
                 drawingInfo.viewMarginBottom, drawingInfo.maxVal,
@@ -56,26 +88,16 @@ namespace WpfApplication3
 
         public void ShowCross(bool show)
         {
-            crossPath.Visibility = show ? Visibility.Visible : Visibility.Hidden;
-
+            cross.Visibility = show ? Visibility.Visible : Visibility.Hidden;
+            
             crossValue.Show(show);
             crossDate.Show(show);
         }
 
         public void CreateCross(Canvas canvas)
         {
-            crossGeom = new GeometryGroup();
-            crossGeom.Children.Add(new LineGeometry());
-            crossGeom.Children.Add(new LineGeometry());
-            crossGeom.Children.Add(new LineGeometry());
-            crossGeom.Children.Add(new LineGeometry());
-            crossPath = new Path();
-            crossPath.StrokeThickness = 1;
-            crossPath.Stroke = Brushes.Black;
-            crossPath.Data = crossGeom;
-            crossPath.Visibility = Visibility.Hidden;
-
-            canvas.Children.Add(crossPath);
+            cross = new CrossGeom(drawingInfo);
+            canvas.Children.Add(cross);            
         }
     }
 }

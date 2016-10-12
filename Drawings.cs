@@ -322,7 +322,7 @@ namespace WpfApplication3
 
         public class FrameGeom : Shape
         {
-            public GeometryGroup frameGeom = new GeometryGroup();
+            private GeometryGroup frameGeom = new GeometryGroup();
 
             public FrameGeom(DrawingInfo drawingInfo)
             {
@@ -334,6 +334,8 @@ namespace WpfApplication3
                 StrokeThickness = 1;
                 Stroke = Brushes.Black;
             }
+
+            // TODO: add clip line func etc. here
 
             protected override Geometry DefiningGeometry
             {
