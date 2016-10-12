@@ -190,9 +190,7 @@ namespace WpfApplication3
         public Dictionary<string, Chart.DataToSerialize> SymbolsDrawingsToSerialize { get; set; }
 
         public string SerializeToJson()
-        {
-            SymbolsDrawingsToSerialize = new Dictionary<string, Chart.DataToSerialize>();
-            
+        {            
             foreach (KeyValuePair<string, Chart> pairSymbolsDrawings in SymbolsDrawings)
             {
                 Chart.DataToSerialize data = pairSymbolsDrawings.Value.SerializeToJson();
@@ -246,6 +244,7 @@ namespace WpfApplication3
         public DataViewModel()
         {
             SymbolsDrawings = new Dictionary<string, Chart>();
+            SymbolsDrawingsToSerialize = new Dictionary<string, Chart.DataToSerialize>();
 
             LoadSymbolsInfoList();
 
