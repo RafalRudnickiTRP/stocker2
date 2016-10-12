@@ -72,6 +72,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Commands.cs" />
+    <Compile Include="Cross.cs" />
     <Compile Include="Data.cs" />
     <Compile Include="Drawings.cs" />
     <Compile Include="Label.cs" />
