@@ -255,7 +255,7 @@ namespace WpfApplication3
 
             drawingInfo = di;
         }
-                
+
         #region Members
 
         public Canvas canvas;
@@ -320,6 +320,27 @@ namespace WpfApplication3
             return (float)Math.Sqrt(Math.Pow(p1.X - p2.X, 2) + Math.Pow(p1.Y - p2.Y, 2));
         }
 
+        public class FrameGeom : Shape
+        {
+            public GeometryGroup frameGeom = new GeometryGroup();
+
+            public FrameGeom(DrawingInfo drawingInfo)
+            {
+                frameGeom.Children.Add(new RectangleGeometry(new Rect(
+                    new Point(drawingInfo.viewMarginLeft,
+                              drawingInfo.viewMarginTop),
+                    new Point(drawingInfo.viewWidth - drawingInfo.viewMarginRight,
+                              drawingInfo.viewHeight - drawingInfo.viewMarginBottom))));
+                StrokeThickness = 1;
+                Stroke = Brushes.Black;
+            }
+
+            protected override Geometry DefiningGeometry
+            {
+                get { return frameGeom; }
+            }
+        }
+
         public Canvas CreateDrawing(List<Data.SymbolDayData> sddList)
         {
             if (sddList.Count == 0)
@@ -333,21 +354,11 @@ namespace WpfApplication3
             canvas.SetValue(RenderOptions.EdgeModeProperty, EdgeMode.Aliased);
             canvas.SnapsToDevicePixels = true;
             canvas.UseLayoutRounding = true;
+
+            FrameGeom frame = new FrameGeom(drawingInfo);
+            canvas.Children.Add(frame);
             
-            GeometryGroup frameGeom = new GeometryGroup();
-            frameGeom.Children.Add(new RectangleGeometry(new Rect(
-                new Point(drawingInfo.viewMarginLeft, 
-                          drawingInfo.viewMarginTop),
-                new Point(drawingInfo.viewWidth - drawingInfo.viewMarginRight, 
-                          drawingInfo.viewHeight - drawingInfo.viewMarginBottom))));
-
-            Path framePath = new Path();
-            framePath.StrokeThickness = 1;
-            framePath.Stroke = Brushes.Black;
-            framePath.Data = frameGeom;
-            canvas.Children.Add(framePath);
-
-            int frameWidth = drawingInfo.viewWidth - drawingInfo.viewMarginLeft - drawingInfo.viewMarginRight - 2 * (int)framePath.StrokeThickness;
+            int frameWidth = drawingInfo.viewWidth - drawingInfo.viewMarginLeft - drawingInfo.viewMarginRight - 2 * (int)frame.StrokeThickness;
             int candleWidthWithMargins = drawingInfo.candleWidth + drawingInfo.candleMargin * 2;
             int numCandlesToDraw = frameWidth / candleWidthWithMargins;
             numCandlesToDraw = Math.Min(sddList.Count, numCandlesToDraw);
@@ -369,8 +380,8 @@ namespace WpfApplication3
             drawingInfo.minVal = minLow;
 
             int start = drawingInfo.viewWidth - drawingInfo.viewMarginRight - drawingInfo.candleMargin - 
-                (int)framePath.StrokeThickness - drawingInfo.candleWidth / 2;
-            int minViewport = drawingInfo.viewMarginBottom + (int)framePath.StrokeThickness + drawingInfo.candleMargin;
+                (int)frame.StrokeThickness - drawingInfo.candleWidth / 2;
+            int minViewport = drawingInfo.viewMarginBottom + (int)frame.StrokeThickness + drawingInfo.candleMargin;
             int maxViewport = drawingInfo.viewHeight - minViewport;
 
             drawingInfo.minViewport = minViewport;
