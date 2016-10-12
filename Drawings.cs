@@ -30,6 +30,13 @@ namespace WpfApplication3
                 Selected
             }
 
+            public enum CopyModes
+            {
+                No,
+                NotYet,
+                Copied
+            };
+
             public enum DrawingMode
             {
                 Invalid, P1, P2, Mid
@@ -167,6 +174,24 @@ namespace WpfApplication3
                 midRect.Transform = new TranslateTransform(midP.X + delta.X, midP.Y + delta.Y);
             }
 
+            public ChartLine CopyLineTo(Chart chart)
+            {
+                // copy line
+                ChartLine newLine = new ChartLine(chart);
+                newLine.mode = Mode.Normal;
+                newLine.drawingMode = DrawingMode.Invalid;
+                newLine.Select(false);
+
+                newLine.color = color;
+                newLine.linePath.Stroke = linePath.Stroke;
+
+                chart.chartLines.Add(newLine);
+                chart.canvas.Children.Add(newLine.linePath);
+                chart.canvas.Children.Add(newLine.rectPath);
+
+                return newLine;
+            }
+
             public struct DataToSerialize
             {
                 public string StartPoint { get; set; }
@@ -230,20 +255,13 @@ namespace WpfApplication3
 
             drawingInfo = di;
         }
-
-        public enum CopyModes
-        {
-            No,
-            NotYet,
-            Copied
-        };
-        
+                
         #region Members
 
         public Canvas canvas;
         public List<ChartLine> chartLines;
         public List<ChartLine> selectedLines;
-        static public CopyModes copyMode;
+        static public ChartLine.CopyModes copyMode;
         
         #endregion
 

@@ -276,10 +276,10 @@ namespace WpfApplication3
             if (line != null)
             {
                 Point mousePosition = e.MouseDevice.GetPosition((Canvas)line.linePath.Parent);
-                if (Chart.copyMode == Chart.CopyModes.NotYet)
+                if (Chart.copyMode == Chart.ChartLine.CopyModes.NotYet)
                 {
-                    Chart.copyMode = Chart.CopyModes.Copied;
-                    Chart.ChartLine newLine = CopyLine(activeChart, line);
+                    Chart.copyMode = Chart.ChartLine.CopyModes.Copied;
+                    Chart.ChartLine newLine = line.CopyLineTo(activeChart);
 
                     newLine.MoveP1(line.getP1());
                     newLine.MoveP2(line.getP2());
@@ -300,24 +300,6 @@ namespace WpfApplication3
 
                 activeChart.MoveCross(mousePosition);
             }
-        }
-
-        Chart.ChartLine CopyLine(Chart chart, Chart.ChartLine line)
-        {
-            // copy line
-            Chart.ChartLine newLine = new Chart.ChartLine(chart);
-            newLine.mode = Chart.ChartLine.Mode.Normal;
-            newLine.drawingMode = Chart.ChartLine.DrawingMode.Invalid;
-            newLine.Select(false);
-
-            newLine.color = line.color;
-            newLine.linePath.Stroke = line.linePath.Stroke;
-
-            chart.chartLines.Add(newLine);
-            chart.canvas.Children.Add(newLine.linePath);
-            chart.canvas.Children.Add(newLine.rectPath);
-
-            return newLine;
         }
 
         void MoveControlPoint(Chart.ChartLine line, Point mousePosition)
@@ -431,7 +413,7 @@ namespace WpfApplication3
 
             foreach (Chart.ChartLine line in linesToInverse)
             {
-                Chart.ChartLine newLine = CopyLine(activeChart, line);
+                Chart.ChartLine newLine = line.CopyLineTo(activeChart);
                 line.Select(false);
 
                 Point p1, p2, midP;
@@ -539,9 +521,9 @@ namespace WpfApplication3
             else if (e.Key == Key.LeftCtrl || 
                      e.Key == Key.RightCtrl)
             {
-                if (Chart.copyMode == Chart.CopyModes.No)
+                if (Chart.copyMode == Chart.ChartLine.CopyModes.No)
                 {
-                    Chart.copyMode = Chart.CopyModes.NotYet;
+                    Chart.copyMode = Chart.ChartLine.CopyModes.NotYet;
                 }
             }
             else if (e.Key == Key.LeftShift ||
@@ -556,7 +538,7 @@ namespace WpfApplication3
             if (e.Key == Key.LeftCtrl ||
                 e.Key == Key.RightCtrl)
             {
-                Chart.copyMode = Chart.CopyModes.No;
+                Chart.copyMode = Chart.ChartLine.CopyModes.No;
             }
             else if (e.Key == Key.LeftShift ||
                      e.Key == Key.RightShift)
