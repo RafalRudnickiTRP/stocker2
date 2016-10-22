@@ -31,7 +31,7 @@ namespace WpfApplication3
             private TextBlock valueTextBlock;
 
 
-            public Label(Canvas canvas, Mode _mode)
+            public Label(Canvas canvas, Mode _mode, int z)
             {
                 mode = _mode;
                 VerticalCenterAlignment = false;
@@ -48,6 +48,7 @@ namespace WpfApplication3
 
                 Canvas.SetLeft(valueTextBlock, 0);
                 Canvas.SetBottom(valueTextBlock, 0);
+                Canvas.SetZIndex(valueTextBlock, z);
                 canvas.Children.Add(valueTextBlock);
             }
 
@@ -88,17 +89,17 @@ namespace WpfApplication3
         
         void CreateLabels(Canvas canvas)
         {
-            crossValue = new Label(canvas, Label.Mode.Price);
+            crossValue = new Label(canvas, Label.Mode.Price, 1);
             crossValue.Show(false);
             crossValue.VerticalCenterAlignment = true;
 
-            currentValue = new Label(canvas, Label.Mode.Price);
+            currentValue = new Label(canvas, Label.Mode.Price, 0);
             currentValue.SetValue(drawingInfo.sddList[0].Close);
             double y = RemapRange(drawingInfo.sddList[0].Close, drawingInfo.minVal, drawingInfo.maxViewport, drawingInfo.maxVal, drawingInfo.minViewport);
             currentValue.SetPosition(new Point(drawingInfo.viewWidth - drawingInfo.viewMarginRight + 2, y));
             currentValue.Show(true);
 
-            crossDate = new Label(canvas, Label.Mode.Date);
+            crossDate = new Label(canvas, Label.Mode.Date, 0);
             crossDate.Show(false);
             crossDate.HorizontalCenterAlignment = true;
         }
