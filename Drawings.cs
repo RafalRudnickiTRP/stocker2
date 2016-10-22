@@ -273,8 +273,8 @@ namespace WpfApplication3
 
             foreach (Data.SymbolDayData sddIt in drawingInfo.sddList)
             {
-                if ((start - drawingInfo.candleWidth / 2) <= p.X && 
-                    (start + drawingInfo.candleWidth / 2) >= p.X)
+                if ((start - drawingInfo.candleWidth / 2) <= (int)p.X && 
+                    (start + drawingInfo.candleWidth / 2 + drawingInfo.candleMargin * 2) >= (int)p.X)
                 {
                     return sddIt.Date;
                 }
