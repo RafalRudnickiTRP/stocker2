@@ -149,7 +149,7 @@ namespace WpfApplication3
                 {
                     Vector v = line.StartPoint - line.EndPoint;
                     v.Normalize();
-                    p.Y = line.EndPoint.Y + (line.EndPoint.X - p.X) * v.Y;
+                    p.Y = line.EndPoint.Y + (p.X - line.EndPoint.X) / v.X * v.Y;
                 }
 
                 Point p1 = line.StartPoint;
@@ -276,6 +276,7 @@ namespace WpfApplication3
                 if ((start - drawingInfo.candleWidth / 2) <= (int)p.X && 
                     (start + drawingInfo.candleWidth / 2 + drawingInfo.candleMargin * 2) >= (int)p.X)
                 {
+                    DateTime dt = new DateTime(sddIt.Date.Ticks);
                     return sddIt.Date;
                 }
 
