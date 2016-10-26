@@ -1,16 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Shapes;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Diagnostics;
-using System.Globalization;
-
-using Newtonsoft.Json;
 
 namespace WpfApplication3
 {
@@ -45,6 +39,32 @@ namespace WpfApplication3
 
             return null;
         }
+
+        public struct DrawingInfo
+        {
+            public int viewHeight;
+            public int viewWidth;
+
+            public int viewMarginTop;
+            public int viewMarginBottom;
+            public int viewMarginLeft;
+            public int viewMarginRight;
+
+            public bool viewAutoScale;
+
+            public int candleWidth;
+            public int candleMargin;
+
+            public int crossMargin;
+
+            public double maxVal, minVal;
+
+            public int minViewport;
+            public int maxViewport;
+
+            public List<Data.SymbolDayData> sddList;
+        }
+        public static  DrawingInfo drawingInfo;
 
         public class ChartLine
         {
@@ -166,7 +186,7 @@ namespace WpfApplication3
                 Point p2 = line.EndPoint;
                 line.StartPoint = p;
                 midRect.Transform = new TranslateTransform((p.X + p2.X) / 2 - selectionRectWidth2, (p.Y + p2.Y) / 2 - selectionRectWidth2);
-                p1Rect.Transform = new TranslateTransform(p.X - selectionRectWidth2, p.Y - selectionRectWidth2);                
+                p1Rect.Transform = new TranslateTransform(p.X - selectionRectWidth2, p.Y - selectionRectWidth2);
             }
 
             public void MoveP2(Point p, bool resize = false)
@@ -236,10 +256,10 @@ namespace WpfApplication3
                 // values
                 double P1ValY = Math.Round(RemapRange(getP1().Y,
                     drawingInfo.viewMarginBottom, drawingInfo.maxVal,
-                    drawingInfo.viewHeight - drawingInfo.viewMarginBottom, drawingInfo.minVal), 2);
+                    drawingInfo.viewHeight - drawingInfo.viewMarginBottom, drawingInfo.minVal), 6);
                 double P2ValY = Math.Round(RemapRange(getP2().Y,
                     drawingInfo.viewMarginBottom, drawingInfo.maxVal,
-                    drawingInfo.viewHeight - drawingInfo.viewMarginBottom, drawingInfo.minVal), 2);
+                    drawingInfo.viewHeight - drawingInfo.viewMarginBottom, drawingInfo.minVal), 6);
 
                 DataToSerialize toSerialize = new DataToSerialize()
                 {
@@ -269,32 +289,6 @@ namespace WpfApplication3
                 return toSerialize;
             }
         }
-
-        public struct DrawingInfo
-        {
-            public int viewHeight;
-            public int viewWidth;
-
-            public int viewMarginTop;
-            public int viewMarginBottom;
-            public int viewMarginLeft;
-            public int viewMarginRight;
-
-            public bool viewAutoScale;
-
-            public int candleWidth;
-            public int candleMargin;
-
-            public int crossMargin;
-
-            public double maxVal, minVal;
-
-            public int minViewport;
-            public int maxViewport;
-
-            public List<Data.SymbolDayData> sddList;
-        }
-        static public DrawingInfo drawingInfo;
 
         public Chart(DrawingInfo di)
         {

@@ -50,7 +50,7 @@ namespace WpfApplication3
 
             ShowSymbolTab(dataContext as Data.SymbolInfo);
         }
-
+ 
         private void AddLoadedChartLines(string name, Chart chart)
         {
             var dvm = DataContext as DataViewModel;
@@ -65,12 +65,28 @@ namespace WpfApplication3
                     {
                         Chart.ChartLine lineToAdd = new Chart.ChartLine(chart);
 
+                        // Price to value
+                        string[] SPDV = line.StartPointDV.Split(';');
+                        double SPV = double.Parse(SPDV[1], Data.numberFormat);
+                        double SPVR = Math.Round(Chart.RemapRange(SPV,
+                            Chart.drawingInfo.maxVal, Chart.drawingInfo.viewMarginBottom,
+                            Chart.drawingInfo.minVal, Chart.drawingInfo.viewHeight - Chart.drawingInfo.viewMarginBottom), 2);
+
+                        string[] EPDV = line.EndPointDV.Split(';');
+                        double EPV = double.Parse(EPDV[1], Data.numberFormat);
+                        double EPVR = Math.Round(Chart.RemapRange(EPV,
+                            Chart.drawingInfo.maxVal, Chart.drawingInfo.viewMarginBottom,
+                            Chart.drawingInfo.minVal, Chart.drawingInfo.viewHeight - Chart.drawingInfo.viewMarginBottom), 2);
+
+                        // Create and add new points
                         string[] P1Coords = line.StartPoint.Split(';');
                         lineToAdd.setP1(
-                            new Point(double.Parse(P1Coords[0], Data.numberFormat), double.Parse(P1Coords[1], Data.numberFormat)));
+                            new Point(double.Parse(P1Coords[0], Data.numberFormat),
+                            SPVR));
                         string[] P2Coords = line.EndPoint.Split(';');
                         lineToAdd.setP2(
-                            new Point(double.Parse(P2Coords[0], Data.numberFormat), double.Parse(P2Coords[1], Data.numberFormat)));
+                            new Point(double.Parse(P2Coords[0], Data.numberFormat),
+                            EPVR));
 
                         if (line.Color == "Black")
                             lineToAdd.color = System.Windows.Media.Brushes.Black;
