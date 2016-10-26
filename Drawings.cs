@@ -20,6 +20,32 @@ namespace WpfApplication3
         private static int candleWidth = 5;
         private static int candleMargin = 1;
 
+        public static double RemapRange(double value, double from1, double to1, double from2, double to2)
+        {
+            return (value - from1) / (from2 - from1) * (to2 - to1) + to1;
+        }
+
+        public static Nullable<DateTime> PixelToSdd(Point p)
+        {
+            int start = drawingInfo.viewWidth - drawingInfo.viewMarginRight - drawingInfo.candleMargin -
+                /*(int)framePath.StrokeThickness*/ 1 - drawingInfo.candleWidth / 2;
+            int candleWidthWithMargins = drawingInfo.candleWidth + drawingInfo.candleMargin * 2;
+
+            foreach (Data.SymbolDayData sddIt in drawingInfo.sddList)
+            {
+                if ((start - drawingInfo.candleWidth / 2) <= (int)p.X &&
+                    (start + drawingInfo.candleWidth / 2 + drawingInfo.candleMargin * 2) >= (int)p.X)
+                {
+                    DateTime dt = new DateTime(sddIt.Date.Ticks);
+                    return sddIt.Date;
+                }
+
+                start -= candleWidthWithMargins;
+            }
+
+            return null;
+        }
+
         public class ChartLine
         {
             public enum Mode
@@ -140,7 +166,7 @@ namespace WpfApplication3
                 Point p2 = line.EndPoint;
                 line.StartPoint = p;
                 midRect.Transform = new TranslateTransform((p.X + p2.X) / 2 - selectionRectWidth2, (p.Y + p2.Y) / 2 - selectionRectWidth2);
-                p1Rect.Transform = new TranslateTransform(p.X - selectionRectWidth2, p.Y - selectionRectWidth2);
+                p1Rect.Transform = new TranslateTransform(p.X - selectionRectWidth2, p.Y - selectionRectWidth2);                
             }
 
             public void MoveP2(Point p, bool resize = false)
@@ -195,16 +221,38 @@ namespace WpfApplication3
             public struct DataToSerialize
             {
                 public string StartPoint { get; set; }
+                public string StartPointDV { get; set; }
                 public string EndPoint { get; set; }
+                public string EndPointDV { get; set; }
                 public string Color { get; set; }
             }
 
             public DataToSerialize SerializeToJson()
             {
+                // dates 
+                DateTime? P1DT = PixelToSdd(getP1());
+                DateTime? P2DT = PixelToSdd(getP2());
+
+                // values
+                double P1ValY = Math.Round(RemapRange(getP1().Y,
+                    drawingInfo.viewMarginBottom, drawingInfo.maxVal,
+                    drawingInfo.viewHeight - drawingInfo.viewMarginBottom, drawingInfo.minVal), 2);
+                double P2ValY = Math.Round(RemapRange(getP2().Y,
+                    drawingInfo.viewMarginBottom, drawingInfo.maxVal,
+                    drawingInfo.viewHeight - drawingInfo.viewMarginBottom, drawingInfo.minVal), 2);
+
                 DataToSerialize toSerialize = new DataToSerialize()
                 {
-                    StartPoint = line.StartPoint.X.ToString(Data.numberFormat) + ";" + line.StartPoint.Y.ToString(Data.numberFormat),
-                    EndPoint = line.EndPoint.X.ToString(Data.numberFormat) + ";" + line.EndPoint.Y.ToString(Data.numberFormat)
+                    StartPoint = getP1().X.ToString(Data.numberFormat) + ";"
+                        + getP1().Y.ToString(Data.numberFormat),
+                    EndPoint = getP2().X.ToString(Data.numberFormat) + ";"
+                        + getP2().Y.ToString(Data.numberFormat),
+
+                    // date + value
+                    StartPointDV = P1DT.Value.Date.ToShortDateString() + ";"
+                        + P1ValY.ToString(Data.numberFormat),
+                    EndPointDV = P2DT.Value.Date.ToShortDateString() + ";"
+                        + P2ValY.ToString(Data.numberFormat)
                 };
 
                 if (color == Brushes.Black)
@@ -246,7 +294,7 @@ namespace WpfApplication3
 
             public List<Data.SymbolDayData> sddList;
         }
-        private DrawingInfo drawingInfo;
+        static public DrawingInfo drawingInfo;
 
         public Chart(DrawingInfo di)
         {
@@ -265,27 +313,6 @@ namespace WpfApplication3
         
         #endregion
 
-        public Nullable<DateTime> PixelToSdd(Point p)
-        {
-            int start = drawingInfo.viewWidth - drawingInfo.viewMarginRight - drawingInfo.candleMargin -
-                /*(int)framePath.StrokeThickness*/ 1 - drawingInfo.candleWidth / 2;
-            int candleWidthWithMargins = drawingInfo.candleWidth + drawingInfo.candleMargin * 2;
-
-            foreach (Data.SymbolDayData sddIt in drawingInfo.sddList)
-            {
-                if ((start - drawingInfo.candleWidth / 2) <= (int)p.X && 
-                    (start + drawingInfo.candleWidth / 2 + drawingInfo.candleMargin * 2) >= (int)p.X)
-                {
-                    DateTime dt = new DateTime(sddIt.Date.Ticks);
-                    return sddIt.Date;
-                }
-
-                start -= candleWidthWithMargins;
-            }
-
-            return null;
-        }
-
         public struct DataToSerialize
         {
             public IList<ChartLine.DataToSerialize> chartLines { get; set; }
@@ -303,12 +330,7 @@ namespace WpfApplication3
             }
 
             return toSerialize;
-        }        
-
-        public static double RemapRange(double value, double from1, double to1, double from2, double to2)
-        {
-            return (value - from1) / (from2 - from1) * (to2 - to1) + to1;
-        }
+        }      
 
         public static float LinePointDistance(Point p1, Point p2, Point p)
         {
@@ -439,6 +461,7 @@ namespace WpfApplication3
                 canvas.Children.Add(snapPath);
             }
 
+            // Candles
             foreach (Data.SymbolDayData sdd in sddList.GetRange(0, numCandlesToDraw))
             {
                 double[] sortedVals = {
