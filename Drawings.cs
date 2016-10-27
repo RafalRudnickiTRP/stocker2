@@ -261,19 +261,18 @@ namespace WpfApplication3
                     drawingInfo.viewMarginBottom, drawingInfo.maxVal,
                     drawingInfo.viewHeight - drawingInfo.viewMarginBottom, drawingInfo.minVal), 6);
 
-                DataToSerialize toSerialize = new DataToSerialize()
-                {
-                    StartPoint = getP1().X.ToString(Data.numberFormat) + ";"
-                        + getP1().Y.ToString(Data.numberFormat),
-                    EndPoint = getP2().X.ToString(Data.numberFormat) + ";"
-                        + getP2().Y.ToString(Data.numberFormat),
+                DataToSerialize toSerialize = new DataToSerialize();
 
-                    // date + value
-                    StartPointDV = P1DT.Value.Date.ToShortDateString() + ";"
-                        + P1ValY.ToString(Data.numberFormat),
-                    EndPointDV = P2DT.Value.Date.ToShortDateString() + ";"
-                        + P2ValY.ToString(Data.numberFormat)
-                };
+                toSerialize.StartPoint = getP1().X.ToString(Data.numberFormat) + ";"
+                    + getP1().Y.ToString(Data.numberFormat);
+                toSerialize.EndPoint = getP2().X.ToString(Data.numberFormat) + ";"
+                    + getP2().Y.ToString(Data.numberFormat);
+
+                // date + value
+                toSerialize.StartPointDV = P1DT.Value.Date.ToShortDateString() + ";"
+                    + P1ValY.ToString(Data.numberFormat);
+                toSerialize.EndPointDV = P2DT.Value.Date.ToShortDateString() + ";"
+                    + P2ValY.ToString(Data.numberFormat);
 
                 if (color == Brushes.Black)
                     toSerialize.Color = "Black";

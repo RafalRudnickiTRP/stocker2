@@ -70,13 +70,13 @@ namespace WpfApplication3
                         double SPV = double.Parse(SPDV[1], Data.numberFormat);
                         double SPVR = Math.Round(Chart.RemapRange(SPV,
                             Chart.drawingInfo.maxVal, Chart.drawingInfo.viewMarginBottom,
-                            Chart.drawingInfo.minVal, Chart.drawingInfo.viewHeight - Chart.drawingInfo.viewMarginBottom), 2);
+                            Chart.drawingInfo.minVal, Chart.drawingInfo.viewHeight - Chart.drawingInfo.viewMarginBottom), 6);
 
                         string[] EPDV = line.EndPointDV.Split(';');
                         double EPV = double.Parse(EPDV[1], Data.numberFormat);
                         double EPVR = Math.Round(Chart.RemapRange(EPV,
                             Chart.drawingInfo.maxVal, Chart.drawingInfo.viewMarginBottom,
-                            Chart.drawingInfo.minVal, Chart.drawingInfo.viewHeight - Chart.drawingInfo.viewMarginBottom), 2);
+                            Chart.drawingInfo.minVal, Chart.drawingInfo.viewHeight - Chart.drawingInfo.viewMarginBottom), 6);
 
                         // Create and add new points
                         string[] P1Coords = line.StartPoint.Split(';');
