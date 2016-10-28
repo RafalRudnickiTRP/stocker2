@@ -57,6 +57,7 @@ namespace WpfApplication3
 
         public static List<SymbolInfo> SymbolInfoList = new List<SymbolInfo>();
         public static NumberFormatInfo numberFormat = new NumberFormatInfo();
+        public static string dateTimeFormat; 
 
         #endregion
 
@@ -268,6 +269,8 @@ namespace WpfApplication3
 
             Data.numberFormat.NumberGroupSeparator = ""; // thousands
             Data.numberFormat.NumberDecimalSeparator = ".";
+
+            Data.dateTimeFormat = CultureInfo.CurrentCulture.DateTimeFormat.UniversalSortableDateTimePattern;
 
             // debug
             //SymbolsInfoList = new List<Data.SymbolInfo>();

@@ -5,6 +5,7 @@ using System.Windows.Shapes;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Diagnostics;
+using System.Globalization;
 
 namespace WpfApplication3
 {
@@ -13,25 +14,33 @@ namespace WpfApplication3
         private static int selectionRectWidth2 = 3;
         private static int candleWidth = 5;
         private static int candleMargin = 1;
-
-        public static double RemapRange(double value, double from1, double to1, double from2, double to2)
+        
+        public static double RemapRange(double value, double fromMin, double toMin, double fromMax, double toMax)
         {
-            return (value - from1) / (from2 - from1) * (to2 - to1) + to1;
+            return (value - fromMin) / (fromMax - fromMin) * (toMax - toMin) + toMin;
         }
-
+        
         public static Nullable<DateTime> PixelToSdd(Point p)
         {
             int start = drawingInfo.viewWidth - drawingInfo.viewMarginRight - drawingInfo.candleMargin -
                 /*(int)framePath.StrokeThickness*/ 1 - drawingInfo.candleWidth / 2;
             int candleWidthWithMargins = drawingInfo.candleWidth + drawingInfo.candleMargin * 2;
 
+            int secsInDay = 24 * 60 * 30;
+
             foreach (Data.SymbolDayData sddIt in drawingInfo.sddList)
             {
-                if ((start - drawingInfo.candleWidth / 2) <= (int)p.X &&
-                    (start + drawingInfo.candleWidth / 2 + drawingInfo.candleMargin * 2) >= (int)p.X)
+                int candleStart = start - drawingInfo.candleWidth / 2;
+                int nextCandleStart = start + drawingInfo.candleWidth / 2 + drawingInfo.candleMargin * 2;
+
+                if (candleStart <= (int)p.X &&
+                    nextCandleStart >= (int)p.X)
                 {
                     DateTime dt = new DateTime(sddIt.Date.Ticks);
-                    return sddIt.Date;
+                    double secs = RemapRange(p.X, candleStart, 0, nextCandleStart, secsInDay);
+
+                    // NOTE!!!! this are not "real" seconds, just a factor between given and next day
+                    return sddIt.Date.AddSeconds(secs);
                 }
 
                 start -= candleWidthWithMargins;
@@ -269,9 +278,9 @@ namespace WpfApplication3
                     + getP2().Y.ToString(Data.numberFormat);
 
                 // date + value
-                toSerialize.StartPointDV = P1DT.Value.Date.ToShortDateString() + ";"
+                toSerialize.StartPointDV = P1DT.Value.ToString(Data.dateTimeFormat) + ";"
                     + P1ValY.ToString(Data.numberFormat);
-                toSerialize.EndPointDV = P2DT.Value.Date.ToShortDateString() + ";"
+                toSerialize.EndPointDV = P2DT.Value.ToString(Data.dateTimeFormat) + ";"
                     + P2ValY.ToString(Data.numberFormat);
 
                 if (color == Brushes.Black)
