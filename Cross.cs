@@ -81,8 +81,8 @@ namespace WpfApplication3
             crossValue.SetPosition(new Point(drawingInfo.viewWidth - drawingInfo.viewMarginRight + 2, p.Y));
 
             // date
-            DateTime? dt = PixelToSdd(p);
-            crossDate.SetDate(dt);
+            var dt = PixelToSdd(p);
+            crossDate.SetDate(dt?.Item1);
             crossDate.SetPosition(new Point(p.X, drawingInfo.viewHeight - drawingInfo.viewMarginBottom + 2));
         }
 

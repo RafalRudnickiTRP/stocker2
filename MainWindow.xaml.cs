@@ -66,14 +66,16 @@ namespace WpfApplication3
                         Chart.ChartLine lineToAdd = new Chart.ChartLine(chart);
 
                         // Price to value
-                        string[] SPDV = line.StartPointDV.Split(';');
-                        double SPV = double.Parse(SPDV[1], Data.numberFormat);
+                        char[] separators = new char[] { '+', ';' };
+
+                        string[] SPDV = line.StartPointDV.Split(separators);
+                        double SPV = double.Parse(SPDV[2], Data.numberFormat);
                         double SPVR = Math.Round(Chart.RemapRange(SPV,
                             Chart.drawingInfo.maxVal, Chart.drawingInfo.viewMarginBottom,
                             Chart.drawingInfo.minVal, Chart.drawingInfo.viewHeight - Chart.drawingInfo.viewMarginBottom), 6);
 
-                        string[] EPDV = line.EndPointDV.Split(';');
-                        double EPV = double.Parse(EPDV[1], Data.numberFormat);
+                        string[] EPDV = line.EndPointDV.Split(separators);
+                        double EPV = double.Parse(EPDV[2], Data.numberFormat);
                         double EPVR = Math.Round(Chart.RemapRange(EPV,
                             Chart.drawingInfo.maxVal, Chart.drawingInfo.viewMarginBottom,
                             Chart.drawingInfo.minVal, Chart.drawingInfo.viewHeight - Chart.drawingInfo.viewMarginBottom), 6);

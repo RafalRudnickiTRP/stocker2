@@ -20,14 +20,12 @@ namespace WpfApplication3
             return (value - fromMin) / (fromMax - fromMin) * (toMax - toMin) + toMin;
         }
         
-        public static Nullable<DateTime> PixelToSdd(Point p)
+        public static Tuple<DateTime, double> PixelToSdd(Point p)
         {
             int start = drawingInfo.viewWidth - drawingInfo.viewMarginRight - drawingInfo.candleMargin -
                 /*(int)framePath.StrokeThickness*/ 1 - drawingInfo.candleWidth / 2;
             int candleWidthWithMargins = drawingInfo.candleWidth + drawingInfo.candleMargin * 2;
-
-            int secsInDay = 24 * 60 * 30;
-
+            
             foreach (Data.SymbolDayData sddIt in drawingInfo.sddList)
             {
                 int candleStart = start - drawingInfo.candleWidth / 2;
@@ -37,10 +35,9 @@ namespace WpfApplication3
                     nextCandleStart >= (int)p.X)
                 {
                     DateTime dt = new DateTime(sddIt.Date.Ticks);
-                    double secs = RemapRange(p.X, candleStart, 0, nextCandleStart, secsInDay);
-
-                    // NOTE!!!! this are not "real" seconds, just a factor between given and next day
-                    return sddIt.Date.AddSeconds(secs);
+                    double fract = RemapRange(p.X, candleStart, 0, nextCandleStart, 1);
+                    
+                    return Tuple.Create(sddIt.Date, fract);
                 }
 
                 start -= candleWidthWithMargins;
@@ -259,8 +256,8 @@ namespace WpfApplication3
             public DataToSerialize SerializeToJson()
             {
                 // dates 
-                DateTime? P1DT = PixelToSdd(getP1());
-                DateTime? P2DT = PixelToSdd(getP2());
+                var P1DT = PixelToSdd(getP1());
+                var P2DT = PixelToSdd(getP2());
 
                 // values
                 double P1ValY = Math.Round(RemapRange(getP1().Y,
@@ -272,16 +269,18 @@ namespace WpfApplication3
 
                 DataToSerialize toSerialize = new DataToSerialize();
 
-                toSerialize.StartPoint = getP1().X.ToString(Data.numberFormat) + ";"
-                    + getP1().Y.ToString(Data.numberFormat);
-                toSerialize.EndPoint = getP2().X.ToString(Data.numberFormat) + ";"
-                    + getP2().Y.ToString(Data.numberFormat);
+                toSerialize.StartPoint = getP1().X.ToString(Data.numberFormat) + ";" +
+                    getP1().Y.ToString(Data.numberFormat);
+                toSerialize.EndPoint = getP2().X.ToString(Data.numberFormat) + ";" +
+                    getP2().Y.ToString(Data.numberFormat);
 
                 // date + value
-                toSerialize.StartPointDV = P1DT.Value.ToString(Data.dateTimeFormat) + ";"
-                    + P1ValY.ToString(Data.numberFormat);
-                toSerialize.EndPointDV = P2DT.Value.ToString(Data.dateTimeFormat) + ";"
-                    + P2ValY.ToString(Data.numberFormat);
+                toSerialize.StartPointDV = P1DT.Item1.ToShortDateString() + "+" +
+                    P1DT.Item2 + ";" +
+                    P1ValY.ToString(Data.numberFormat);
+                toSerialize.EndPointDV = P2DT.Item1.ToShortDateString() + "+" +
+                    P2DT.Item2 + ";" +
+                    P2ValY.ToString(Data.numberFormat);
 
                 if (color == Brushes.Black)
                     toSerialize.Color = "Black";
