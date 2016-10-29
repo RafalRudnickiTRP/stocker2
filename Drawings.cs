@@ -275,11 +275,11 @@ namespace WpfApplication3
                     getP2().Y.ToString(Data.numberFormat);
 
                 // date + value
-                toSerialize.StartPointDV = P1DT.Item1.ToShortDateString() + "+" +
-                    P1DT.Item2 + ";" +
+                toSerialize.StartPointDV = P1DT.Item1.ToString(Data.dateTimeFormat) + "+" +
+                    P1DT.Item2.ToString(Data.numberFormat) + ";" +
                     P1ValY.ToString(Data.numberFormat);
-                toSerialize.EndPointDV = P2DT.Item1.ToShortDateString() + "+" +
-                    P2DT.Item2 + ";" +
+                toSerialize.EndPointDV = P2DT.Item1.ToString(Data.dateTimeFormat) + "+" +
+                    P2DT.Item2.ToString(Data.numberFormat) + ";" +
                     P2ValY.ToString(Data.numberFormat);
 
                 if (color == Brushes.Black)

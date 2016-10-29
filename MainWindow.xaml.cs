@@ -50,11 +50,33 @@ namespace WpfApplication3
 
             ShowSymbolTab(dataContext as Data.SymbolInfo);
         }
+
+        private Point LineStringPoint(string data, string dataDV)
+        {
+            char[] separators = new char[] { '+', ';' };            
+            string[] PDV = dataDV.Split(separators);
+
+            // value
+            double PV = double.Parse(PDV[2], Data.numberFormat);
+            double PVR = Math.Round(Chart.RemapRange(PV,
+                Chart.drawingInfo.maxVal, Chart.drawingInfo.viewMarginBottom,
+                Chart.drawingInfo.minVal, Chart.drawingInfo.viewHeight - Chart.drawingInfo.viewMarginBottom), 6);
+
+            // date
+            DateTime PD = DateTime.ParseExact(PDV[0], Data.dateTimeFormat, System.Globalization.CultureInfo.InvariantCulture);
+
+            // factor
+            double PDf = double.Parse(PDV[1], Data.numberFormat);
+                       
+            string[] PCoords = data.Split(';');
+
+            return new Point(double.Parse(PCoords[0], Data.numberFormat), PVR);
+        }
  
         private void AddLoadedChartLines(string name, Chart chart)
         {
             var dvm = DataContext as DataViewModel;
-
+             
             // add loaded chart lines
             foreach (var data in dvm.SymbolsDrawingsToSerialize)
             {
@@ -64,31 +86,10 @@ namespace WpfApplication3
                     foreach (var line in data.Value.chartLines)
                     {
                         Chart.ChartLine lineToAdd = new Chart.ChartLine(chart);
-
-                        // Price to value
-                        char[] separators = new char[] { '+', ';' };
-
-                        string[] SPDV = line.StartPointDV.Split(separators);
-                        double SPV = double.Parse(SPDV[2], Data.numberFormat);
-                        double SPVR = Math.Round(Chart.RemapRange(SPV,
-                            Chart.drawingInfo.maxVal, Chart.drawingInfo.viewMarginBottom,
-                            Chart.drawingInfo.minVal, Chart.drawingInfo.viewHeight - Chart.drawingInfo.viewMarginBottom), 6);
-
-                        string[] EPDV = line.EndPointDV.Split(separators);
-                        double EPV = double.Parse(EPDV[2], Data.numberFormat);
-                        double EPVR = Math.Round(Chart.RemapRange(EPV,
-                            Chart.drawingInfo.maxVal, Chart.drawingInfo.viewMarginBottom,
-                            Chart.drawingInfo.minVal, Chart.drawingInfo.viewHeight - Chart.drawingInfo.viewMarginBottom), 6);
-
+                        
                         // Create and add new points
-                        string[] P1Coords = line.StartPoint.Split(';');
-                        lineToAdd.setP1(
-                            new Point(double.Parse(P1Coords[0], Data.numberFormat),
-                            SPVR));
-                        string[] P2Coords = line.EndPoint.Split(';');
-                        lineToAdd.setP2(
-                            new Point(double.Parse(P2Coords[0], Data.numberFormat),
-                            EPVR));
+                        lineToAdd.setP1(LineStringPoint(line.StartPoint, line.StartPointDV));
+                        lineToAdd.setP2(LineStringPoint(line.EndPoint, line.EndPointDV));
 
                         if (line.Color == "Black")
                             lineToAdd.color = System.Windows.Media.Brushes.Black;

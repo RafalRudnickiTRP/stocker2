@@ -67,7 +67,7 @@ namespace WpfApplication3
             {
                 if (date.HasValue)
                 {
-                    valueTextBlock.Text = ((DateTime)date).ToShortDateString() + "+" + 
+                    valueTextBlock.Text = ((DateTime)date).ToShortDateString() + " " + 
                         ((DateTime)date).DayOfWeek.ToString().Substring(0, 3);
                 }
                 else
