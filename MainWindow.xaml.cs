@@ -1,17 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.Diagnostics;
 using System.IO;
 
@@ -76,9 +69,12 @@ namespace WpfApplication3
         private void AddLoadedChartLines(string name, Chart chart)
         {
             var dvm = DataContext as DataViewModel;
-             
+
+            if (dvm.SymbolsDrawingsToSerialize == null)
+                return;
+
             // add loaded chart lines
-            foreach (var data in dvm.SymbolsDrawingsToSerialize)
+                foreach (var data in dvm.SymbolsDrawingsToSerialize)
             {
                 if (data.Key == name)
                 {
@@ -563,6 +559,17 @@ namespace WpfApplication3
                      e.Key == Key.RightShift)
             {
                 shiftPressed = false;
+            }
+        }
+
+        private void buttonEquation_Click(object sender, RoutedEventArgs e)
+        {
+            Chart chart = GetDVM().CurrentDrawing;
+
+            List<string> equations = new List<string>();
+            foreach (Chart.ChartLine line in chart.selectedLines)
+            {
+
             }
         }
     }

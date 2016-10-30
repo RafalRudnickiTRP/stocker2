@@ -31,8 +31,10 @@
                 <Button Command="{StaticResource Command_SelectMode}">select</Button>
                 <Button Command="{StaticResource Command_CrossMode}">cross</Button>
                 <Button Command="{StaticResource Command_DrawMode}">draw</Button>
+                <Label Name="Label00" Content=" " />
                 <Button Name="buttonSave" Content="save" Click="buttonSave_Click" />
                 <Button Name="buttonLoad" Content="load" Click="buttonLoad_Click" />
+                <Label Name="Label0" Content=" " />
                 <Label x:Name="label" Content="line color:" IsEnabled="False" />
                 <Grid x:Name="colors">
                     <Button x:Name="button_black"
@@ -48,7 +50,10 @@
                             BorderThickness="0" BorderBrush="Cyan"
                             Content="" HorizontalAlignment="Left" Margin="60,0,0,0" VerticalAlignment="Center" Width="15" Background="Blue" Click="buttonColor_Click"/>
                 </Grid>
+                <Label Name="Label1" Content=" " />
                 <Button Name="buttonInverse" Content="yInverse" Click="buttonInverse_Click" />
+                <Label Name="Label2" Content=" " />
+                <Button Name="buttonEquation" Content="equation" Click="buttonEquation_Click" />
             </ToolBar>
         </ToolBarTray>
         <StatusBar DockPanel.Dock="Bottom">
