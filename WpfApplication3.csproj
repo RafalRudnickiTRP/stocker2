@@ -75,6 +75,7 @@
     <Compile Include="Cross.cs" />
     <Compile Include="Data.cs" />
     <Compile Include="Drawings.cs" />
+    <Compile Include="Frame.cs" />
     <Compile Include="Label.cs" />
     <Compile Include="Line.cs" />
     <Compile Include="MainWindow.xaml.cs">

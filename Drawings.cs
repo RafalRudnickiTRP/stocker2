@@ -61,29 +61,6 @@ namespace WpfApplication3
             drawingInfo = di;
         }
         
-        public class FrameGeom : Shape
-        {
-            private GeometryGroup frameGeom = new GeometryGroup();
-
-            public FrameGeom(DrawingInfo drawingInfo)
-            {
-                frameGeom.Children.Add(new RectangleGeometry(new Rect(
-                    new Point(drawingInfo.viewMarginLeft,
-                              drawingInfo.viewMarginTop),
-                    new Point(drawingInfo.viewWidth - drawingInfo.viewMarginRight,
-                              drawingInfo.viewHeight - drawingInfo.viewMarginBottom))));
-                StrokeThickness = 1;
-                Stroke = Brushes.Black;
-            }
-
-            // TODO: add clip line func etc. here
-
-            protected override Geometry DefiningGeometry
-            {
-                get { return frameGeom; }
-            }
-        }
-
         public Canvas CreateDrawing(List<Data.SymbolDayData> sddList)
         {
             if (sddList.Count == 0)
