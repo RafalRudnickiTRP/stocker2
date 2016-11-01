@@ -43,49 +43,7 @@ namespace WpfApplication3
 
             ShowSymbolTab(dataContext as Data.SymbolInfo);
         }
-
-        private void AddLoadedChartLines(string name, Chart chart)
-        {
-            var dvm = DataContext as DataViewModel;
-
-            if (dvm.SymbolsDrawingsToSerialize == null)
-                return;
-
-            // add loaded chart lines
-                foreach (var data in dvm.SymbolsDrawingsToSerialize)
-            {
-                if (data.Key == name)
-                {
-                    // found drawing for symbol
-                    foreach (var line in data.Value.chartLines)
-                    {
-                        Chart.ChartLine lineToAdd = new Chart.ChartLine(chart);
-                        
-                        // Create and add new points
-                        lineToAdd.setP1(Misc.LineStringToPoint(Chart.drawingInfo, line.StartPointDV));
-                        lineToAdd.setP2(Misc.LineStringToPoint(Chart.drawingInfo, line.EndPointDV));
-
-                        lineToAdd.color = Misc.StringToBrush(line.Color);
-                        lineToAdd.linePath.Stroke = lineToAdd.color;
-
-                        lineToAdd.mode = Chart.ChartLine.Mode.Normal;
-                        lineToAdd.drawingMode = Chart.ChartLine.DrawingMode.Invalid;
-                        lineToAdd.Select(false);
-
-                        chart.chartLines.Add(lineToAdd);
-                        chart.canvas.Children.Add(lineToAdd.linePath);
-                        chart.canvas.Children.Add(lineToAdd.rectPath);
-
-                        lineToAdd.MoveP1(lineToAdd.getP1());
-                        lineToAdd.MoveP2(lineToAdd.getP2());
-
-                        chart.selectedLines.Add(lineToAdd);
-                    }
-                    break;
-                }
-            }
-        }
-
+        
         private void ShowSymbolTab(Data.SymbolInfo symbolInfo)
         {
             var dvm = DataContext as DataViewModel;
@@ -114,8 +72,10 @@ namespace WpfApplication3
                 chart = new Chart(di);
                 dvm.SymbolsDrawings.Add(symbolInfo.FullName, chart);
                 newTab.Content = chart.CreateDrawing(sdd);
+                
+                if (dvm.SymbolsDrawingsToSerialize != null)
+                    chart.AddLoadedChartLines(dvm.SymbolsDrawingsToSerialize, symbolInfo.FullName);
 
-                AddLoadedChartLines(symbolInfo.FullName, chart);
                 // remove added symbol
                 dvm.SymbolsDrawingsToSerialize.Remove(symbolInfo.FullName);
 
@@ -373,7 +333,7 @@ namespace WpfApplication3
 
             // add loaded chart lines for this symbol
             Chart activeChart = GetDVM().CurrentDrawing;
-            AddLoadedChartLines(currentSymbolInfo.FullName, activeChart);
+            activeChart.AddLoadedChartLines(GetDVM().SymbolsDrawingsToSerialize, currentSymbolInfo.FullName);
             // remove added symbol
             GetDVM().SymbolsDrawingsToSerialize.Remove(currentSymbolInfo.FullName);
         }

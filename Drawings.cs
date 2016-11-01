@@ -239,5 +239,42 @@ namespace WpfApplication3
 
             return canvas;
         }
+
+        public void AddLoadedChartLines(Dictionary<string, Chart.DataToSerialize> symbolsDrawingsToSerialize, string name)
+        {
+            // add loaded chart lines
+            foreach (var data in symbolsDrawingsToSerialize)
+            {
+                if (data.Key == name)
+                {
+                    // found drawing for symbol
+                    foreach (var line in data.Value.chartLines)
+                    {
+                        ChartLine lineToAdd = new ChartLine(this);
+
+                        // Create and add new points
+                        lineToAdd.setP1(Misc.LineStringToPoint(drawingInfo, line.StartPointDV));
+                        lineToAdd.setP2(Misc.LineStringToPoint(drawingInfo, line.EndPointDV));
+
+                        lineToAdd.color = Misc.StringToBrush(line.Color);
+                        lineToAdd.linePath.Stroke = lineToAdd.color;
+
+                        lineToAdd.mode = ChartLine.Mode.Normal;
+                        lineToAdd.drawingMode = ChartLine.DrawingMode.Invalid;
+                        lineToAdd.Select(false);
+
+                        chartLines.Add(lineToAdd);
+                        canvas.Children.Add(lineToAdd.linePath);
+                        canvas.Children.Add(lineToAdd.rectPath);
+
+                        lineToAdd.MoveP1(lineToAdd.getP1());
+                        lineToAdd.MoveP2(lineToAdd.getP2());
+
+                        selectedLines.Add(lineToAdd);
+                    }
+                    break;
+                }
+            }
+        }
     }
 }
