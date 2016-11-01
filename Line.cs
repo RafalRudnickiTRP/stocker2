@@ -11,7 +11,7 @@ namespace WpfApplication3
 {
     public partial class Chart
     {
-        public class ChartLine
+        public partial class ChartLine
         {
             public Path linePath { get; }
             public Path rectPath { get; }
@@ -181,51 +181,6 @@ namespace WpfApplication3
                 chart.canvas.Children.Add(newLine.rectPath);
 
                 return newLine;
-            }
-
-            public struct DataToSerialize
-            {
-                // public string StartPoint { get; set; }
-                public string StartPointDV { get; set; }
-                // public string EndPoint { get; set; }
-                public string EndPointDV { get; set; }
-                public string Color { get; set; }
-            }
-
-            public DataToSerialize SerializeToJson()
-            {
-                // dates 
-                var P1DT = Misc.PixelToSdd(drawingInfo, getP1());
-                var P2DT = Misc.PixelToSdd(drawingInfo, getP2());
-
-                // values
-                double P1ValY = Math.Round(Misc.RemapRange(getP1().Y,
-                    drawingInfo.viewMarginBottom, drawingInfo.maxVal,
-                    drawingInfo.viewHeight - drawingInfo.viewMarginBottom, drawingInfo.minVal), 6);
-                double P2ValY = Math.Round(Misc.RemapRange(getP2().Y,
-                    drawingInfo.viewMarginBottom, drawingInfo.maxVal,
-                    drawingInfo.viewHeight - drawingInfo.viewMarginBottom, drawingInfo.minVal), 6);
-
-                DataToSerialize toSerialize = new DataToSerialize();
-
-                /*
-                toSerialize.StartPoint = getP1().X.ToString(Data.numberFormat) + ";" +
-                    getP1().Y.ToString(Data.numberFormat);
-                toSerialize.EndPoint = getP2().X.ToString(Data.numberFormat) + ";" +
-                    getP2().Y.ToString(Data.numberFormat);
-                */
-
-                // date + value
-                toSerialize.StartPointDV = P1DT.Item1.ToString(Data.dateTimeFormat) + "+" +
-                    P1DT.Item2.ToString(Data.numberFormat) + ";" +
-                    P1ValY.ToString(Data.numberFormat);
-                toSerialize.EndPointDV = P2DT.Item1.ToString(Data.dateTimeFormat) + "+" +
-                    P2DT.Item2.ToString(Data.numberFormat) + ";" +
-                    P2ValY.ToString(Data.numberFormat);
-
-                toSerialize.Color = Misc.BrushToString(color);
-
-                return toSerialize;
             }
         }
     }

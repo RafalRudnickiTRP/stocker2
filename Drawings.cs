@@ -60,27 +60,7 @@ namespace WpfApplication3
 
             drawingInfo = di;
         }
-
-        public struct DataToSerialize
-        {
-            public IList<ChartLine.DataToSerialize> chartLines { get; set; }
-        }
-
-        public DataToSerialize SerializeToJson()
-        {
-            DataToSerialize toSerialize = new DataToSerialize()
-            {
-                chartLines = new List<ChartLine.DataToSerialize>()
-            };
-
-            foreach (ChartLine line in chartLines)
-            {
-                toSerialize.chartLines.Add(line.SerializeToJson());
-            }
-
-            return toSerialize;
-        }      
-
+        
         public static float LinePointDistance(Point p1, Point p2, Point p)
         {
             return (float)(Math.Abs((p2.Y - p1.Y) * p.X - (p2.X - p1.X) * p.Y + p2.X * p1.Y - p2.Y * p1.X) /

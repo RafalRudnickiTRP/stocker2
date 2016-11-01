@@ -28,7 +28,7 @@ namespace WpfApplication3
             public float Close { get; }
             public uint Volume { get; }
 
-            public SymbolDayData(DateTime date, float open, float hi, float low,float close,uint volume)
+            public SymbolDayData(DateTime date, float open, float hi, float low, float close, uint volume)
             {
                 Date = date;
                 Open = open;
@@ -57,7 +57,7 @@ namespace WpfApplication3
 
         public static List<SymbolInfo> SymbolInfoList = new List<SymbolInfo>();
         public static NumberFormatInfo numberFormat = new NumberFormatInfo();
-        public static string dateTimeFormat; 
+        public static string dateTimeFormat;
 
         #endregion
 
@@ -72,7 +72,7 @@ namespace WpfApplication3
 
             while (true)
             {
-                string data ="http://stooq.pl/t/?i=513&v=1&l=" + page.ToString();
+                string data = "http://stooq.pl/t/?i=513&v=1&l=" + page.ToString();
                 doc = web.Load(data);
 
                 // XPath of symbol name
@@ -120,7 +120,8 @@ namespace WpfApplication3
                     // Read the stream to a string, and write the string to the console.
                     csv = reader.ReadToEnd();
                 }
-            } catch (Exception)
+            }
+            catch (Exception)
             {
             }
 
@@ -171,7 +172,7 @@ namespace WpfApplication3
                     volume = uint.Parse(data[5]);
 
                 SymbolDayData sdd = new SymbolDayData(date, open, hi, low, close, volume);
-                
+
                 result.Add(sdd);
             }
 
@@ -179,19 +180,19 @@ namespace WpfApplication3
             return result;
         }
 
-    }    
+    }
 
     public class DataViewModel
     {
         public List<Data.SymbolInfo> SymbolsInfoList { get; set; }
 
         public Dictionary<string, Chart> SymbolsDrawings { get; set; }
-        public Chart CurrentDrawing { get; set;  }
-        
+        public Chart CurrentDrawing { get; set; }
+
         public Dictionary<string, Chart.DataToSerialize> SymbolsDrawingsToSerialize { get; set; }
 
         public string SerializeToJson()
-        {            
+        {
             foreach (KeyValuePair<string, Chart> pairSymbolsDrawings in SymbolsDrawings)
             {
                 Chart.DataToSerialize data = pairSymbolsDrawings.Value.SerializeToJson();
@@ -257,7 +258,7 @@ namespace WpfApplication3
                 using (StreamReader reader = new StreamReader(mydocpath + @"\stocker\charts.json"))
                 {
                     // Read the stream to a string, and write the string to the console.
-                    string input = reader.ReadToEnd();                    
+                    string input = reader.ReadToEnd();
                     SymbolsDrawingsToSerialize =
                         JsonConvert.DeserializeObject<Dictionary<string, Chart.DataToSerialize>>(input);
                 }
@@ -282,6 +283,77 @@ namespace WpfApplication3
         public void SetCurrentDrawing(Chart currentChart)
         {
             CurrentDrawing = currentChart;
+        }
+    }
+
+    public partial class Chart
+    {
+        public struct DataToSerialize
+        {
+            public IList<ChartLine.DataToSerialize> chartLines { get; set; }
+        }
+
+        public DataToSerialize SerializeToJson()
+        {
+            DataToSerialize toSerialize = new DataToSerialize()
+            {
+                chartLines = new List<ChartLine.DataToSerialize>()
+            };
+
+            foreach (ChartLine line in chartLines)
+            {
+                toSerialize.chartLines.Add(line.SerializeToJson());
+            }
+
+            return toSerialize;
+        }
+
+        public partial class ChartLine
+        {
+            public struct DataToSerialize
+            {
+                // public string StartPoint { get; set; }
+                public string StartPointDV { get; set; }
+                // public string EndPoint { get; set; }
+                public string EndPointDV { get; set; }
+                public string Color { get; set; }
+            }
+
+            public DataToSerialize SerializeToJson()
+            {
+                // dates 
+                var P1DT = Misc.PixelToSdd(drawingInfo, getP1());
+                var P2DT = Misc.PixelToSdd(drawingInfo, getP2());
+
+                // values
+                double P1ValY = Math.Round(Misc.RemapRange(getP1().Y,
+                    drawingInfo.viewMarginBottom, drawingInfo.maxVal,
+                    drawingInfo.viewHeight - drawingInfo.viewMarginBottom, drawingInfo.minVal), 6);
+                double P2ValY = Math.Round(Misc.RemapRange(getP2().Y,
+                    drawingInfo.viewMarginBottom, drawingInfo.maxVal,
+                    drawingInfo.viewHeight - drawingInfo.viewMarginBottom, drawingInfo.minVal), 6);
+
+                DataToSerialize toSerialize = new DataToSerialize();
+
+                /*
+                toSerialize.StartPoint = getP1().X.ToString(Data.numberFormat) + ";" +
+                    getP1().Y.ToString(Data.numberFormat);
+                toSerialize.EndPoint = getP2().X.ToString(Data.numberFormat) + ";" +
+                    getP2().Y.ToString(Data.numberFormat);
+                */
+
+                // date + value
+                toSerialize.StartPointDV = P1DT.Item1.ToString(Data.dateTimeFormat) + "+" +
+                    P1DT.Item2.ToString(Data.numberFormat) + ";" +
+                    P1ValY.ToString(Data.numberFormat);
+                toSerialize.EndPointDV = P2DT.Item1.ToString(Data.dateTimeFormat) + "+" +
+                    P2DT.Item2.ToString(Data.numberFormat) + ";" +
+                    P2ValY.ToString(Data.numberFormat);
+
+                toSerialize.Color = Misc.BrushToString(color);
+
+                return toSerialize;
+            }
         }
     }
 }
