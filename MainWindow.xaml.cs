@@ -44,25 +44,6 @@ namespace WpfApplication3
             ShowSymbolTab(dataContext as Data.SymbolInfo);
         }
 
-        private Point LineStringToPoint(string dataDV)
-        {
-            char[] separators = new char[] { '+', ';' };            
-            string[] PDV = dataDV.Split(separators);
-
-            // value
-            double PV = double.Parse(PDV[2], Data.numberFormat);
-            double PVR = Math.Round(Misc.RemapRange(PV,
-                Chart.drawingInfo.maxVal, Chart.drawingInfo.viewMarginBottom,
-                Chart.drawingInfo.minVal, Chart.drawingInfo.viewHeight - Chart.drawingInfo.viewMarginBottom), 6);
-
-            // date
-            DateTime PD = DateTime.ParseExact(PDV[0], Data.dateTimeFormat, System.Globalization.CultureInfo.InvariantCulture);
-            double PDf = double.Parse(PDV[1], Data.numberFormat); // factor
-            double PDR = Misc.DateToPixel(Chart.drawingInfo, PD, PDf);            
-
-            return new Point(PDR, PVR);
-        }
- 
         private void AddLoadedChartLines(string name, Chart chart)
         {
             var dvm = DataContext as DataViewModel;
@@ -81,8 +62,8 @@ namespace WpfApplication3
                         Chart.ChartLine lineToAdd = new Chart.ChartLine(chart);
                         
                         // Create and add new points
-                        lineToAdd.setP1(LineStringToPoint(line.StartPointDV));
-                        lineToAdd.setP2(LineStringToPoint(line.EndPointDV));
+                        lineToAdd.setP1(Misc.LineStringToPoint(Chart.drawingInfo, line.StartPointDV));
+                        lineToAdd.setP2(Misc.LineStringToPoint(Chart.drawingInfo, line.EndPointDV));
 
                         lineToAdd.color = Misc.StringToBrush(line.Color);
                         lineToAdd.linePath.Stroke = lineToAdd.color;
@@ -211,7 +192,7 @@ namespace WpfApplication3
 
                 foreach (Chart.ChartLine line in activeChart.selectedLines)
                 {
-                    float distP1 = Chart.PointPointDistance(line.getP1(), mousePosition);
+                    float distP1 = Misc.PointPointDistance(line.getP1(), mousePosition);
                     if (distP1 < minDist)
                     {
                         choosenLine = line;
@@ -219,7 +200,7 @@ namespace WpfApplication3
                         drawingMode = Chart.ChartLine.DrawingMode.P1;
                     }
 
-                    float distP2 = Chart.PointPointDistance(line.getP2(), mousePosition);
+                    float distP2 = Misc.PointPointDistance(line.getP2(), mousePosition);
                     if (distP2 < minDist)
                     {
                         choosenLine = line;
@@ -227,7 +208,7 @@ namespace WpfApplication3
                         drawingMode = Chart.ChartLine.DrawingMode.P2;
                     }
 
-                    float distMidP = Chart.PointPointDistance(line.getMidP(), mousePosition);
+                    float distMidP = Misc.PointPointDistance(line.getMidP(), mousePosition);
                     if (distMidP < minDist)
                     {
                         choosenLine = line;
@@ -359,7 +340,7 @@ namespace WpfApplication3
                 Chart.ChartLine closestLine = null;
                 foreach (Chart.ChartLine line in activeChart.chartLines)
                 {
-                    float dist = Chart.LinePointDistance(line.getP1(), line.getP2(), mousePosition);
+                    float dist = Misc.LinePointDistance(line.getP1(), line.getP2(), mousePosition);
                     if (dist < minDist)
                     {
                         minDist = dist; closestLine = line;

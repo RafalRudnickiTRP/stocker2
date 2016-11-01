@@ -89,5 +89,36 @@ namespace WpfApplication3
 
             return result;
         }
+        
+        public static float LinePointDistance(Point p1, Point p2, Point p)
+        {
+            return (float)(Math.Abs((p2.Y - p1.Y) * p.X - (p2.X - p1.X) * p.Y + p2.X * p1.Y - p2.Y * p1.X) /
+                Math.Sqrt(Math.Pow(p2.Y - p1.Y, 2) + Math.Pow(p2.X - p1.X, 2)));
+        }
+
+        public static float PointPointDistance(Point p1, Point p2)
+        {
+            return (float)Math.Sqrt(Math.Pow(p1.X - p2.X, 2) + Math.Pow(p1.Y - p2.Y, 2));
+        }
+
+        public static Point LineStringToPoint(Chart.DrawingInfo drawingInfo, string dataDV)
+        {
+            char[] separators = new char[] { '+', ';' };
+            string[] PDV = dataDV.Split(separators);
+
+            // value
+            double PV = double.Parse(PDV[2], Data.numberFormat);
+            double PVR = Math.Round(Misc.RemapRange(PV,
+                drawingInfo.maxVal, drawingInfo.viewMarginBottom,
+                drawingInfo.minVal, drawingInfo.viewHeight - drawingInfo.viewMarginBottom), 6);
+
+            // date
+            DateTime PD = DateTime.ParseExact(PDV[0], Data.dateTimeFormat, System.Globalization.CultureInfo.InvariantCulture);
+            double PDf = double.Parse(PDV[1], Data.numberFormat); // factor
+            double PDR = Misc.DateToPixel(Chart.drawingInfo, PD, PDf);
+
+            return new Point(PDR, PVR);
+        }
+
     }
 }
