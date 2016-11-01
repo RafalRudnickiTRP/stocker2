@@ -44,7 +44,7 @@ namespace WpfApplication3
             ShowSymbolTab(dataContext as Data.SymbolInfo);
         }
 
-        private Point LineStringPoint(string data, string dataDV)
+        private Point LineStringToPoint(string dataDV)
         {
             char[] separators = new char[] { '+', ';' };            
             string[] PDV = dataDV.Split(separators);
@@ -57,13 +57,10 @@ namespace WpfApplication3
 
             // date
             DateTime PD = DateTime.ParseExact(PDV[0], Data.dateTimeFormat, System.Globalization.CultureInfo.InvariantCulture);
+            double PDf = double.Parse(PDV[1], Data.numberFormat); // factor
+            double PDR = Chart.DateToPixel(PD, PDf);            
 
-            // factor
-            double PDf = double.Parse(PDV[1], Data.numberFormat);
-                       
-            string[] PCoords = data.Split(';');
-
-            return new Point(double.Parse(PCoords[0], Data.numberFormat), PVR);
+            return new Point(PDR, PVR);
         }
  
         private void AddLoadedChartLines(string name, Chart chart)
@@ -84,8 +81,8 @@ namespace WpfApplication3
                         Chart.ChartLine lineToAdd = new Chart.ChartLine(chart);
                         
                         // Create and add new points
-                        lineToAdd.setP1(LineStringPoint(line.StartPoint, line.StartPointDV));
-                        lineToAdd.setP2(LineStringPoint(line.EndPoint, line.EndPointDV));
+                        lineToAdd.setP1(LineStringToPoint(line.StartPointDV));
+                        lineToAdd.setP2(LineStringToPoint(line.EndPointDV));
 
                         if (line.Color == "Black")
                             lineToAdd.color = System.Windows.Media.Brushes.Black;

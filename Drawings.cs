@@ -46,6 +46,30 @@ namespace WpfApplication3
             return null;
         }
 
+        public static double DateToPixel(DateTime dt, double frac)
+        {
+            double result = 0;
+
+            int start = drawingInfo.viewWidth - drawingInfo.viewMarginRight - drawingInfo.candleMargin -
+                /*(int)framePath.StrokeThickness*/ 1 - drawingInfo.candleWidth / 2;
+            int candleWidthWithMargins = drawingInfo.candleWidth + drawingInfo.candleMargin * 2;
+            
+            foreach (Data.SymbolDayData sddIt in drawingInfo.sddList)
+            {
+                int candleStart = start - drawingInfo.candleWidth / 2;
+                int nextCandleStart = start + drawingInfo.candleWidth / 2 + drawingInfo.candleMargin * 2;
+
+                if (sddIt.Date == dt)
+                {
+                    result = candleStart + (nextCandleStart - candleStart) * frac;
+                }
+
+                start -= candleWidthWithMargins;
+            }
+
+            return result;
+        }
+
         public struct DrawingInfo
         {
             public int viewHeight;
@@ -67,6 +91,9 @@ namespace WpfApplication3
 
             public int minViewport;
             public int maxViewport;
+
+            public DateTime refDateStart;
+            public int refPixelXStart;
 
             public List<Data.SymbolDayData> sddList;
         }
@@ -246,9 +273,9 @@ namespace WpfApplication3
 
             public struct DataToSerialize
             {
-                public string StartPoint { get; set; }
+                // public string StartPoint { get; set; }
                 public string StartPointDV { get; set; }
-                public string EndPoint { get; set; }
+                // public string EndPoint { get; set; }
                 public string EndPointDV { get; set; }
                 public string Color { get; set; }
             }
@@ -269,10 +296,12 @@ namespace WpfApplication3
 
                 DataToSerialize toSerialize = new DataToSerialize();
 
+                /*
                 toSerialize.StartPoint = getP1().X.ToString(Data.numberFormat) + ";" +
                     getP1().Y.ToString(Data.numberFormat);
                 toSerialize.EndPoint = getP2().X.ToString(Data.numberFormat) + ";" +
                     getP2().Y.ToString(Data.numberFormat);
+                */
 
                 // date + value
                 toSerialize.StartPointDV = P1DT.Item1.ToString(Data.dateTimeFormat) + "+" +
@@ -325,6 +354,7 @@ namespace WpfApplication3
             {
                 chartLines = new List<ChartLine.DataToSerialize>()
             };
+
             foreach (ChartLine line in chartLines)
             {
                 toSerialize.chartLines.Add(line.SerializeToJson());
@@ -463,6 +493,7 @@ namespace WpfApplication3
             }
 
             // Candles
+            bool refStartCreated = false;
             foreach (Data.SymbolDayData sdd in sddList.GetRange(0, numCandlesToDraw))
             {
                 double[] sortedVals = {
@@ -505,7 +536,14 @@ namespace WpfApplication3
                 bodyPath.Data = bodyGeom;
 
                 canvas.Children.Add(bodyPath);
-
+                
+                if (!refStartCreated)
+                {
+                    drawingInfo.refDateStart = sdd.Date;
+                    drawingInfo.refPixelXStart = start;
+                    refStartCreated = true;
+                }
+                
                 start -= candleWidthWithMargins;
             }
 
