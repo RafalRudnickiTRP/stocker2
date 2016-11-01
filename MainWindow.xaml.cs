@@ -84,14 +84,7 @@ namespace WpfApplication3
                         lineToAdd.setP1(LineStringToPoint(line.StartPointDV));
                         lineToAdd.setP2(LineStringToPoint(line.EndPointDV));
 
-                        if (line.Color == "Black")
-                            lineToAdd.color = System.Windows.Media.Brushes.Black;
-                        if (line.Color == "Blue")
-                            lineToAdd.color = System.Windows.Media.Brushes.Blue;
-                        if (line.Color == "Lime")
-                            lineToAdd.color = System.Windows.Media.Brushes.Lime;
-                        if (line.Color == "Red")
-                            lineToAdd.color = System.Windows.Media.Brushes.Red;
+                        lineToAdd.color = Misc.StringToBrush(line.Color);
                         lineToAdd.linePath.Stroke = lineToAdd.color;
 
                         lineToAdd.mode = Chart.ChartLine.Mode.Normal;
@@ -449,25 +442,9 @@ namespace WpfApplication3
             }
 
             ((Button)sender).BorderThickness = new Thickness(2);
-            
-            switch (((Button)sender).Name.ToString())
-            {
-                case "button_black":
-                    currentColor = Brushes.Black;
-                    break;
-                case "button_red":
-                    currentColor = Brushes.Red;
-                    break;
-                case "button_lime":
-                    currentColor = Brushes.Lime;
-                    break;
-                case "button_blue":
-                    currentColor = Brushes.Blue;
-                    break;
-                default:
-                    Debug.Assert(false);
-                    break;
-            }
+
+            string colorName = ((Button)sender).Name.ToString().Split('_')[1];
+            currentColor = Misc.StringToBrush(colorName);
 
             Chart activeChart = GetDVM().CurrentDrawing;
             if (activeChart != null)

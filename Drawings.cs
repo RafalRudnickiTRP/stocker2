@@ -311,16 +311,7 @@ namespace WpfApplication3
                     P2DT.Item2.ToString(Data.numberFormat) + ";" +
                     P2ValY.ToString(Data.numberFormat);
 
-                if (color == Brushes.Black)
-                    toSerialize.Color = "Black";
-                else if (color == Brushes.Lime)
-                    toSerialize.Color = "Lime";
-                else if (color == Brushes.Blue)
-                    toSerialize.Color = "Blue";
-                else if (color == Brushes.Red)
-                    toSerialize.Color = "Red";
-                else
-                    Debug.Assert(false);
+                toSerialize.Color = Misc.BrushToString(color);
 
                 return toSerialize;
             }

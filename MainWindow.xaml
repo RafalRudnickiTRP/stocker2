@@ -37,16 +37,16 @@
                 <Label Name="Label0" Content=" " />
                 <Label x:Name="label" Content="line color:" IsEnabled="False" />
                 <Grid x:Name="colors">
-                    <Button x:Name="button_black"
+                    <Button x:Name="button_Black"
                             BorderThickness="2" BorderBrush="Cyan"
                             Content="" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Center" Width="15" Background="Black" Click="buttonColor_Click"/>
-                    <Button x:Name="button_red"
+                    <Button x:Name="button_Red"
                             BorderThickness="0" BorderBrush="Cyan"
                             Content="" HorizontalAlignment="Left" Margin="20,0,0,0" VerticalAlignment="Center" Width="15" Background="Red" Click="buttonColor_Click"/>
-                    <Button x:Name="button_lime"
+                    <Button x:Name="button_Lime"
                             BorderThickness="0" BorderBrush="Cyan"
                             Content="" HorizontalAlignment="Left" Margin="40,0,0,0" VerticalAlignment="Center" Width="15" Background="Lime" Click="buttonColor_Click"/>
-                    <Button x:Name="button_blue"
+                    <Button x:Name="button_Blue"
                             BorderThickness="0" BorderBrush="Cyan"
                             Content="" HorizontalAlignment="Left" Margin="60,0,0,0" VerticalAlignment="Center" Width="15" Background="Blue" Click="buttonColor_Click"/>
                 </Grid>
