@@ -273,7 +273,7 @@ namespace WpfApplication3
 
                 if (line.mode == Chart.ChartLine.Mode.Drawing)
                 {
-                    MoveControlPoint(line, mousePosition);
+                    line.MoveControlPoint(line, mousePosition, shiftPressed);
                 }
             }
 
@@ -287,17 +287,7 @@ namespace WpfApplication3
                 activeChart.MoveCross(mousePosition);
             }
         }
-
-        void MoveControlPoint(Chart.ChartLine line, Point mousePosition)
-        {
-            if (line.drawingMode == Chart.ChartLine.DrawingMode.P1)
-                line.MoveP1(mousePosition, shiftPressed);
-            else if (line.drawingMode == Chart.ChartLine.DrawingMode.P2)
-                line.MoveP2(mousePosition, shiftPressed);
-            else if (line.drawingMode == Chart.ChartLine.DrawingMode.Mid)
-                line.MoveMid(mousePosition);
-        }
-
+        
         void SymbolTab_MouseUp(object sender, MouseButtonEventArgs e)
         {
             Chart activeChart = GetDVM().CurrentDrawing;

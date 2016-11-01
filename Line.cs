@@ -165,6 +165,16 @@ namespace WpfApplication3
                 midRect.Transform = new TranslateTransform(midP.X + delta.X, midP.Y + delta.Y);
             }
 
+            public void MoveControlPoint(Chart.ChartLine line, Point mousePosition, bool resize)
+            {
+                if (line.drawingMode == Chart.ChartLine.DrawingMode.P1)
+                    line.MoveP1(mousePosition, resize);
+                else if (line.drawingMode == Chart.ChartLine.DrawingMode.P2)
+                    line.MoveP2(mousePosition, resize);
+                else if (line.drawingMode == Chart.ChartLine.DrawingMode.Mid)
+                    line.MoveMid(mousePosition);
+            }
+
             public ChartLine CopyLineTo(Chart chart)
             {
                 // copy line
