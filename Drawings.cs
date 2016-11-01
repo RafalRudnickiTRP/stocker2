@@ -15,61 +15,6 @@ namespace WpfApplication3
         private static int candleWidth = 5;
         private static int candleMargin = 1;
         
-        public static double RemapRange(double value, double fromMin, double toMin, double fromMax, double toMax)
-        {
-            return (value - fromMin) / (fromMax - fromMin) * (toMax - toMin) + toMin;
-        }
-        
-        public static Tuple<DateTime, double> PixelToSdd(Point p)
-        {
-            int start = drawingInfo.viewWidth - drawingInfo.viewMarginRight - drawingInfo.candleMargin -
-                /*(int)framePath.StrokeThickness*/ 1 - drawingInfo.candleWidth / 2;
-            int candleWidthWithMargins = drawingInfo.candleWidth + drawingInfo.candleMargin * 2;
-            
-            foreach (Data.SymbolDayData sddIt in drawingInfo.sddList)
-            {
-                int candleStart = start - drawingInfo.candleWidth / 2;
-                int nextCandleStart = start + drawingInfo.candleWidth / 2 + drawingInfo.candleMargin * 2;
-
-                if (candleStart <= (int)p.X &&
-                    nextCandleStart >= (int)p.X)
-                {
-                    DateTime dt = new DateTime(sddIt.Date.Ticks);
-                    double fract = RemapRange(p.X, candleStart, 0, nextCandleStart, 1);
-                    
-                    return Tuple.Create(sddIt.Date, fract);
-                }
-
-                start -= candleWidthWithMargins;
-            }
-
-            return null;
-        }
-
-        public static double DateToPixel(DateTime dt, double frac)
-        {
-            double result = 0;
-
-            int start = drawingInfo.viewWidth - drawingInfo.viewMarginRight - drawingInfo.candleMargin -
-                /*(int)framePath.StrokeThickness*/ 1 - drawingInfo.candleWidth / 2;
-            int candleWidthWithMargins = drawingInfo.candleWidth + drawingInfo.candleMargin * 2;
-            
-            foreach (Data.SymbolDayData sddIt in drawingInfo.sddList)
-            {
-                int candleStart = start - drawingInfo.candleWidth / 2;
-                int nextCandleStart = start + drawingInfo.candleWidth / 2 + drawingInfo.candleMargin * 2;
-
-                if (sddIt.Date == dt)
-                {
-                    result = candleStart + (nextCandleStart - candleStart) * frac;
-                }
-
-                start -= candleWidthWithMargins;
-            }
-
-            return result;
-        }
-
         public struct DrawingInfo
         {
             public int viewHeight;
@@ -283,14 +228,14 @@ namespace WpfApplication3
             public DataToSerialize SerializeToJson()
             {
                 // dates 
-                var P1DT = PixelToSdd(getP1());
-                var P2DT = PixelToSdd(getP2());
+                var P1DT = Misc.PixelToSdd(drawingInfo, getP1());
+                var P2DT = Misc.PixelToSdd(drawingInfo, getP2());
 
                 // values
-                double P1ValY = Math.Round(RemapRange(getP1().Y,
+                double P1ValY = Math.Round(Misc.RemapRange(getP1().Y,
                     drawingInfo.viewMarginBottom, drawingInfo.maxVal,
                     drawingInfo.viewHeight - drawingInfo.viewMarginBottom, drawingInfo.minVal), 6);
-                double P2ValY = Math.Round(RemapRange(getP2().Y,
+                double P2ValY = Math.Round(Misc.RemapRange(getP2().Y,
                     drawingInfo.viewMarginBottom, drawingInfo.maxVal,
                     drawingInfo.viewHeight - drawingInfo.viewMarginBottom, drawingInfo.minVal), 6);
 
@@ -468,7 +413,7 @@ namespace WpfApplication3
             int step = (drawingInfo.maxVal - drawingInfo.minVal) / 10 > 5 ? 10 : 1;
             for (int i = (int)drawingInfo.minVal % step; i < drawingInfo.maxVal; i += step)
             {
-                double x = RemapRange(i, drawingInfo.maxVal, maxViewport,
+                double x = Misc.RemapRange(i, drawingInfo.maxVal, maxViewport,
                     drawingInfo.minVal, minViewport);
 
                 GeometryGroup snapGeom = new GeometryGroup();
@@ -496,10 +441,10 @@ namespace WpfApplication3
 
                 if (drawingInfo.viewAutoScale)
                 {
-                    sortedVals[0] = RemapRange(sortedVals[0], minLow, maxViewport, maxHi, minViewport);
-                    sortedVals[1] = RemapRange(sortedVals[1], minLow, maxViewport, maxHi, minViewport);
-                    sortedVals[2] = RemapRange(sortedVals[2], minLow, maxViewport, maxHi, minViewport);
-                    sortedVals[3] = RemapRange(sortedVals[3], minLow, maxViewport, maxHi, minViewport);
+                    sortedVals[0] = Misc.RemapRange(sortedVals[0], minLow, maxViewport, maxHi, minViewport);
+                    sortedVals[1] = Misc.RemapRange(sortedVals[1], minLow, maxViewport, maxHi, minViewport);
+                    sortedVals[2] = Misc.RemapRange(sortedVals[2], minLow, maxViewport, maxHi, minViewport);
+                    sortedVals[3] = Misc.RemapRange(sortedVals[3], minLow, maxViewport, maxHi, minViewport);
                 }
 
                 GeometryGroup shadowGeom = new GeometryGroup();

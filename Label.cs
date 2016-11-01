@@ -95,7 +95,7 @@ namespace WpfApplication3
 
             currentValue = new Label(canvas, Label.Mode.Price, 0);
             currentValue.SetValue(drawingInfo.sddList[0].Close);
-            double y = RemapRange(drawingInfo.sddList[0].Close, drawingInfo.minVal, drawingInfo.maxViewport, drawingInfo.maxVal, drawingInfo.minViewport);
+            double y = Misc.RemapRange(drawingInfo.sddList[0].Close, drawingInfo.minVal, drawingInfo.maxViewport, drawingInfo.maxVal, drawingInfo.minViewport);
             currentValue.SetPosition(new Point(drawingInfo.viewWidth - drawingInfo.viewMarginRight + 2, y));
             currentValue.Show(true);
 

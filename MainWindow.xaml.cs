@@ -51,14 +51,14 @@ namespace WpfApplication3
 
             // value
             double PV = double.Parse(PDV[2], Data.numberFormat);
-            double PVR = Math.Round(Chart.RemapRange(PV,
+            double PVR = Math.Round(Misc.RemapRange(PV,
                 Chart.drawingInfo.maxVal, Chart.drawingInfo.viewMarginBottom,
                 Chart.drawingInfo.minVal, Chart.drawingInfo.viewHeight - Chart.drawingInfo.viewMarginBottom), 6);
 
             // date
             DateTime PD = DateTime.ParseExact(PDV[0], Data.dateTimeFormat, System.Globalization.CultureInfo.InvariantCulture);
             double PDf = double.Parse(PDV[1], Data.numberFormat); // factor
-            double PDR = Chart.DateToPixel(PD, PDf);            
+            double PDR = Misc.DateToPixel(Chart.drawingInfo, PD, PDf);            
 
             return new Point(PDR, PVR);
         }

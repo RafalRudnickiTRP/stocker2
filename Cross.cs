@@ -74,14 +74,14 @@ namespace WpfApplication3
             cross.Move(p);
             
             // value
-            double val = RemapRange(p.Y,
+            double val = Misc.RemapRange(p.Y,
                 drawingInfo.viewMarginBottom, drawingInfo.maxVal,
                 drawingInfo.viewHeight - drawingInfo.viewMarginBottom, drawingInfo.minVal);
             crossValue.SetValue(val);
             crossValue.SetPosition(new Point(drawingInfo.viewWidth - drawingInfo.viewMarginRight + 2, p.Y));
 
             // date
-            var dt = PixelToSdd(p);
+            var dt = Misc.PixelToSdd(drawingInfo, p);
             crossDate.SetDate(dt?.Item1);
             crossDate.SetPosition(new Point(p.X, drawingInfo.viewHeight - drawingInfo.viewMarginBottom + 2));
         }
