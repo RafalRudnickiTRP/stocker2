@@ -197,7 +197,8 @@ namespace WpfApplication3
             {
                 Chart.DataToSerialize data = pairSymbolsDrawings.Value.SerializeToJson();
                 string key = pairSymbolsDrawings.Key;
-                SymbolsDrawingsToSerialize.Add(key, data);
+                if (SymbolsDrawingsToSerialize.ContainsKey(key) == false)
+                    SymbolsDrawingsToSerialize.Add(key, data);
             }
 
             string output = JsonConvert.SerializeObject(SymbolsDrawingsToSerialize, Formatting.Indented);
@@ -206,8 +207,10 @@ namespace WpfApplication3
 
         public void DeserializeFromJson(string input)
         {
-            SymbolsDrawingsToSerialize = new Dictionary<string, Chart.DataToSerialize>();
             SymbolsDrawingsToSerialize = JsonConvert.DeserializeObject<Dictionary<string, Chart.DataToSerialize>>(input);
+
+            if (SymbolsDrawingsToSerialize == null)
+                SymbolsDrawingsToSerialize = new Dictionary<string, Chart.DataToSerialize>();
         }
 
         private void LoadSymbolsInfoList()
@@ -261,6 +264,11 @@ namespace WpfApplication3
                     string input = reader.ReadToEnd();
                     SymbolsDrawingsToSerialize =
                         JsonConvert.DeserializeObject<Dictionary<string, Chart.DataToSerialize>>(input);
+
+                    // in case of empty file the result of deserialization will be null,
+                    // so create new object
+                    if (SymbolsDrawingsToSerialize == null)
+                        SymbolsDrawingsToSerialize = new Dictionary<string, Chart.DataToSerialize>();
                 }
             }
             catch (FileNotFoundException)

@@ -72,12 +72,13 @@ namespace WpfApplication3
                 chart = new Chart(di);
                 dvm.SymbolsDrawings.Add(symbolInfo.FullName, chart);
                 newTab.Content = chart.CreateDrawing(sdd);
-                
-                if (dvm.SymbolsDrawingsToSerialize != null)
-                    chart.AddLoadedChartLines(dvm.SymbolsDrawingsToSerialize, symbolInfo.FullName);
 
-                // remove added symbol
-                dvm.SymbolsDrawingsToSerialize.Remove(symbolInfo.FullName);
+                if (dvm.SymbolsDrawingsToSerialize != null)
+                {
+                    chart.AddLoadedChartLines(dvm.SymbolsDrawingsToSerialize, symbolInfo.FullName);
+                    // remove added symbol
+                    dvm.SymbolsDrawingsToSerialize.Remove(symbolInfo.FullName);
+                }
 
                 SymbolsTabControl.SelectedItem = newTab;
             }
