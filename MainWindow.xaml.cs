@@ -307,12 +307,13 @@ namespace WpfApplication3
 
         private void buttonSave_Click(object sender, RoutedEventArgs e)
         {
-            string output = GetDVM().SerializeToJson();
-
             string mydocpath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            // create default dir
             Directory.CreateDirectory(mydocpath + @"\stocker\");
+            // try to write data
             using (StreamWriter outputFile = new StreamWriter(mydocpath + @"\stocker\charts.json"))
             {
+                string output = GetDVM().SerializeToJson();
                 outputFile.WriteLine(output);
             }
         }
@@ -321,6 +322,8 @@ namespace WpfApplication3
         {
             string input;
             string mydocpath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            // create default dir
+            Directory.CreateDirectory(mydocpath + @"\stocker\");
             // Open the text file using a stream reader.
             using (StreamReader sr = new StreamReader(mydocpath + @"\stocker\charts.json"))
             {
