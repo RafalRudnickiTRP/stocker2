@@ -107,15 +107,21 @@ namespace WpfApplication3
             return symbols;
         }
 
+        public static string GetPath()
+        {
+            string path = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            path += @"\stocker\";
+            return path;
+        }
+
         public static List<SymbolDayData> GetSymbolData(string symbolName)
         {
             string csv = "";
-            string today = DateTime.Today.ToString("dd-MM-yyyy");
+            string today = DateTime.Today.ToString("dd -MM-yyyy");
             string filename = "stocker_" + today + "_" + symbolName + ".csv";
-            string mydocpath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
             try
             {
-                using (StreamReader reader = new StreamReader(mydocpath + @"\stocker\temp\" + filename))
+                using (StreamReader reader = new StreamReader(GetPath() + @"temp\" + filename))
                 {
                     // Read the stream to a string, and write the string to the console.
                     csv = reader.ReadToEnd();
@@ -134,8 +140,8 @@ namespace WpfApplication3
                 StreamReader sr = new StreamReader(resp.GetResponseStream());
                 csv = sr.ReadToEnd();
 
-                Directory.CreateDirectory(mydocpath + @"\stocker\temp\");
-                using (StreamWriter outputFile = new StreamWriter(mydocpath + @"\stocker\temp\" + filename))
+                Directory.CreateDirectory(GetPath() + @"temp\");
+                using (StreamWriter outputFile = new StreamWriter(GetPath() + @"temp\" + filename))
                 {
                     outputFile.Write(csv);
                 }
@@ -216,13 +222,12 @@ namespace WpfApplication3
         private void LoadSymbolsInfoList()
         {
             // try to load from disk
-            string mydocpath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
             string today = DateTime.Today.ToString("dd-MM-yyyy");
             string filename = "stocker_symbols_" + today + ".html";
-            Directory.CreateDirectory(mydocpath + @"\stocker\temp\");
+            Directory.CreateDirectory(Data.GetPath() + @"temp\");
             try
             {
-                using (StreamReader reader = new StreamReader(mydocpath + @"\stocker\temp\" + filename))
+                using (StreamReader reader = new StreamReader(Data.GetPath() + @"temp\" + filename))
                 {
                     // Read the stream to a string, and write the string to the console.
                     string loaded = reader.ReadToEnd();
@@ -238,7 +243,7 @@ namespace WpfApplication3
 
                     // save to disk
                     string output = JsonConvert.SerializeObject(SymbolsInfoList, Formatting.Indented);
-                    using (StreamWriter outputFile = new StreamWriter(mydocpath + @"\stocker\temp\" + filename))
+                    using (StreamWriter outputFile = new StreamWriter(Data.GetPath() + @"temp\" + filename))
                     {
                         outputFile.Write(output);
                     }
@@ -251,14 +256,16 @@ namespace WpfApplication3
             SymbolsDrawings = new Dictionary<string, Chart>();
             SymbolsDrawingsToSerialize = new Dictionary<string, Chart.DataToSerialize>();
 
+            // create default dir
+            Directory.CreateDirectory(Data.GetPath());
+
             LoadSymbolsInfoList();
 
             // try to load symbols drawings
             try
             {
                 // Open the text file using a stream reader.
-                string mydocpath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-                using (StreamReader reader = new StreamReader(mydocpath + @"\stocker\charts.json"))
+                using (StreamReader reader = new StreamReader(Data.GetPath() + @"charts.json"))
                 {
                     // Read the stream to a string, and write the string to the console.
                     string input = reader.ReadToEnd();

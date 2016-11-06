@@ -308,11 +308,8 @@ namespace WpfApplication3
 
         private void buttonSave_Click(object sender, RoutedEventArgs e)
         {
-            string mydocpath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-            // create default dir
-            Directory.CreateDirectory(mydocpath + @"\stocker\");
             // try to write data
-            using (StreamWriter outputFile = new StreamWriter(mydocpath + @"\stocker\charts.json"))
+            using (StreamWriter outputFile = new StreamWriter(Data.GetPath() + @"charts.json"))
             {
                 string output = GetDVM().SerializeToJson();
                 outputFile.WriteLine(output);
@@ -322,11 +319,8 @@ namespace WpfApplication3
         private void buttonLoad_Click(object sender, RoutedEventArgs e)
         {
             string input;
-            string mydocpath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-            // create default dir
-            Directory.CreateDirectory(mydocpath + @"\stocker\");
             // Open the text file using a stream reader.
-            using (StreamReader sr = new StreamReader(mydocpath + @"\stocker\charts.json"))
+            using (StreamReader sr = new StreamReader(Data.GetPath() + @"charts.json"))
             {
                 // Read the stream to a string, and write the string to the console.
                 input = sr.ReadToEnd();
