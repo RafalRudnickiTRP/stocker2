@@ -16,9 +16,7 @@ namespace WpfApplication3
     {
         protected override void OnStartup(StartupEventArgs e)
         {
-            base.OnStartup(e);
-      //      List<Data.SymbolInfo> symbols = Data.GetSymbolsFromWeb();
-      //      List<Data.SymbolDayData> domdevDayData = Data.GetSymbolDataFromWeb("dom");            
+            base.OnStartup(e);        
         }
     }
 }

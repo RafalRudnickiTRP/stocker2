@@ -19,6 +19,41 @@ namespace WpfApplication3
 {
     public class Data
     {
+        private static string currentPath;
+
+        public static string GetPath()
+        {
+            while (currentPath == "" || currentPath == null)
+                ChooseDefaultPath();
+
+            string path = currentPath + @"\stocker\";
+            return path;
+        }
+
+        public static void ChooseDefaultPath()
+        {
+            // Configure the message box to be displayed
+            string messageBoxText = "Use samba path?";
+            string caption = "Choose default path";
+            MessageBoxButton button = MessageBoxButton.YesNo;
+            MessageBoxImage icon = MessageBoxImage.Question;
+            // Display message box
+            MessageBoxResult result = MessageBox.Show(messageBoxText, caption, button, icon);
+
+            // Process message box results
+            switch (result)
+            {
+                case MessageBoxResult.Yes:
+                    // User pressed Yes button
+                    currentPath = @"\\samba-users.igk.intel.com\samba\Users\rrudnick\invest";
+                    break;
+                case MessageBoxResult.No:
+                    // User pressed No button
+                    currentPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+                    break;
+            }
+        }
+
         public class SymbolDayData
         {
             public DateTime Date { get; }
@@ -107,13 +142,6 @@ namespace WpfApplication3
             return symbols;
         }
 
-        public static string GetPath()
-        {
-            string path = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-            path += @"\stocker\";
-            return path;
-        }
-
         public static List<SymbolDayData> GetSymbolData(string symbolName)
         {
             string csv = "";
@@ -196,7 +224,7 @@ namespace WpfApplication3
         public Chart CurrentDrawing { get; set; }
 
         public Dictionary<string, Chart.DataToSerialize> SymbolsDrawingsToSerialize { get; set; }
-
+ 
         public string SerializeToJson()
         {
             foreach (KeyValuePair<string, Chart> pairSymbolsDrawings in SymbolsDrawings)
@@ -250,12 +278,12 @@ namespace WpfApplication3
                 }
             }
         }
-
+        
         public DataViewModel()
         {
             SymbolsDrawings = new Dictionary<string, Chart>();
             SymbolsDrawingsToSerialize = new Dictionary<string, Chart.DataToSerialize>();
-
+            
             // create default dir
             Directory.CreateDirectory(Data.GetPath());
 
