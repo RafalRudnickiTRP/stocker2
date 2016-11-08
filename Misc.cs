@@ -99,6 +99,12 @@ namespace WpfApplication3
 
             return result;
         }
+
+        public static double LineValueOnSdd(Chart.ChartLine line, Data.SymbolDayData sdd)
+        {
+            throw new NotImplementedException();
+            return 0;
+        }
         
         public static float LinePointDistance(Point p1, Point p2, Point p)
         {
