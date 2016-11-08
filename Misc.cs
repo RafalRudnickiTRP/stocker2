@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Input;
+using System.Diagnostics;
 
 namespace WpfApplication3
 {
@@ -46,7 +47,14 @@ namespace WpfApplication3
                 /*(int)framePath.StrokeThickness*/ 1 - drawingInfo.candleWidth / 2;
             int candleWidthWithMargins = drawingInfo.candleWidth + drawingInfo.candleMargin * 2;
 
-            foreach (Data.SymbolDayData sddIt in drawingInfo.sddList)
+            if (p.X > start)
+            {
+                // point is drawn in "future"
+                // set date to current (last day) + fract > 1
+                double fract = RemapRange(p.X - start, 0, 0, candleWidthWithMargins, 1);
+                return Tuple.Create(drawingInfo.sddList[0].Date, fract);
+            }
+            else foreach (Data.SymbolDayData sddIt in drawingInfo.sddList)
             {
                 int candleStart = start - drawingInfo.candleWidth / 2;
                 int nextCandleStart = start + drawingInfo.candleWidth / 2 + drawingInfo.candleMargin * 2;
@@ -63,6 +71,8 @@ namespace WpfApplication3
                 start -= candleWidthWithMargins;
             }
 
+            // shouldn't ever happen
+            Debug.Assert(false);
             return null;
         }
 
