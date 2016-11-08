@@ -231,8 +231,11 @@ namespace WpfApplication3
             {
                 Chart.DataToSerialize data = pairSymbolsDrawings.Value.SerializeToJson();
                 string key = pairSymbolsDrawings.Key;
-                if (SymbolsDrawingsToSerialize.ContainsKey(key) == false)
-                    SymbolsDrawingsToSerialize.Add(key, data);
+
+                if (SymbolsDrawingsToSerialize.ContainsKey(key))
+                    SymbolsDrawingsToSerialize.Remove(key);
+
+                SymbolsDrawingsToSerialize.Add(key, data);
             }
 
             string output = JsonConvert.SerializeObject(SymbolsDrawingsToSerialize, Formatting.Indented);
