@@ -47,6 +47,7 @@ namespace WpfApplication3
         #region Members
 
         public Canvas canvas;
+        public FrameGeom frame;
         public List<ChartLine> chartLines;
         public List<ChartLine> selectedLines;
         static public ChartLine.CopyModes copyMode;
@@ -75,7 +76,7 @@ namespace WpfApplication3
             canvas.SnapsToDevicePixels = true;
             canvas.UseLayoutRounding = true;
 
-            FrameGeom frame = new FrameGeom(drawingInfo);
+            frame = new FrameGeom(drawingInfo);
             canvas.Children.Add(frame);
             
             int frameWidth = drawingInfo.viewWidth - drawingInfo.viewMarginLeft - drawingInfo.viewMarginRight - 2 * (int)frame.StrokeThickness;

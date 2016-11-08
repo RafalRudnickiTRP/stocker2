@@ -72,6 +72,7 @@ namespace WpfApplication3
                 return;
 
             cross.Move(p);
+            ShowCross(frame.InsideFrame(p));
             
             // value
             double val = Misc.RemapRange(p.Y,
