@@ -42,7 +42,7 @@ namespace WpfApplication3
 
             public List<Data.SymbolDayData> sddList;
         }
-        public static  DrawingInfo drawingInfo;
+        public DrawingInfo drawingInfo;
         
         #region Members
 

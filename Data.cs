@@ -345,7 +345,7 @@ namespace WpfApplication3
 
             foreach (ChartLine line in chartLines)
             {
-                toSerialize.chartLines.Add(line.SerializeToJson());
+                toSerialize.chartLines.Add(line.SerializeToJson(drawingInfo));
             }
 
             return toSerialize;
@@ -362,7 +362,7 @@ namespace WpfApplication3
                 public string Color { get; set; }
             }
 
-            public DataToSerialize SerializeToJson()
+            public DataToSerialize SerializeToJson(Chart.DrawingInfo drawingInfo)
             {
                 // dates 
                 var P1DT = Misc.PixelToSdd(drawingInfo, getP1());

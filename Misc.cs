@@ -115,7 +115,7 @@ namespace WpfApplication3
             // date
             DateTime PD = DateTime.ParseExact(PDV[0], Data.dateTimeFormat, System.Globalization.CultureInfo.InvariantCulture);
             double PDf = double.Parse(PDV[1], Data.numberFormat); // factor
-            double PDR = Misc.DateToPixel(Chart.drawingInfo, PD, PDf);
+            double PDR = Misc.DateToPixel(drawingInfo, PD, PDf);
 
             return new Point(PDR, PVR);
         }
