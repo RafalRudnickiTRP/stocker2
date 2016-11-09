@@ -365,7 +365,7 @@ namespace WpfApplication3
                 public string Color { get; set; }
             }
 
-            public DataToSerialize SerializeToJson(Chart.DrawingInfo drawingInfo)
+            public DataToSerialize SerializeToJson(DrawingInfo drawingInfo)
             {
                 // dates 
                 var P1DT = Misc.PixelToSdd(drawingInfo, getP1());

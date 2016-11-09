@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿
 using System.Windows;
 using System.Windows.Shapes;
-using System.Windows.Controls;
 using System.Windows.Media;
-using System.Diagnostics;
-using System.Globalization;
 
 namespace WpfApplication3
 {
@@ -21,6 +17,11 @@ namespace WpfApplication3
             public Point getP2() { return line.EndPoint; }
             public void setP2(Point p) { line.EndPoint = p; }
             public Point getMidP() { return line.StartPoint + (line.EndPoint - line.StartPoint) / 2; }
+
+            public DrawingInfo GetDrawingInfo()
+            {
+                return chart.drawingInfo;
+            }
 
             private LineGeometry line;
             private RectangleGeometry p1Rect;

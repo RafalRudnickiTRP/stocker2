@@ -472,7 +472,20 @@ namespace WpfApplication3
             List<string> equations = new List<string>();
             foreach (Chart.ChartLine line in chart.selectedLines)
             {
+                Trigger.Type type = Trigger.Check(line, line.GetDrawingInfo().sddList[0]);
 
+                switch(type)
+                {
+                    case Trigger.Type.Nothing:
+                        ((Button)sender).Content = "nothing";
+                        break;
+                    case Trigger.Type.CrossUpLineWithTrend:
+                        ((Button)sender).Content = "up";
+                        break;
+                    case Trigger.Type.CrossDownLineWithTrend:
+                        ((Button)sender).Content = "down";
+                        break;
+                }
             }
         }
     }

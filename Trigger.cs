@@ -34,16 +34,15 @@ namespace WpfApplication3
 
         }
 
-        public Type Check(Chart.ChartLine line, Data.SymbolDayData sdd)
-        {
-            double val = Misc.LineValueOnSdd(line, sdd);
-                       
-            bool cross = sdd.Low < val && sdd.Hi > val;
+        public static Type Check(Chart.ChartLine line, Data.SymbolDayData sdd)
+        {                       
+            bool cross = Misc.LineValueOnSdd(line, sdd);
 
             bool upCandle = sdd.Open > sdd.Close;
             bool downCandle = !upCandle;
 
-            bool upLine = line.getP1().X < line.getP1().X ? line.getP1().Y < line.getP1().Y : line.getP1().Y > line.getP1().Y;
+            bool upLine = line.getP1().X < line.getP1().X ?
+                line.getP1().Y < line.getP1().Y : line.getP1().Y > line.getP1().Y;
             bool downLine = !upLine;
 
             if (cross && upCandle && upLine)
