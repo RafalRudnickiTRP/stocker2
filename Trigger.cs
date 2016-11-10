@@ -38,11 +38,11 @@ namespace WpfApplication3
         {                       
             bool cross = Misc.LineValueOnSdd(line, sdd);
 
-            bool upCandle = sdd.Open > sdd.Close;
+            bool upCandle = sdd.Open < sdd.Close;
             bool downCandle = !upCandle;
 
-            bool upLine = line.getP1().X < line.getP1().X ?
-                line.getP1().Y < line.getP1().Y : line.getP1().Y > line.getP1().Y;
+            bool upLine = line.getP1().X > line.getP2().X ?
+                line.getP1().Y < line.getP2().Y : line.getP1().Y > line.getP2().Y;
             bool downLine = !upLine;
 
             if (cross && upCandle && upLine)

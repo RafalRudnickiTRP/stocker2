@@ -35,7 +35,6 @@ namespace WpfApplication3
             return map[br];
         }
 
-
         public static double RemapRange(double value, double fromMin, double toMin, double fromMax, double toMax)
         {
             return (value - fromMin) / (fromMax - fromMin) * (toMax - toMin) + toMin;
@@ -78,7 +77,7 @@ namespace WpfApplication3
 
         // Given three colinear points p, q, r, the function checks if
         // point q lies on line segment 'pr'
-        static bool onSegment(Point p, Point q, Point r)
+        static bool OnSegment(Point p, Point q, Point r)
         {
             if (q.X <= Math.Max(p.X, r.X) && q.X >= Math.Min(p.X, r.X) &&
                 q.Y <= Math.Max(p.Y, r.Y) && q.Y >= Math.Min(p.Y, r.Y))
@@ -92,7 +91,7 @@ namespace WpfApplication3
         // 0 --> p, q and r are colinear
         // 1 --> Clockwise
         // 2 --> Counterclockwise
-        static int orientation(Point p, Point q, Point r)
+        static int Orientation(Point p, Point q, Point r)
         {
             // See http://www.geeksforgeeks.org/orientation-3-ordered-points/
             // for details of below formula.
@@ -106,14 +105,14 @@ namespace WpfApplication3
 
         // The main function that returns true if line segment 'p1q1'
         // and 'p2q2' intersect.
-        static bool doIntersect(Point p1, Point q1, Point p2, Point q2)
+        static bool DoIntersect(Point p1, Point q1, Point p2, Point q2)
         {
             // Find the four orientations needed for general and
             // special cases
-            int o1 = orientation(p1, q1, p2);
-            int o2 = orientation(p1, q1, q2);
-            int o3 = orientation(p2, q2, p1);
-            int o4 = orientation(p2, q2, q1);
+            int o1 = Orientation(p1, q1, p2);
+            int o2 = Orientation(p1, q1, q2);
+            int o3 = Orientation(p2, q2, p1);
+            int o4 = Orientation(p2, q2, q1);
 
             // General case
             if (o1 != o2 && o3 != o4)
@@ -121,18 +120,36 @@ namespace WpfApplication3
 
             // Special Cases
             // p1, q1 and p2 are colinear and p2 lies on segment p1q1
-            if (o1 == 0 && onSegment(p1, p2, q1)) return true;
+            if (o1 == 0 && OnSegment(p1, p2, q1)) return true;
 
             // p1, q1 and p2 are colinear and q2 lies on segment p1q1
-            if (o2 == 0 && onSegment(p1, q2, q1)) return true;
+            if (o2 == 0 && OnSegment(p1, q2, q1)) return true;
 
             // p2, q2 and p1 are colinear and p1 lies on segment p2q2
-            if (o3 == 0 && onSegment(p2, p1, q2)) return true;
+            if (o3 == 0 && OnSegment(p2, p1, q2)) return true;
 
             // p2, q2 and q1 are colinear and q1 lies on segment p2q2
-            if (o4 == 0 && onSegment(p2, q1, q2)) return true;
+            if (o4 == 0 && OnSegment(p2, q1, q2)) return true;
 
             return false; // Doesn't fall in any of the above cases
+        }
+
+        public static bool LineValueOnSdd(ChartLine line, Data.SymbolDayData sdd)
+        {
+            DrawingInfo di = line.GetDrawingInfo();
+
+            double PDR = DateToPixel(di, sdd.Date, 0);
+
+            double PVRLO = Math.Round(RemapRange(sdd.Low, di.maxVal, di.viewMarginBottom,
+                di.minVal, di.viewHeight - di.viewMarginBottom), 6);
+
+            double PVRHI = Math.Round(RemapRange(sdd.Hi, di.maxVal, di.viewMarginBottom,
+                di.minVal, di.viewHeight - di.viewMarginBottom), 6);
+
+            Point pLO = new Point(PDR, PVRLO);
+            Point pHI = new Point(PDR, PVRHI);
+
+            return DoIntersect(line.getP1(), line.getP2(), pLO, pHI);
         }
 
         public static double DateToPixel(DrawingInfo drawingInfo, DateTime dt, double frac)
@@ -159,24 +176,6 @@ namespace WpfApplication3
             return result;
         }
 
-        public static bool LineValueOnSdd(ChartLine line, Data.SymbolDayData sdd)
-        {
-            DrawingInfo di = line.GetDrawingInfo();
-
-            double PDR = DateToPixel(di, sdd.Date, 0);
-
-            double PVRLO = Math.Round(RemapRange(sdd.Low, di.maxVal, di.viewMarginBottom,
-                di.minVal, di.viewHeight - di.viewMarginBottom), 6);
-
-            double PVRHI = Math.Round(RemapRange(sdd.Hi, di.maxVal, di.viewMarginBottom,
-                di.minVal, di.viewHeight - di.viewMarginBottom), 6);
-
-            Point pLO = new Point(PDR, PVRLO);
-            Point pHI = new Point(PDR, PVRHI);
-
-            return doIntersect(line.getP1(), line.getP2(), pLO, pHI);
-        }
-        
         public static float LinePointDistance(Point p1, Point p2, Point p)
         {
             return (float)(Math.Abs((p2.Y - p1.Y) * p.X - (p2.X - p1.X) * p.Y + p2.X * p1.Y - p2.Y * p1.X) /
