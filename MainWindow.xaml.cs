@@ -203,6 +203,7 @@ namespace WpfApplication3
 
             line.color = currentColor;
             line.linePath.Stroke = currentColor;
+          
 
             activeChart.chartLines.Add(line);
             activeChart.canvas.Children.Add(line.linePath);
@@ -378,22 +379,23 @@ namespace WpfApplication3
             Chart activeChart = GetDVM().CurrentDrawing;
             if (activeChart != null)
             {
-                foreach (Chart.ChartLine l in activeChart.chartLines)
+                foreach (Chart.ChartLine line in activeChart.chartLines)
                 {
-                    if (l.IsSelected())
+                    if (line.IsSelected())
                     {
                         foreach (var p in activeChart.canvas.Children)
                         {
                             if (p.GetType() == typeof(System.Windows.Shapes.Path))
                             {
                                 System.Windows.Shapes.Path path = p as System.Windows.Shapes.Path;
-                                if (path.Name == "line_" + l.id)
+                                if (path.Name == "line_" + line.id)
                                 {
                                     path.Stroke = currentColor;
                                 }
                             }
                         }
-                        l.color = currentColor;
+                        line.color = currentColor;
+                        Chart.ChartLine.ColorUpdate(line);
                     }
                 }
             }

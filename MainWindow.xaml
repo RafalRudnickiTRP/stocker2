@@ -39,16 +39,13 @@
                 <Grid x:Name="colors">
                     <Button x:Name="button_Black"
                             BorderThickness="2" BorderBrush="Cyan"
-                            Content="" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Center" Width="15" Background="Black" Click="buttonColor_Click"/>
-                    <Button x:Name="button_Red"
-                            BorderThickness="0" BorderBrush="Cyan"
-                            Content="" HorizontalAlignment="Left" Margin="20,0,0,0" VerticalAlignment="Center" Width="15" Background="Red" Click="buttonColor_Click"/>
+                            Content="" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Center" Width="15" Background="Black" Click="buttonColor_Click"/>                    
                     <Button x:Name="button_Lime"
                             BorderThickness="0" BorderBrush="Cyan"
-                            Content="" HorizontalAlignment="Left" Margin="40,0,0,0" VerticalAlignment="Center" Width="15" Background="Lime" Click="buttonColor_Click"/>
+                            Content="" HorizontalAlignment="Left" Margin="20,0,0,0" VerticalAlignment="Center" Width="15" Background="Lime" Click="buttonColor_Click"/>
                     <Button x:Name="button_Blue"
                             BorderThickness="0" BorderBrush="Cyan"
-                            Content="" HorizontalAlignment="Left" Margin="60,0,0,0" VerticalAlignment="Center" Width="15" Background="Blue" Click="buttonColor_Click"/>
+                            Content="" HorizontalAlignment="Left" Margin="40,0,0,0" VerticalAlignment="Center" Width="15" Background="Blue" Click="buttonColor_Click"/>
                 </Grid>
                 <Label Name="Label1" Content=" " />
                 <Button Name="buttonInverse" Content="yInverse" Click="buttonInverse_Click" />

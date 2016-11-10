@@ -133,6 +133,8 @@ namespace WpfApplication3
                 line.StartPoint = p;
                 midRect.Transform = new TranslateTransform((p.X + p2.X) / 2 - selectionRectWidth2, (p.Y + p2.Y) / 2 - selectionRectWidth2);
                 p1Rect.Transform = new TranslateTransform(p.X - selectionRectWidth2, p.Y - selectionRectWidth2);
+
+                ColorUpdate(this);
             }
 
             public void MoveP2(Point p, bool resize = false)
@@ -148,6 +150,8 @@ namespace WpfApplication3
                 line.EndPoint = p;
                 midRect.Transform = new TranslateTransform((p1.X + p.X) / 2 - selectionRectWidth2, (p1.Y + p.Y) / 2 - selectionRectWidth2);
                 p2Rect.Transform = new TranslateTransform(p.X - selectionRectWidth2, p.Y - selectionRectWidth2);
+
+                ColorUpdate(this);
             }
 
             public void MoveMid(Point p)
@@ -166,13 +170,26 @@ namespace WpfApplication3
                 midRect.Transform = new TranslateTransform(midP.X + delta.X, midP.Y + delta.Y);
             }
 
-            public void MoveControlPoint(Chart.ChartLine line, Point mousePosition, bool resize)
+            public static void ColorUpdate(ChartLine line)
             {
-                if (line.drawingMode == Chart.ChartLine.DrawingMode.P1)
+                if (line.color == Brushes.Lime || line.color == Brushes.Red)
+                {
+                    bool upLine = line.getP1().X > line.getP2().X ?
+                        line.getP1().Y < line.getP2().Y : line.getP1().Y > line.getP2().Y;
+                    if (upLine)
+                        line.color = line.linePath.Stroke = Brushes.Lime;
+                    else
+                        line.color = line.linePath.Stroke = Brushes.Red;
+                }
+            }
+
+            public void MoveControlPoint(ChartLine line, Point mousePosition, bool resize)
+            {
+                if (line.drawingMode == DrawingMode.P1)
                     line.MoveP1(mousePosition, resize);
-                else if (line.drawingMode == Chart.ChartLine.DrawingMode.P2)
+                else if (line.drawingMode == DrawingMode.P2)
                     line.MoveP2(mousePosition, resize);
-                else if (line.drawingMode == Chart.ChartLine.DrawingMode.Mid)
+                else if (line.drawingMode == DrawingMode.Mid)
                     line.MoveMid(mousePosition);
             }
 
