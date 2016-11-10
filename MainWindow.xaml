@@ -53,7 +53,7 @@
                 <Label Name="Label1" Content=" " />
                 <Button Name="buttonInverse" Content="yInverse" Click="buttonInverse_Click" />
                 <Label Name="Label2" Content=" " />
-                <Button Name="buttonEquation" Content="equation" Click="buttonEquation_Click" />
+                <Button Name="buttonRaport" Content="raport" Click="buttonRaport_Click" />
             </ToolBar>
         </ToolBarTray>
         <StatusBar DockPanel.Dock="Bottom">
@@ -85,6 +85,7 @@
                 </ListView.View>
             </ListView>
         </DockPanel>
+        <TextBlock DockPanel.Dock="Bottom" Name="TextBlockControl" Text="" />
         <TabControl Name="SymbolsTabControl" 
                     SelectionChanged="SymbolTab_SelectionChanged"
                     MouseDown="SymbolTab_MouseDown"

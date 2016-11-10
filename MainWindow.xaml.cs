@@ -465,26 +465,28 @@ namespace WpfApplication3
             }
         }
 
-        private void buttonEquation_Click(object sender, RoutedEventArgs e)
+        private void buttonRaport_Click(object sender, RoutedEventArgs e)
         {
+            TextBlock tb = (TextBlock)FindName("TextBlockControl");
+            if (tb == null)
+                return;
+
             Chart chart = GetDVM().CurrentDrawing;
 
             List<string> equations = new List<string>();
             foreach (Chart.ChartLine line in chart.selectedLines)
             {
-                Trigger.Type type = Trigger.Check(line, line.GetDrawingInfo().sddList[0]);
+                bool CheckTrendUp = (line.color == Brushes.Lime);
+                bool CheckTrendDown = (line.color == Brushes.Red);
 
-                switch(type)
+                foreach (Data.SymbolDayData sdd in line.GetDrawingInfo().sddList)
                 {
-                    case Trigger.Type.Nothing:
-                        ((Button)sender).Content = "nothing";
-                        break;
-                    case Trigger.Type.CrossUpLineWithTrend:
-                        ((Button)sender).Content = "up";
-                        break;
-                    case Trigger.Type.CrossDownLineWithTrend:
-                        ((Button)sender).Content = "down";
-                        break;
+                    Trigger.Type type = Trigger.Check(line, sdd);
+
+                    if (type == Trigger.Type.CrossUpLineWithTrend && CheckTrendUp)
+                        tb.Text = "UP at date " + sdd.Date.ToShortDateString();
+                    if (type == Trigger.Type.CrossDownLineWithTrend && CheckTrendDown)
+                        tb.Text = "DOWN at date " + sdd.Date.ToShortDateString();
                 }
             }
         }
