@@ -31,12 +31,12 @@ namespace WpfApplication3
             InitializeCommands();
         }
 
-        public DataViewModel GetDVM()
+        private DataViewModel GetDVM()
         {
             return (DataViewModel)DataContext;
         }
 
-        void SymbolsList_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        private void SymbolsList_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
             var dataContext = ((FrameworkElement)e.OriginalSource).DataContext;
             if ((dataContext is Data.SymbolInfo) == false) return;
@@ -50,7 +50,7 @@ namespace WpfApplication3
             Chart chart = null;
             if (dvm.SymbolsDrawings.TryGetValue(symbolInfo.FullName, out chart) == false)
             {
-                List<Data.SymbolDayData> sdd = Data.GetSymbolData(symbolInfo.ShortName);
+                List<Data.SymbolDayData> sdd = dvm.GetSymbolData(symbolInfo.ShortName);
 
                 TabItem newTab = new TabItem();
                 newTab.KeyDown += TabItem_OnKeyDown;
@@ -59,15 +59,7 @@ namespace WpfApplication3
                 newTab.Header = symbolInfo.FullName;
                 SymbolsTabControl.Items.Add(newTab);
 
-                Chart.DrawingInfo di = new Chart.DrawingInfo();
-                di.viewHeight = (int)SymbolsTabControl.ActualHeight;
-                di.viewWidth = (int)SymbolsTabControl.ActualWidth;
-                di.viewMarginTop = 3;
-                di.viewMarginBottom = 30 /* TODO: status bar h */ + 20;
-                di.viewMarginLeft = 3;
-                di.viewMarginRight = 100;
-                di.viewAutoScale = true;
-                di.crossMargin = 15;
+                Chart.DrawingInfo di = new Chart.DrawingInfo((int)SymbolsTabControl.ActualWidth, (int)SymbolsTabControl.ActualHeight);
 
                 chart = new Chart(di);
                 dvm.SymbolsDrawings.Add(symbolInfo.FullName, chart);
@@ -97,7 +89,7 @@ namespace WpfApplication3
             currentSymbolInfo = symbolInfo;
         }
 
-        void SymbolTab_SelectionChanged(object sender, SelectionChangedEventArgs a)
+        private void SymbolTab_SelectionChanged(object sender, SelectionChangedEventArgs a)
         {
             TabItem activeTab = (TabItem)((TabControl)a.Source).SelectedItem;
 
@@ -111,7 +103,7 @@ namespace WpfApplication3
             UpdateLayout();
         }
 
-        void SymbolTab_MouseDown(object sender, MouseButtonEventArgs e)
+        private void SymbolTab_MouseDown(object sender, MouseButtonEventArgs e)
         {
             TabControl tabCtrl = (TabControl)sender;
             if (tabCtrl.Items.Count == 0) return;
@@ -203,7 +195,6 @@ namespace WpfApplication3
 
             line.color = currentColor;
             line.linePath.Stroke = currentColor;
-          
 
             activeChart.chartLines.Add(line);
             activeChart.canvas.Children.Add(line.linePath);
@@ -215,7 +206,7 @@ namespace WpfApplication3
             activeChart.selectedLines.Add(line);
         }
 
-        void SymbolTab_MouseMove(object sender, MouseEventArgs e)
+        private void SymbolTab_MouseMove(object sender, MouseEventArgs e)
         {
             Chart activeChart = GetDVM().CurrentDrawing;
             if (activeChart == null) return;
@@ -249,8 +240,8 @@ namespace WpfApplication3
                 activeChart.MoveCross(mousePosition);
             }
         }
-        
-        void SymbolTab_MouseUp(object sender, MouseButtonEventArgs e)
+
+        private void SymbolTab_MouseUp(object sender, MouseButtonEventArgs e)
         {
             Chart activeChart = GetDVM().CurrentDrawing;
             if (activeChart == null) return;
@@ -271,7 +262,7 @@ namespace WpfApplication3
             }
         }
 
-        void SymbolTab_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        private void SymbolTab_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
             TabControl tabCtrl = (TabControl)sender;
             if (tabCtrl.Items.Count == 0) return;
@@ -401,8 +392,35 @@ namespace WpfApplication3
             }
             UpdateLayout();
         }
-                
-        public void TabItem_OnKeyDown(object sender, KeyEventArgs e)
+
+        private void buttonRaport_Click(object sender, RoutedEventArgs e)
+        {
+            TextBlock tb = (TextBlock)FindName("TextBlockControl");
+            if (tb == null)
+                return;
+
+            Chart chart = GetDVM().CurrentDrawing;
+            foreach (Chart.ChartLine line in chart.selectedLines)
+            {
+                bool CheckTrendUp = (line.color == Brushes.Lime);
+                bool CheckTrendDown = (line.color == Brushes.Red);
+
+                if (!CheckTrendUp && !CheckTrendDown)
+                    continue;
+
+                foreach (Data.SymbolDayData sdd in line.GetDrawingInfo().sddList)
+                {
+                    Trigger.Type type = Trigger.Check(line, sdd);
+
+                    if (type == Trigger.Type.CrossUpLineWithTrend && CheckTrendUp)
+                        tb.Text = "UP at date " + sdd.Date.ToShortDateString();
+                    if (type == Trigger.Type.CrossDownLineWithTrend && CheckTrendDown)
+                        tb.Text = "DOWN at date " + sdd.Date.ToShortDateString();
+                }
+            }
+        }
+
+        private void TabItem_OnKeyDown(object sender, KeyEventArgs e)
         {
             Chart chart = GetDVM().CurrentDrawing;
 
@@ -453,7 +471,7 @@ namespace WpfApplication3
             }
         }
 
-        public void TabItem_OnKeyUp(object sender, KeyEventArgs e)
+        private void TabItem_OnKeyUp(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.LeftCtrl ||
                 e.Key == Key.RightCtrl)
@@ -464,32 +482,6 @@ namespace WpfApplication3
                      e.Key == Key.RightShift)
             {
                 shiftPressed = false;
-            }
-        }
-
-        private void buttonRaport_Click(object sender, RoutedEventArgs e)
-        {
-            TextBlock tb = (TextBlock)FindName("TextBlockControl");
-            if (tb == null)
-                return;
-
-            Chart chart = GetDVM().CurrentDrawing;
-
-            List<string> equations = new List<string>();
-            foreach (Chart.ChartLine line in chart.selectedLines)
-            {
-                bool CheckTrendUp = (line.color == Brushes.Lime);
-                bool CheckTrendDown = (line.color == Brushes.Red);
-
-                foreach (Data.SymbolDayData sdd in line.GetDrawingInfo().sddList)
-                {
-                    Trigger.Type type = Trigger.Check(line, sdd);
-
-                    if (type == Trigger.Type.CrossUpLineWithTrend && CheckTrendUp)
-                        tb.Text = "UP at date " + sdd.Date.ToShortDateString();
-                    if (type == Trigger.Type.CrossDownLineWithTrend && CheckTrendDown)
-                        tb.Text = "DOWN at date " + sdd.Date.ToShortDateString();
-                }
             }
         }
     }

@@ -12,8 +12,6 @@ namespace WpfApplication3
     public partial class Chart
     {
         private static int selectionRectWidth2 = 3;
-        private static int candleWidth = 5;
-        private static int candleMargin = 1;
         
         public struct DrawingInfo
         {
@@ -41,6 +39,27 @@ namespace WpfApplication3
             public int refPixelXStart;
 
             public List<Data.SymbolDayData> sddList;
+
+            public DrawingInfo(int width, int height)
+            {
+                viewHeight = height;
+                viewWidth = width;
+                viewMarginTop = 3;
+                viewMarginBottom = 30 /* TODO: status bar h */ + 20;
+                viewMarginLeft = 3;
+                viewMarginRight = 100;
+                viewAutoScale = true;
+                crossMargin = 15;
+                candleWidth = 5;
+                candleMargin = 1;
+
+                maxVal = minVal = 0;
+                minViewport = maxViewport = 0;
+                refDateStart = DateTime.Now;
+                refPixelXStart = 0;
+                sddList = null;
+
+            }
         }
         public DrawingInfo drawingInfo;
         
@@ -67,8 +86,6 @@ namespace WpfApplication3
             if (sddList.Count == 0)
                 return null;
             
-            drawingInfo.candleWidth = candleWidth;
-            drawingInfo.candleMargin = candleMargin;
             drawingInfo.sddList = sddList;
 
             canvas = new Canvas();
@@ -246,9 +263,7 @@ namespace WpfApplication3
                         canvas.Children.Add(lineToAdd.rectPath);
 
                         lineToAdd.MoveP1(lineToAdd.getP1());
-                        lineToAdd.MoveP2(lineToAdd.getP2());
-
-                        selectedLines.Add(lineToAdd);
+                        lineToAdd.MoveP2(lineToAdd.getP2());                        
                     }
                     break;
                 }

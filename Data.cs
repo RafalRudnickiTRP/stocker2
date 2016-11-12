@@ -141,82 +141,9 @@ namespace WpfApplication3
 
             return symbols;
         }
-
-        public static List<SymbolDayData> GetSymbolData(string symbolName)
-        {
-            string csv = "";
-            string today = DateTime.Today.ToString("dd -MM-yyyy");
-            string filename = "stocker_" + today + "_" + symbolName + ".csv";
-            try
-            {
-                using (StreamReader reader = new StreamReader(GetPath() + @"temp\" + filename))
-                {
-                    // Read the stream to a string, and write the string to the console.
-                    csv = reader.ReadToEnd();
-                }
-            }
-            catch (Exception)
-            {
-            }
-
-            if (csv == "")
-            {
-                string url = "http://stooq.pl/q/d/l/?s=" + symbolName + "&i=d";
-
-                HttpWebRequest req = (HttpWebRequest)WebRequest.Create(url);
-                HttpWebResponse resp = (HttpWebResponse)req.GetResponse();
-                StreamReader sr = new StreamReader(resp.GetResponseStream());
-                csv = sr.ReadToEnd();
-
-                Directory.CreateDirectory(GetPath() + @"temp\");
-                using (StreamWriter outputFile = new StreamWriter(GetPath() + @"temp\" + filename))
-                {
-                    outputFile.Write(csv);
-                }
-            }
-
-            if (csv == "Przekroczony dzienny limit wywolan")
-            {
-                MessageBox.Show(csv, "ERROR");
-            }
-
-            List<SymbolDayData> result = new List<SymbolDayData>();
-
-            bool header = true;
-            foreach(string line in csv.Split('\n'))
-            {
-                if (header)
-                {
-                    header = false;
-                    continue;
-                }
-
-                if (line.Length == 0) continue;
-
-                string l = line.Substring(0, line.Length - 1);
-                string[] data = l.Split(',');
-
-                DateTime date = DateTime.ParseExact(data[0], "yyyy-MM-dd", CultureInfo.InvariantCulture);
-                float open = float.Parse(data[1], CultureInfo.InvariantCulture);
-                float hi = float.Parse(data[2], CultureInfo.InvariantCulture);
-                float low = float.Parse(data[3], CultureInfo.InvariantCulture);
-                float close = float.Parse(data[4], CultureInfo.InvariantCulture);
-                uint volume = 0;
-                if (data.Length == 6)
-                    volume = uint.Parse(data[5]);
-
-                SymbolDayData sdd = new SymbolDayData(date, open, hi, low, close, volume);
-
-                result.Add(sdd);
-            }
-
-            result.Reverse();
-            return result;
-        }
-
     }
 
-    public class DataViewModel
+    public partial class DataViewModel
     {
         public List<Data.SymbolInfo> SymbolsInfoList { get; set; }
 
@@ -224,30 +151,55 @@ namespace WpfApplication3
         public Chart CurrentDrawing { get; set; }
 
         public Dictionary<string, Chart.DataToSerialize> SymbolsDrawingsToSerialize { get; set; }
- 
-        public string SerializeToJson()
+        public Dictionary<string, List<Data.SymbolDayData>> SDDs { get; set; }
+         
+        public DataViewModel()
         {
-            foreach (KeyValuePair<string, Chart> pairSymbolsDrawings in SymbolsDrawings)
+            SymbolsDrawings = new Dictionary<string, Chart>();
+            SymbolsDrawingsToSerialize = new Dictionary<string, Chart.DataToSerialize>();
+            SDDs = new Dictionary<string, List<Data.SymbolDayData>>();
+
+            // create default dir
+            Directory.CreateDirectory(Data.GetPath());
+
+            LoadSymbolsInfoList();
+
+            // try to load symbols drawings
+            try
             {
-                Chart.DataToSerialize data = pairSymbolsDrawings.Value.SerializeToJson();
-                string key = pairSymbolsDrawings.Key;
+                // Open the text file using a stream reader.
+                using (StreamReader reader = new StreamReader(Data.GetPath() + @"charts.json"))
+                {
+                    // Read the stream to a string, and write the string to the console.
+                    string input = reader.ReadToEnd();
+                    SymbolsDrawingsToSerialize =
+                        JsonConvert.DeserializeObject<Dictionary<string, Chart.DataToSerialize>>(input);
 
-                if (SymbolsDrawingsToSerialize.ContainsKey(key))
-                    SymbolsDrawingsToSerialize.Remove(key);
-
-                SymbolsDrawingsToSerialize.Add(key, data);
+                    // in case of empty file the result of deserialization will be null,
+                    // so create new object
+                    if (SymbolsDrawingsToSerialize == null)
+                        SymbolsDrawingsToSerialize = new Dictionary<string, Chart.DataToSerialize>();
+                }
+            }
+            catch (FileNotFoundException)
+            {
+                // no problem
             }
 
-            string output = JsonConvert.SerializeObject(SymbolsDrawingsToSerialize, Formatting.Indented);
-            return output;
-        }
+            foreach (var symbolInfo in SymbolsInfoList)
+            {
+                if (SymbolsDrawingsToSerialize.ContainsKey(symbolInfo.FullName) == false)
+                    continue;
+                
+                var sdd = GetSymbolData(symbolInfo.ShortName);
 
-        public void DeserializeFromJson(string input)
-        {
-            SymbolsDrawingsToSerialize = JsonConvert.DeserializeObject<Dictionary<string, Chart.DataToSerialize>>(input);
 
-            if (SymbolsDrawingsToSerialize == null)
-                SymbolsDrawingsToSerialize = new Dictionary<string, Chart.DataToSerialize>();
+            }
+
+            Data.numberFormat.NumberGroupSeparator = ""; // thousands
+            Data.numberFormat.NumberDecimalSeparator = ".";
+
+            Data.dateTimeFormat = CultureInfo.CurrentCulture.DateTimeFormat.UniversalSortableDateTimePattern;
         }
 
         private void LoadSymbolsInfoList()
@@ -281,125 +233,87 @@ namespace WpfApplication3
                 }
             }
         }
-        
-        public DataViewModel()
-        {
-            SymbolsDrawings = new Dictionary<string, Chart>();
-            SymbolsDrawingsToSerialize = new Dictionary<string, Chart.DataToSerialize>();
-            
-            // create default dir
-            Directory.CreateDirectory(Data.GetPath());
-
-            LoadSymbolsInfoList();
-
-            // try to load symbols drawings
-            try
-            {
-                // Open the text file using a stream reader.
-                using (StreamReader reader = new StreamReader(Data.GetPath() + @"charts.json"))
-                {
-                    // Read the stream to a string, and write the string to the console.
-                    string input = reader.ReadToEnd();
-                    SymbolsDrawingsToSerialize =
-                        JsonConvert.DeserializeObject<Dictionary<string, Chart.DataToSerialize>>(input);
-
-                    // in case of empty file the result of deserialization will be null,
-                    // so create new object
-                    if (SymbolsDrawingsToSerialize == null)
-                        SymbolsDrawingsToSerialize = new Dictionary<string, Chart.DataToSerialize>();
-                }
-            }
-            catch (FileNotFoundException)
-            {
-                // no problem
-            }
-
-            Data.numberFormat.NumberGroupSeparator = ""; // thousands
-            Data.numberFormat.NumberDecimalSeparator = ".";
-
-            Data.dateTimeFormat = CultureInfo.CurrentCulture.DateTimeFormat.UniversalSortableDateTimePattern;
-
-            // debug
-            //SymbolsInfoList = new List<Data.SymbolInfo>();
-            //SymbolsInfoList.Add(new Data.SymbolInfo("DOMDEV", "DOM"));
-            //SymbolsInfoList.Add(new Data.SymbolInfo("11BIT", "11B"));
-            //SymbolsInfoList.Add(new Data.SymbolInfo("KGHM", "KGH"));
-        }
 
         public void SetCurrentDrawing(Chart currentChart)
         {
             CurrentDrawing = currentChart;
         }
-    }
 
-    public partial class Chart
-    {
-        public struct DataToSerialize
+        public List<Data.SymbolDayData> GetSymbolData(string symbolName)
         {
-            public IList<ChartLine.DataToSerialize> chartLines { get; set; }
-        }
+            if (SDDs.ContainsKey(symbolName))
+                return SDDs[symbolName];
 
-        public DataToSerialize SerializeToJson()
-        {
-            DataToSerialize toSerialize = new DataToSerialize()
+            string csv = "";
+            string today = DateTime.Today.ToString("dd -MM-yyyy");
+            string filename = "stocker_" + today + "_" + symbolName + ".csv";
+            try
             {
-                chartLines = new List<ChartLine.DataToSerialize>()
-            };
-
-            foreach (ChartLine line in chartLines)
+                using (StreamReader reader = new StreamReader(Data.GetPath() + @"temp\" + filename))
+                {
+                    // Read the stream to a string, and write the string to the console.
+                    csv = reader.ReadToEnd();
+                }
+            }
+            catch (Exception)
             {
-                toSerialize.chartLines.Add(line.SerializeToJson(drawingInfo));
             }
 
-            return toSerialize;
-        }
-
-        public partial class ChartLine
-        {
-            public struct DataToSerialize
+            if (csv == "")
             {
-                // public string StartPoint { get; set; }
-                public string StartPointDV { get; set; }
-                // public string EndPoint { get; set; }
-                public string EndPointDV { get; set; }
-                public string Color { get; set; }
+                string url = "http://stooq.pl/q/d/l/?s=" + symbolName + "&i=d";
+
+                HttpWebRequest req = (HttpWebRequest)WebRequest.Create(url);
+                HttpWebResponse resp = (HttpWebResponse)req.GetResponse();
+                StreamReader sr = new StreamReader(resp.GetResponseStream());
+                csv = sr.ReadToEnd();
+
+                Directory.CreateDirectory(Data.GetPath() + @"temp\");
+                using (StreamWriter outputFile = new StreamWriter(Data.GetPath() + @"temp\" + filename))
+                {
+                    outputFile.Write(csv);
+                }
             }
 
-            public DataToSerialize SerializeToJson(DrawingInfo drawingInfo)
+            if (csv == "Przekroczony dzienny limit wywolan")
             {
-                // dates 
-                var P1DT = Misc.PixelToSdd(drawingInfo, getP1());
-                var P2DT = Misc.PixelToSdd(drawingInfo, getP2());
-
-                // values
-                double P1ValY = Math.Round(Misc.RemapRange(getP1().Y,
-                    drawingInfo.viewMarginBottom, drawingInfo.maxVal,
-                    drawingInfo.viewHeight - drawingInfo.viewMarginBottom, drawingInfo.minVal), 6);
-                double P2ValY = Math.Round(Misc.RemapRange(getP2().Y,
-                    drawingInfo.viewMarginBottom, drawingInfo.maxVal,
-                    drawingInfo.viewHeight - drawingInfo.viewMarginBottom, drawingInfo.minVal), 6);
-
-                DataToSerialize toSerialize = new DataToSerialize();
-
-                /*
-                toSerialize.StartPoint = getP1().X.ToString(Data.numberFormat) + ";" +
-                    getP1().Y.ToString(Data.numberFormat);
-                toSerialize.EndPoint = getP2().X.ToString(Data.numberFormat) + ";" +
-                    getP2().Y.ToString(Data.numberFormat);
-                */
-
-                // date + value
-                toSerialize.StartPointDV = P1DT.Item1.ToString(Data.dateTimeFormat) + "+" +
-                    P1DT.Item2.ToString(Data.numberFormat) + ";" +
-                    P1ValY.ToString(Data.numberFormat);
-                toSerialize.EndPointDV = P2DT.Item1.ToString(Data.dateTimeFormat) + "+" +
-                    P2DT.Item2.ToString(Data.numberFormat) + ";" +
-                    P2ValY.ToString(Data.numberFormat);
-
-                toSerialize.Color = Misc.BrushToString(color);
-
-                return toSerialize;
+                MessageBox.Show(csv, "ERROR");
             }
+
+            List<Data.SymbolDayData> result = new List<Data.SymbolDayData>();
+
+            bool header = true;
+            foreach (string line in csv.Split('\n'))
+            {
+                if (header)
+                {
+                    header = false;
+                    continue;
+                }
+
+                if (line.Length == 0) continue;
+
+                string l = line.Substring(0, line.Length - 1);
+                string[] data = l.Split(',');
+
+                DateTime date = DateTime.ParseExact(data[0], "yyyy-MM-dd", CultureInfo.InvariantCulture);
+                float open = float.Parse(data[1], CultureInfo.InvariantCulture);
+                float hi = float.Parse(data[2], CultureInfo.InvariantCulture);
+                float low = float.Parse(data[3], CultureInfo.InvariantCulture);
+                float close = float.Parse(data[4], CultureInfo.InvariantCulture);
+                uint volume = 0;
+                if (data.Length == 6)
+                    volume = uint.Parse(data[5]);
+
+                Data.SymbolDayData sdd = new Data.SymbolDayData(date, open, hi, low, close, volume);
+
+                result.Add(sdd);
+            }
+
+            result.Reverse();
+            SDDs.Add(symbolName, result);
+
+            return result;
         }
     }
 }
