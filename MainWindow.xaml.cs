@@ -399,23 +399,43 @@ namespace WpfApplication3
             if (tb == null)
                 return;
 
-            Chart chart = GetDVM().CurrentDrawing;
-            foreach (Chart.ChartLine line in chart.selectedLines)
+            foreach (KeyValuePair<string, Chart.DataToSerialize> dic in GetDVM().SymbolsDrawingsToSerialize)
             {
-                bool CheckTrendUp = (line.color == Brushes.Lime);
-                bool CheckTrendDown = (line.color == Brushes.Red);
+                string name = dic.Key;
 
-                if (!CheckTrendUp && !CheckTrendDown)
-                    continue;
-
-                foreach (Data.SymbolDayData sdd in line.GetDrawingInfo().sddList)
+                // find short name
+                string shname = "";
+                foreach (Data.SymbolInfo si in GetDVM().SymbolsInfoList)
                 {
-                    Trigger.Type type = Trigger.Check(line, sdd);
+                    if (si.FullName == name)
+                    {
+                        shname = si.ShortName;
+                        break;
+                    }
+                }
 
-                    if (type == Trigger.Type.CrossUpLineWithTrend && CheckTrendUp)
-                        tb.Text = "UP at date " + sdd.Date.ToShortDateString();
-                    if (type == Trigger.Type.CrossDownLineWithTrend && CheckTrendDown)
-                        tb.Text = "DOWN at date " + sdd.Date.ToShortDateString();
+                List<Data.SymbolDayData> sdds = GetDVM().SDDs[shname];
+
+                Chart.DataToSerialize data = dic.Value;
+                IList<Chart.ChartLine.DataToSerialize> list = data.chartLines;
+
+                foreach (Chart.ChartLine.DataToSerialize line in list)
+                {
+                    bool CheckTrendUp = (line.Color.ToString() == Misc.BrushToString(Brushes.Lime));
+                    bool CheckTrendDown = (line.Color.ToString() == Misc.BrushToString(Brushes.Red));
+
+                    if (!CheckTrendUp && !CheckTrendDown)
+                        continue;
+
+                    foreach (Data.SymbolDayData sdd in sdds)
+                    {
+                        // Trigger.Type type = Trigger.Check(line, sdd);
+                        // 
+                        // if (type == Trigger.Type.CrossUpLineWithTrend && CheckTrendUp)
+                        //     tb.Text = "UP at date " + sdd.Date.ToShortDateString();
+                        // if (type == Trigger.Type.CrossDownLineWithTrend && CheckTrendDown)
+                        //     tb.Text = "DOWN at date " + sdd.Date.ToShortDateString();
+                    }
                 }
             }
         }
