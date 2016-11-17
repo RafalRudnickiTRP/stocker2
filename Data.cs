@@ -192,7 +192,15 @@ namespace WpfApplication3
                     continue;
                 
                 var sdd = GetSymbolData(symbolInfo.ShortName);
-
+                foreach(var line in SymbolsDrawingsToSerialize[symbolInfo.FullName].chartLines)
+                {
+                    /*
+                    if (Misc.LineValueOnSdd(line, sdd[0]))
+                    {
+                        int a = 2;
+                    }
+                    */
+                }
 
             }
 
