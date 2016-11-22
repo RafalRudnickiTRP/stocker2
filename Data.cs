@@ -155,6 +155,10 @@ namespace WpfApplication3
          
         public DataViewModel()
         {
+            Data.numberFormat.NumberGroupSeparator = ""; // thousands
+            Data.numberFormat.NumberDecimalSeparator = ".";
+            Data.dateTimeFormat = CultureInfo.CurrentCulture.DateTimeFormat.UniversalSortableDateTimePattern;
+
             SymbolsDrawings = new Dictionary<string, Chart>();
             SymbolsDrawingsToSerialize = new Dictionary<string, Chart.DataToSerialize>();
             SDDs = new Dictionary<string, List<Data.SymbolDayData>>();
@@ -194,20 +198,36 @@ namespace WpfApplication3
                 var sdd = GetSymbolData(symbolInfo.ShortName);
                 foreach(var line in SymbolsDrawingsToSerialize[symbolInfo.FullName].chartLines)
                 {
-                    /*
-                    if (Misc.LineValueOnSdd(line, sdd[0]))
+                    if (line.Color != "Lime" && line.Color != "Red")
+                        continue;
+
+                    DateTime lineStartDate = DateTime.ParseExact(line.StartPointDV.Split('+')[0], Data.dateTimeFormat, CultureInfo.InvariantCulture);
+                    DateTime lineEndDate = DateTime.ParseExact(line.EndPointDV.Split('+')[0], Data.dateTimeFormat, CultureInfo.InvariantCulture);
+                    if (lineEndDate < sdd[0].Date)
+                        continue;
+
+                    // find sdd at start of line
+                    var sddIt = 0;
+                    while (sdd[sddIt].Date > lineStartDate)
+                        sddIt++;
+
+                    double extraDaysToEnd = double.Parse(line.EndPointDV.Split('+')[1].Split(';')[0]);
+                    double numDays = sddIt + extraDaysToEnd;
+
+                    double startVal = double.Parse(line.StartPointDV.Split(';')[1]);
+                    double endVal = double.Parse(line.EndPointDV.Split(';')[1]);
+                    double step = (endVal - startVal) / numDays;
+
+                    double lineValAtSdd0 = startVal + step * sddIt;
+
+                    if (sdd[0].Low < lineValAtSdd0 && lineValAtSdd0 < sdd[0].Hi)
                     {
-                        int a = 2;
+                        // cross!!
+
                     }
-                    */
                 }
 
             }
-
-            Data.numberFormat.NumberGroupSeparator = ""; // thousands
-            Data.numberFormat.NumberDecimalSeparator = ".";
-
-            Data.dateTimeFormat = CultureInfo.CurrentCulture.DateTimeFormat.UniversalSortableDateTimePattern;
         }
 
         private void LoadSymbolsInfoList()
