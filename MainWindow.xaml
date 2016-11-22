@@ -49,8 +49,8 @@
                 </Grid>
                 <Label Name="Label1" Content=" " />
                 <Button Name="buttonInverse" Content="yInverse" Click="buttonInverse_Click" />
-                <Label Name="Label2" Content=" " />
-                <Button Name="buttonRaport" Content="raport" Click="buttonRaport_Click" />
+                <!--<Label Name="Label2" Content=" " />
+                <Button Name="buttonRaport" Content="raport" Click="buttonRaport_Click" />-->
             </ToolBar>
         </ToolBarTray>
         <StatusBar DockPanel.Dock="Bottom">

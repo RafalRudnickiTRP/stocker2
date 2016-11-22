@@ -393,52 +393,54 @@ namespace WpfApplication3
             UpdateLayout();
         }
 
-        private void buttonRaport_Click(object sender, RoutedEventArgs e)
-        {
-            TextBlock tb = (TextBlock)FindName("TextBlockControl");
-            if (tb == null)
-                return;
+        //private void buttonRaport_Click(object sender, RoutedEventArgs e)
+        //{
+        //    TextBlock tb = (TextBlock)FindName("TextBlockControl");
+        //    if (tb == null)
+        //        return;
 
-            foreach (KeyValuePair<string, Chart.DataToSerialize> dic in GetDVM().SymbolsDrawingsToSerialize)
-            {
-                string name = dic.Key;
+        //    GetDVM().GenerateRaport();
 
-                // find short name
-                string shname = "";
-                foreach (Data.SymbolInfo si in GetDVM().SymbolsInfoList)
-                {
-                    if (si.FullName == name)
-                    {
-                        shname = si.ShortName;
-                        break;
-                    }
-                }
+        //    //foreach (KeyValuePair<string, Chart.DataToSerialize> dic in GetDVM().SymbolsDrawingsToSerialize)
+        //    //{
+        //    //    string name = dic.Key;
 
-                List<Data.SymbolDayData> sdds = GetDVM().SDDs[shname];
+        //    //    // find short name
+        //    //    string shname = "";
+        //    //    foreach (Data.SymbolInfo si in GetDVM().SymbolsInfoList)
+        //    //    {
+        //    //        if (si.FullName == name)
+        //    //        {
+        //    //            shname = si.ShortName;
+        //    //            break;
+        //    //        }
+        //    //    }
 
-                Chart.DataToSerialize data = dic.Value;
-                IList<Chart.ChartLine.DataToSerialize> list = data.chartLines;
+        //    //    List<Data.SymbolDayData> sdds = GetDVM().SDDs[shname];
 
-                foreach (Chart.ChartLine.DataToSerialize line in list)
-                {
-                    bool CheckTrendUp = (line.Color.ToString() == Misc.BrushToString(Brushes.Lime));
-                    bool CheckTrendDown = (line.Color.ToString() == Misc.BrushToString(Brushes.Red));
+        //    //    Chart.DataToSerialize data = dic.Value;
+        //    //    IList<Chart.ChartLine.DataToSerialize> list = data.chartLines;
 
-                    if (!CheckTrendUp && !CheckTrendDown)
-                        continue;
+        //    //    foreach (Chart.ChartLine.DataToSerialize line in list)
+        //    //    {
+        //    //        bool CheckTrendUp = (line.Color.ToString() == Misc.BrushToString(Brushes.Lime));
+        //    //        bool CheckTrendDown = (line.Color.ToString() == Misc.BrushToString(Brushes.Red));
 
-                    foreach (Data.SymbolDayData sdd in sdds)
-                    {
-                        // Trigger.Type type = Trigger.Check(line, sdd);
-                        // 
-                        // if (type == Trigger.Type.CrossUpLineWithTrend && CheckTrendUp)
-                        //     tb.Text = "UP at date " + sdd.Date.ToShortDateString();
-                        // if (type == Trigger.Type.CrossDownLineWithTrend && CheckTrendDown)
-                        //     tb.Text = "DOWN at date " + sdd.Date.ToShortDateString();
-                    }
-                }
-            }
-        }
+        //    //        if (!CheckTrendUp && !CheckTrendDown)
+        //    //            continue;
+
+        //    //        foreach (Data.SymbolDayData sdd in sdds)
+        //    //        {
+        //    //            // Trigger.Type type = Trigger.Check(line, sdd);
+        //    //            // 
+        //    //            // if (type == Trigger.Type.CrossUpLineWithTrend && CheckTrendUp)
+        //    //            //     tb.Text = "UP at date " + sdd.Date.ToShortDateString();
+        //    //            // if (type == Trigger.Type.CrossDownLineWithTrend && CheckTrendDown)
+        //    //            //     tb.Text = "DOWN at date " + sdd.Date.ToShortDateString();
+        //    //        }
+        //    //    }
+        //    //}
+        //}
 
         private void TabItem_OnKeyDown(object sender, KeyEventArgs e)
         {

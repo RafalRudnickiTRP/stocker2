@@ -190,13 +190,22 @@ namespace WpfApplication3
                 // no problem
             }
 
+            GenerateRaport();
+        }
+
+        public void GenerateRaport()
+        {
+            string raport = DateTime.Today.ToString("dd-MM-yyyy") + "\n" + "\n";
+
+            bool noCrossed = true;
             foreach (var symbolInfo in SymbolsInfoList)
             {
                 if (SymbolsDrawingsToSerialize.ContainsKey(symbolInfo.FullName) == false)
                     continue;
-                
+
                 var sdd = GetSymbolData(symbolInfo.ShortName);
-                foreach(var line in SymbolsDrawingsToSerialize[symbolInfo.FullName].chartLines)
+
+                foreach (var line in SymbolsDrawingsToSerialize[symbolInfo.FullName].chartLines)
                 {
                     if (line.Color != "Lime" && line.Color != "Red")
                         continue;
@@ -211,8 +220,9 @@ namespace WpfApplication3
                     while (sdd[sddIt].Date > lineStartDate)
                         sddIt++;
 
+                    double extraDaysFromStart = double.Parse(line.StartPointDV.Split('+')[1].Split(';')[0]);
                     double extraDaysToEnd = double.Parse(line.EndPointDV.Split('+')[1].Split(';')[0]);
-                    double numDays = sddIt + extraDaysToEnd;
+                    double numDays = sddIt - extraDaysFromStart + extraDaysToEnd;
 
                     double startVal = double.Parse(line.StartPointDV.Split(';')[1]);
                     double endVal = double.Parse(line.EndPointDV.Split(';')[1]);
@@ -222,11 +232,32 @@ namespace WpfApplication3
 
                     if (sdd[0].Low < lineValAtSdd0 && lineValAtSdd0 < sdd[0].Hi)
                     {
-                        // cross!!
+                        raport += "NAME: " + symbolInfo.FullName + " with ";
+                        if (step > 0)
+                            raport += "ASCENDING line ";
+                        else
+                            raport += "DECLINING line ";
+                        raport += "crossed at value " + lineValAtSdd0 + "\n";
 
+                        noCrossed = false;
                     }
                 }
 
+                if (!noCrossed)
+                    raport += "\n";
+            }
+
+            if (!noCrossed)
+                SaveRaportFile(raport);
+        }
+
+        private void SaveRaportFile(string raport)
+        { 
+            string filename = "stocker_raport.html";
+            Directory.CreateDirectory(Data.GetPath());
+            using (StreamWriter outputFile = new StreamWriter(Data.GetPath() + filename))
+            {
+                outputFile.Write(raport);
             }
         }
 
