@@ -252,8 +252,14 @@ namespace WpfApplication3
         }
 
         private void SaveRaportFile(string raport)
-        { 
+        {
             string filename = "stocker_raport.html";
+            string oldFilename = "old_" + filename;
+
+            // rename prev file
+            File.Delete(Data.GetPath() + oldFilename);
+            File.Move(Data.GetPath() + filename, Data.GetPath() + oldFilename);
+
             Directory.CreateDirectory(Data.GetPath());
             using (StreamWriter outputFile = new StreamWriter(Data.GetPath() + filename))
             {
