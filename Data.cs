@@ -220,12 +220,16 @@ namespace WpfApplication3
                     while (sdd[sddIt].Date > lineStartDate)
                         sddIt++;
 
-                    double extraDaysFromStart = double.Parse(line.StartPointDV.Split('+')[1].Split(';')[0]);
-                    double extraDaysToEnd = double.Parse(line.EndPointDV.Split('+')[1].Split(';')[0]);
+                    double extraDaysFromStart = double.Parse(line.StartPointDV.Split('+')[1].Split(';')[0],
+                        Data.numberFormat);
+                    double extraDaysToEnd = double.Parse(line.EndPointDV.Split('+')[1].Split(';')[0],
+                        Data.numberFormat);
                     double numDays = sddIt - extraDaysFromStart + extraDaysToEnd;
 
-                    double startVal = double.Parse(line.StartPointDV.Split(';')[1]);
-                    double endVal = double.Parse(line.EndPointDV.Split(';')[1]);
+                    double startVal = double.Parse(line.StartPointDV.Split(';')[1],
+                        Data.numberFormat);
+                    double endVal = double.Parse(line.EndPointDV.Split(';')[1],
+                        Data.numberFormat);
                     double step = (endVal - startVal) / numDays;
 
                     double lineValAtSdd0 = startVal + step * sddIt;
@@ -247,18 +251,13 @@ namespace WpfApplication3
                     raport += "\n";
             }
 
-            if (!noCrossed)
-                SaveRaportFile(raport);
+            SaveRaportFile(raport);
         }
 
         private void SaveRaportFile(string raport)
         {
-            string filename = "stocker_raport.html";
-            string oldFilename = "old_" + filename;
-
-            // rename prev file
-            File.Delete(Data.GetPath() + oldFilename);
-            File.Move(Data.GetPath() + filename, Data.GetPath() + oldFilename);
+            string today = DateTime.Today.ToString("dd-MM-yyyy");
+            string filename = "stocker_raport_" + today + ".html";            
 
             Directory.CreateDirectory(Data.GetPath());
             using (StreamWriter outputFile = new StreamWriter(Data.GetPath() + filename))
