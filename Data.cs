@@ -77,11 +77,12 @@ namespace WpfApplication3
         public class SymbolInfo
         {
             public string FullName { get; set; }
+            public string InfoName { get; set; }
             public string ShortName { get; set; }
 
             public SymbolInfo(string fullName, string shortName)
             {
-                FullName = fullName;
+                InfoName = FullName = fullName;
                 ShortName = shortName;
 
                 SymbolInfoList.Add(this);
@@ -145,14 +146,68 @@ namespace WpfApplication3
 
     public partial class DataViewModel
     {
-        public List<Data.SymbolInfo> SymbolsInfoList { get; set; }
+        public static List<Data.SymbolInfo> SymbolsInfoList { get; set; }
 
-        public Dictionary<string, Chart> SymbolsDrawings { get; set; }
-        public Chart CurrentDrawing { get; set; }
+        public static Dictionary<string, Chart> SymbolsDrawings { get; set; }
+        public static Chart CurrentDrawing { get; set; }
 
-        public Dictionary<string, Chart.DataToSerialize> SymbolsDrawingsToSerialize { get; set; }
+        public static Dictionary<string, Chart.DataToSerialize> SymbolsDrawingsToSerialize { get; set; }
         public Dictionary<string, List<Data.SymbolDayData>> SDDs { get; set; }
-         
+        
+        public static void UpdateInfoNames()
+        {
+            foreach (var sd in SymbolsDrawings)
+            {
+                int cls = sd.Value.chartLines.Count;
+                if (cls == 0)
+                    continue;
+
+                int clsActive = 0;
+                foreach (var cl in sd.Value.chartLines)
+                {
+                    if (Misc.BrushToString(cl.color) == "Red" || Misc.BrushToString(cl.color) == "Lime")
+                        clsActive++;
+                }
+                string info = " " + cls + "/" + clsActive;
+
+                foreach (var symbolInfo in SymbolsInfoList)
+                {
+                    if (symbolInfo.FullName == sd.Key)
+                    {
+                        symbolInfo.InfoName = symbolInfo.FullName + info;
+                        break;
+                    }
+                }
+            }
+        }
+
+        public static void UpdateInfoNamesOnLoad()
+        {
+            foreach (var sd in SymbolsDrawingsToSerialize)
+            {
+                int cls = sd.Value.chartLines.Count;
+                if (cls == 0)
+                    continue;
+
+                int clsActive = 0;
+                foreach (var cl in sd.Value.chartLines)
+                {
+                    if (cl.Color == "Red" || cl.Color == "Lime")
+                        clsActive++;
+                }
+                string info = " " + cls + "/" + clsActive;
+
+                foreach (var symbolInfo in SymbolsInfoList)
+                {
+                    if (symbolInfo.FullName == sd.Key)
+                    {
+                        symbolInfo.InfoName = symbolInfo.FullName + info;
+                        break;
+                    }
+                }
+            }
+        }
+
         public DataViewModel()
         {
             Data.numberFormat.NumberGroupSeparator = ""; // thousands
@@ -171,10 +226,8 @@ namespace WpfApplication3
             // try to load symbols drawings
             try
             {
-                // Open the text file using a stream reader.
                 using (StreamReader reader = new StreamReader(Data.GetPath() + @"charts.json"))
                 {
-                    // Read the stream to a string, and write the string to the console.
                     string input = reader.ReadToEnd();
                     SymbolsDrawingsToSerialize =
                         JsonConvert.DeserializeObject<Dictionary<string, Chart.DataToSerialize>>(input);
@@ -184,6 +237,8 @@ namespace WpfApplication3
                     if (SymbolsDrawingsToSerialize == null)
                         SymbolsDrawingsToSerialize = new Dictionary<string, Chart.DataToSerialize>();
                 }
+
+                UpdateInfoNamesOnLoad();
             }
             catch (FileNotFoundException)
             {
@@ -203,15 +258,17 @@ namespace WpfApplication3
                 if (SymbolsDrawingsToSerialize.ContainsKey(symbolInfo.FullName) == false)
                     continue;
 
-                var sdd = GetSymbolData(symbolInfo.ShortName);
+                var sdd = GetSymbolData(symbolInfo.ShortName);                
 
                 foreach (var line in SymbolsDrawingsToSerialize[symbolInfo.FullName].chartLines)
                 {
                     if (line.Color != "Lime" && line.Color != "Red")
                         continue;
 
-                    DateTime lineStartDate = DateTime.ParseExact(line.StartPointDV.Split('+')[0], Data.dateTimeFormat, CultureInfo.InvariantCulture);
-                    DateTime lineEndDate = DateTime.ParseExact(line.EndPointDV.Split('+')[0], Data.dateTimeFormat, CultureInfo.InvariantCulture);
+                    DateTime lineStartDate = DateTime.ParseExact(line.StartPointDV.Split('+')[0],
+                        Data.dateTimeFormat, CultureInfo.InvariantCulture);
+                    DateTime lineEndDate = DateTime.ParseExact(line.EndPointDV.Split('+')[0],
+                        Data.dateTimeFormat, CultureInfo.InvariantCulture);
                     if (lineEndDate < sdd[0].Date)
                         continue;
 
@@ -298,7 +355,7 @@ namespace WpfApplication3
             }
         }
 
-        public void SetCurrentDrawing(Chart currentChart)
+        public static void SetCurrentDrawing(Chart currentChart)
         {
             CurrentDrawing = currentChart;
         }

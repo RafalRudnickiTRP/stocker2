@@ -48,7 +48,7 @@ namespace WpfApplication3
         {
             var dvm = DataContext as DataViewModel;
             Chart chart = null;
-            if (dvm.SymbolsDrawings.TryGetValue(symbolInfo.FullName, out chart) == false)
+            if (DataViewModel.SymbolsDrawings.TryGetValue(symbolInfo.FullName, out chart) == false)
             {
                 List<Data.SymbolDayData> sdd = dvm.GetSymbolData(symbolInfo.ShortName);
 
@@ -62,14 +62,14 @@ namespace WpfApplication3
                 Chart.DrawingInfo di = new Chart.DrawingInfo((int)SymbolsTabControl.ActualWidth, (int)SymbolsTabControl.ActualHeight);
 
                 chart = new Chart(di);
-                dvm.SymbolsDrawings.Add(symbolInfo.FullName, chart);
+                DataViewModel.SymbolsDrawings.Add(symbolInfo.FullName, chart);
                 newTab.Content = chart.CreateDrawing(sdd);
 
-                if (dvm.SymbolsDrawingsToSerialize != null)
+                if (DataViewModel.SymbolsDrawingsToSerialize != null)
                 {
-                    chart.AddLoadedChartLines(dvm.SymbolsDrawingsToSerialize, symbolInfo.FullName);
+                    chart.AddLoadedChartLines(DataViewModel.SymbolsDrawingsToSerialize, symbolInfo.FullName);
                     // remove added symbol
-                    dvm.SymbolsDrawingsToSerialize.Remove(symbolInfo.FullName);
+                    DataViewModel.SymbolsDrawingsToSerialize.Remove(symbolInfo.FullName);
                 }
 
                 SymbolsTabControl.SelectedItem = newTab;
@@ -85,7 +85,7 @@ namespace WpfApplication3
                     }
                 }
             }
-            dvm.SetCurrentDrawing(chart);
+            DataViewModel.SetCurrentDrawing(chart);
             currentSymbolInfo = symbolInfo;
         }
 
@@ -94,9 +94,9 @@ namespace WpfApplication3
             TabItem activeTab = (TabItem)((TabControl)a.Source).SelectedItem;
 
             Chart chart = null;
-            if (GetDVM().SymbolsDrawings.TryGetValue(activeTab.Header.ToString(), out chart))
+            if (DataViewModel.SymbolsDrawings.TryGetValue(activeTab.Header.ToString(), out chart))
             {
-                GetDVM().SetCurrentDrawing(chart);
+                DataViewModel.SetCurrentDrawing(chart);
             }
 
             activeTab.Focus();
@@ -127,7 +127,7 @@ namespace WpfApplication3
             else if (e.ChangedButton == MouseButton.Middle)
             {
                 workMode = WorkMode.Cross;
-                Chart activeChart = GetDVM().CurrentDrawing;
+                Chart activeChart = DataViewModel.CurrentDrawing;
                 activeChart.ShowCross(true);
                 activeChart.MoveCross(mousePosition);
             }
@@ -135,7 +135,7 @@ namespace WpfApplication3
 
         private void SelectControlPoints(Point mousePosition)
         {
-            Chart activeChart = GetDVM().CurrentDrawing;
+            Chart activeChart = DataViewModel.CurrentDrawing;
             if (activeChart != null)
             {
                 float minDist = minControlPointDistance;
@@ -180,7 +180,7 @@ namespace WpfApplication3
 
         private void DrawNewLine(Point mousePosition)
         {
-            Chart activeChart = GetDVM().CurrentDrawing;
+            Chart activeChart = DataViewModel.CurrentDrawing;
             if (activeChart == null)
                 return;
 
@@ -208,7 +208,7 @@ namespace WpfApplication3
 
         private void SymbolTab_MouseMove(object sender, MouseEventArgs e)
         {
-            Chart activeChart = GetDVM().CurrentDrawing;
+            Chart activeChart = DataViewModel.CurrentDrawing;
             if (activeChart == null) return;
             
             Chart.ChartLine line = activeChart.chartLines.FirstOrDefault(l => l.mode == Chart.ChartLine.Mode.Drawing);
@@ -243,7 +243,7 @@ namespace WpfApplication3
 
         private void SymbolTab_MouseUp(object sender, MouseButtonEventArgs e)
         {
-            Chart activeChart = GetDVM().CurrentDrawing;
+            Chart activeChart = DataViewModel.CurrentDrawing;
             if (activeChart == null) return;
 
             Chart.ChartLine line = activeChart.chartLines.FirstOrDefault(l => l.mode == Chart.ChartLine.Mode.Drawing);
@@ -260,6 +260,20 @@ namespace WpfApplication3
                 workMode = WorkMode.Selecting;
                 activeChart.ShowCross(false);
             }
+
+            UpdateListView();
+        }
+
+        private void UpdateListView()
+        {
+            DataViewModel.UpdateInfoNames();
+
+            ListView sl = (ListView)FindName("SymbolsList");
+            if (sl != null)
+            {
+                sl.Items.Refresh();
+                sl.UpdateLayout();
+            }
         }
 
         private void SymbolTab_MouseDoubleClick(object sender, MouseButtonEventArgs e)
@@ -271,7 +285,7 @@ namespace WpfApplication3
             Canvas canvas = (Canvas)tabItem.Content;
             Point mousePosition = e.MouseDevice.GetPosition(canvas);
 
-            Chart activeChart = GetDVM().CurrentDrawing;
+            Chart activeChart = DataViewModel.CurrentDrawing;
             if (activeChart != null)
             {
                 // calc distance to neares object
@@ -322,15 +336,17 @@ namespace WpfApplication3
             GetDVM().DeserializeFromJson(input);
 
             // add loaded chart lines for this symbol
-            Chart activeChart = GetDVM().CurrentDrawing;
-            activeChart.AddLoadedChartLines(GetDVM().SymbolsDrawingsToSerialize, currentSymbolInfo.FullName);
+            Chart activeChart = DataViewModel.CurrentDrawing;
+            activeChart.AddLoadedChartLines(DataViewModel.SymbolsDrawingsToSerialize, currentSymbolInfo.FullName);
             // remove added symbol
-            GetDVM().SymbolsDrawingsToSerialize.Remove(currentSymbolInfo.FullName);
+            DataViewModel.SymbolsDrawingsToSerialize.Remove(currentSymbolInfo.FullName);
+            
+            UpdateListView();
         }
 
         private void buttonInverse_Click(object sender, RoutedEventArgs e)
         {
-            Chart activeChart = GetDVM().CurrentDrawing;
+            Chart activeChart = DataViewModel.CurrentDrawing;
             if (activeChart == null)
                 return;
 
@@ -367,7 +383,7 @@ namespace WpfApplication3
             string colorName = ((Button)sender).Name.ToString().Split('_')[1];
             currentColor = Misc.StringToBrush(colorName);
 
-            Chart activeChart = GetDVM().CurrentDrawing;
+            Chart activeChart = DataViewModel.CurrentDrawing;
             if (activeChart != null)
             {
                 foreach (Chart.ChartLine line in activeChart.chartLines)
@@ -390,6 +406,8 @@ namespace WpfApplication3
                     }
                 }
             }
+
+            UpdateListView();
             UpdateLayout();
         }
 
@@ -444,7 +462,7 @@ namespace WpfApplication3
 
         private void TabItem_OnKeyDown(object sender, KeyEventArgs e)
         {
-            Chart chart = GetDVM().CurrentDrawing;
+            Chart chart = DataViewModel.CurrentDrawing;
 
             if (e.Key == Key.Delete)
             {
@@ -491,6 +509,8 @@ namespace WpfApplication3
             {
                 shiftPressed = true;
             }
+
+            UpdateListView();
         }
 
         private void TabItem_OnKeyUp(object sender, KeyEventArgs e)

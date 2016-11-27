@@ -77,7 +77,7 @@
             <ListView Name="SymbolsList" ItemsSource="{Binding SymbolsInfoList}" MouseDoubleClick="SymbolsList_MouseDoubleClick">
                 <ListView.View>
                     <GridView>
-                        <GridViewColumn DisplayMemberBinding="{Binding FullName}"/>
+                        <GridViewColumn DisplayMemberBinding="{Binding InfoName}" Width="150"/>
                     </GridView>
                 </ListView.View>
             </ListView>
