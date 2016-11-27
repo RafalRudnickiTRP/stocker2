@@ -74,12 +74,24 @@
                      Name="textBox" 
                      Text="..."/>
             <Label DockPanel.Dock="Top">symbols:</Label>
-            <ListView Name="SymbolsList" ItemsSource="{Binding SymbolsInfoList}" MouseDoubleClick="SymbolsList_MouseDoubleClick">
+            <ListView Name="SymbolsList" ItemsSource="{Binding SymbolsInfoList}"
+                      MouseDoubleClick="SymbolsList_MouseDoubleClick">
                 <ListView.View>
                     <GridView>
-                        <GridViewColumn DisplayMemberBinding="{Binding InfoName}" Width="150"/>
+                        <GridViewColumn DisplayMemberBinding="{Binding InfoName}" Width="150" />
                     </GridView>
                 </ListView.View>
+
+                <ListView.ItemContainerStyle>
+                    <Style TargetType="{x:Type ListViewItem}">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding Path=IsBold}" Value="True">
+                                <Setter Property="FontWeight" Value="Bold" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </ListView.ItemContainerStyle>
+                
             </ListView>
         </DockPanel>
         <TextBlock DockPanel.Dock="Bottom" Name="TextBlockControl" Text="" />

@@ -80,6 +80,11 @@ namespace WpfApplication3
             public string InfoName { get; set; }
             public string ShortName { get; set; }
 
+            public bool IsBold
+            {
+                get { return (InfoName != FullName); }
+            }
+
             public SymbolInfo(string fullName, string shortName)
             {
                 InfoName = FullName = fullName;
