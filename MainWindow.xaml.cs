@@ -18,6 +18,7 @@ namespace WpfApplication3
         static public Brush currentColor = Brushes.Black;
         static public Data.SymbolInfo currentSymbolInfo;
         static bool shiftPressed = false;
+        static bool ctrlPressed = false;
 
         public MainWindow()
         {
@@ -460,6 +461,33 @@ namespace WpfApplication3
         //    //}
         //}
 
+        private void selectDeselectLines()
+        {
+            Chart chart = DataViewModel.CurrentDrawing;
+
+            // if everything is selected - deselect all
+            // else - select everything
+            bool everythingSelected = true;
+            foreach (Chart.ChartLine l in chart.chartLines)
+            {
+                if (l.IsSelected() == false)
+                {
+                    everythingSelected = false;
+                    break;
+                }
+            }
+
+            foreach (Chart.ChartLine l in chart.chartLines)
+            {
+                l.Select(!everythingSelected);
+            }
+        }
+
+        private void buttonSelectDeselect_Click(object sender, RoutedEventArgs e)
+        {
+            selectDeselectLines();
+        }
+
         private void TabItem_OnKeyDown(object sender, KeyEventArgs e)
         {
             Chart chart = DataViewModel.CurrentDrawing;
@@ -496,9 +524,17 @@ namespace WpfApplication3
                 chart.chartLines.RemoveAll(l => l.IsSelected());
                 chart.selectedLines.Clear();
             }
+            else if (e.Key == Key.A)
+            {
+                if (ctrlPressed == true)
+                {
+                    selectDeselectLines();
+                }
+            }
             else if (e.Key == Key.LeftCtrl || 
                      e.Key == Key.RightCtrl)
             {
+                ctrlPressed = true;
                 if (Chart.copyMode == Chart.ChartLine.CopyModes.No)
                 {
                     Chart.copyMode = Chart.ChartLine.CopyModes.NotYet;
@@ -518,6 +554,7 @@ namespace WpfApplication3
             if (e.Key == Key.LeftCtrl ||
                 e.Key == Key.RightCtrl)
             {
+                ctrlPressed = false;
                 Chart.copyMode = Chart.ChartLine.CopyModes.No;
             }
             else if (e.Key == Key.LeftShift ||
