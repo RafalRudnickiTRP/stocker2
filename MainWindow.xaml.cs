@@ -6,6 +6,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Diagnostics;
 using System.IO;
+using System;
 
 namespace WpfApplication3
 {
@@ -315,6 +316,17 @@ namespace WpfApplication3
 
         private void buttonSave_Click(object sender, RoutedEventArgs e)
         {
+            // backup first previous data
+            string now = DateTime.Now.ToString("dd-MM-yyyy-HH-mm-ss");
+            try
+            {
+                File.Move(Data.GetPath() + @"charts.json", Data.GetPath() + @"charts_" + now + ".json");
+            }
+            catch (Exception)
+            {
+                // file missing or sth worse..
+            }
+
             // try to write data
             using (StreamWriter outputFile = new StreamWriter(Data.GetPath() + @"charts.json"))
             {
