@@ -7,6 +7,8 @@ using System.Windows.Media;
 using System.Diagnostics;
 using System.IO;
 using System;
+using System.ComponentModel;
+using System.Windows.Data;
 
 namespace WpfApplication3
 {
@@ -29,6 +31,8 @@ namespace WpfApplication3
             DataContext = dvm;
 
             currentColor = Brushes.Black;
+
+            UpdateListView();
 
             InitializeCommands();
         }
@@ -270,11 +274,18 @@ namespace WpfApplication3
         {
             DataViewModel.UpdateInfoNames();
 
+            SortSymbolsList();            
+
             ListView sl = (ListView)FindName("SymbolsList");
             if (sl != null)
             {
                 sl.Items.Refresh();
                 sl.UpdateLayout();
+
+                if (sl.SelectedItems.Count > 0)
+                {
+                    sl.ScrollIntoView(sl.SelectedItems[0]);
+                }
             }
         }
 
@@ -574,6 +585,18 @@ namespace WpfApplication3
             {
                 shiftPressed = false;
             }
+        }       
+
+        private void SortSymbolsList()
+        {
+            // sort SymbolsInfoList
+            DataViewModel.SymbolsInfoList.Sort(
+                delegate (Data.SymbolInfo x, Data.SymbolInfo y) { return x.CompareTo(y); });
+        }
+        
+        private void SymbolsList_ColumnHeaderClick(object sender, RoutedEventArgs e)
+        {
+            SortSymbolsList();
         }
     }
 }

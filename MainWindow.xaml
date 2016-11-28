@@ -77,7 +77,8 @@
                      Text="..."/>
             <Label DockPanel.Dock="Top">symbols:</Label>
             <ListView Name="SymbolsList" ItemsSource="{Binding SymbolsInfoList}"
-                      MouseDoubleClick="SymbolsList_MouseDoubleClick">
+                      MouseDoubleClick="SymbolsList_MouseDoubleClick"
+                      GridViewColumnHeader.Click="SymbolsList_ColumnHeaderClick">
                 <ListView.View>
                     <GridView>
                         <GridViewColumn DisplayMemberBinding="{Binding InfoName}" Width="150" />

@@ -80,9 +80,14 @@ namespace WpfApplication3
             public string InfoName { get; set; }
             public string ShortName { get; set; }
 
+            private bool _IsBold()
+            {
+                return (InfoName != FullName);
+            }
+
             public bool IsBold
             {
-                get { return (InfoName != FullName); }
+                get { return _IsBold(); }
             }
 
             public SymbolInfo(string fullName, string shortName)
@@ -91,6 +96,22 @@ namespace WpfApplication3
                 ShortName = shortName;
 
                 SymbolInfoList.Add(this);
+            }
+
+            public int CompareTo(SymbolInfo si)
+            {
+                int result = 0;
+                if (si._IsBold() && _IsBold())
+                    result = string.Compare(si.InfoName, InfoName);
+                else if (si._IsBold() && !_IsBold())
+                    result = -1;
+                else if (!si._IsBold() && _IsBold())
+                    result = 1;
+                else
+                    result = string.Compare(si.InfoName, InfoName);
+
+                // first list of bolds
+                return result * -1;
             }
         }
 
