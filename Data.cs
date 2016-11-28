@@ -179,6 +179,13 @@ namespace WpfApplication3
 
         public static Dictionary<string, Chart.DataToSerialize> SymbolsDrawingsToSerialize { get; set; }
         public Dictionary<string, List<Data.SymbolDayData>> SDDs { get; set; }
+
+        public struct ReportItem
+        {
+            public string Symbol { get; set; }
+            public string Event { get; set; }
+        }
+        public static List<ReportItem> ReportItems { get; set; }
         
         public static void UpdateInfoNames()
         {
@@ -186,12 +193,8 @@ namespace WpfApplication3
             {
                 int cls = sd.Value.chartLines.Count;
 
-                int clsActive = 0;
-                foreach (var cl in sd.Value.chartLines)
-                {
-                    if (Misc.BrushToString(cl.color) == "Red" || Misc.BrushToString(cl.color) == "Lime")
-                        clsActive++;
-                }
+                int clsActive = sd.Value.chartLines.Count(
+                    l => Misc.BrushToString(l.color) == "Red" || Misc.BrushToString(l.color) == "Lime");
 
                 string info = " " + cls + "/" + clsActive;
                 if (cls == 0 && clsActive == 0)
@@ -222,6 +225,7 @@ namespace WpfApplication3
                     if (cl.Color == "Red" || cl.Color == "Lime")
                         clsActive++;
                 }
+
                 string info = " " + cls + "/" + clsActive;
 
                 foreach (var symbolInfo in SymbolsInfoList)
@@ -244,6 +248,8 @@ namespace WpfApplication3
             SymbolsDrawings = new Dictionary<string, Chart>();
             SymbolsDrawingsToSerialize = new Dictionary<string, Chart.DataToSerialize>();
             SDDs = new Dictionary<string, List<Data.SymbolDayData>>();
+
+            ReportItems = new List<ReportItem>(); 
 
             // create default dir
             Directory.CreateDirectory(Data.GetPath());
@@ -272,12 +278,12 @@ namespace WpfApplication3
                 // no problem
             }
 
-            GenerateRaport();
+            GenerateReport();
         }
 
-        public void GenerateRaport()
+        public void GenerateReport()
         {
-            string raport = DateTime.Today.ToString("dd-MM-yyyy") + "\n" + "\n";
+            string report = DateTime.Today.ToString("dd-MM-yyyy") + "\n" + "\n";
 
             bool noCrossed = true;
             foreach (var symbolInfo in SymbolsInfoList)
@@ -320,28 +326,36 @@ namespace WpfApplication3
 
                     if (sdd[0].Low < lineValAtSdd0 && lineValAtSdd0 < sdd[0].Hi)
                     {
-                        raport += "NAME: " + symbolInfo.FullName + " with ";
-                        if (step > 0)
-                            raport += "ASCENDING line ";
-                        else
-                            raport += "DECLINING line ";
-                        raport += "crossed at value " + lineValAtSdd0 + "\n";
+                        string e = "";
 
+                        report += "NAME: " + symbolInfo.FullName + " with ";
+                        if (step > 0)
+                            e += "ASCENDING line ";
+                        else
+                            e += "DESCENDING line ";
+                        e += "crossed at value " + lineValAtSdd0;
+
+                        ReportItem ri = new ReportItem();
+                        ri.Symbol = symbolInfo.FullName;
+                        ri.Event = e;
+                        ReportItems.Add(ri);
+
+                        report += e + "\n";
                         noCrossed = false;
                     }
                 }
 
                 if (!noCrossed)
-                    raport += "\n";
+                    report += "\n";
             }
 
-            SaveRaportFile(raport);
+            SaveReportFile(report);
         }
 
-        private void SaveRaportFile(string raport)
+        private void SaveReportFile(string raport)
         {
             string today = DateTime.Today.ToString("dd-MM-yyyy");
-            string filename = "stocker_raport_" + today + ".html";            
+            string filename = "stocker_report_" + today + ".html";            
 
             Directory.CreateDirectory(Data.GetPath());
             using (StreamWriter outputFile = new StreamWriter(Data.GetPath() + filename))

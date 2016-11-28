@@ -104,6 +104,16 @@
                     MouseUp="SymbolTab_MouseUp"
                     MouseDoubleClick="SymbolTab_MouseDoubleClick"
                     MouseMove="SymbolTab_MouseMove">
+            <TabItem Header="Report" HorizontalAlignment="Left" Height="20" Margin="0" VerticalAlignment="Top" Width="55">
+                <ListView x:Name="ReportView">
+                    <ListView.View>
+                        <GridView>
+                            <GridViewColumn Header="Symbol" DisplayMemberBinding="{Binding Symbol}"/>
+                            <GridViewColumn Header="Event" DisplayMemberBinding="{Binding Event}"/>
+                        </GridView>
+                    </ListView.View>
+                </ListView>
+            </TabItem>
         </TabControl>
     </DockPanel>
 </Window>

@@ -35,6 +35,8 @@ namespace WpfApplication3
             UpdateListView();
 
             InitializeCommands();
+
+            ReportView.ItemsSource = DataViewModel.ReportItems;
         }
 
         private DataViewModel GetDVM()
@@ -97,6 +99,8 @@ namespace WpfApplication3
 
         private void SymbolTab_SelectionChanged(object sender, SelectionChangedEventArgs a)
         {
+            if (a.Source is ListView) return;
+
             TabItem activeTab = (TabItem)((TabControl)a.Source).SelectedItem;
 
             Chart chart = null;
@@ -112,7 +116,8 @@ namespace WpfApplication3
         private void SymbolTab_MouseDown(object sender, MouseButtonEventArgs e)
         {
             TabControl tabCtrl = (TabControl)sender;
-            if (tabCtrl.Items.Count == 0) return;
+            // report is a first item
+            if (tabCtrl.Items.Count == 1) return;
 
             TabItem tabItem = (TabItem)tabCtrl.Items[tabCtrl.SelectedIndex];
             Canvas canvas = (Canvas)tabItem.Content;
@@ -292,7 +297,9 @@ namespace WpfApplication3
         private void SymbolTab_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
             TabControl tabCtrl = (TabControl)sender;
-            if (tabCtrl.Items.Count == 0) return;
+            // first item is a Report
+            if (tabCtrl.Items.Count == 1) return;
+            if (tabCtrl.SelectedIndex == 0) return;
 
             TabItem tabItem = (TabItem)tabCtrl.Items[tabCtrl.SelectedIndex];
             Canvas canvas = (Canvas)tabItem.Content;
