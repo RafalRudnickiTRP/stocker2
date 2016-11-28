@@ -254,6 +254,8 @@ namespace WpfApplication3
                 line.drawingMode = Chart.ChartLine.DrawingMode.Invalid;
                 line.mode = Chart.ChartLine.Mode.Selected;
                 workMode = WorkMode.Selecting;
+
+                UpdateListView();
             }
 
             if (e.ChangedButton == MouseButton.Left &&
@@ -262,8 +264,6 @@ namespace WpfApplication3
                 workMode = WorkMode.Selecting;
                 activeChart.ShowCross(false);
             }
-
-            UpdateListView();
         }
 
         private void UpdateListView()

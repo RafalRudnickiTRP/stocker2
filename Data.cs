@@ -164,8 +164,6 @@ namespace WpfApplication3
             foreach (var sd in SymbolsDrawings)
             {
                 int cls = sd.Value.chartLines.Count;
-                if (cls == 0)
-                    continue;
 
                 int clsActive = 0;
                 foreach (var cl in sd.Value.chartLines)
@@ -173,7 +171,10 @@ namespace WpfApplication3
                     if (Misc.BrushToString(cl.color) == "Red" || Misc.BrushToString(cl.color) == "Lime")
                         clsActive++;
                 }
+
                 string info = " " + cls + "/" + clsActive;
+                if (cls == 0 && clsActive == 0)
+                    info = "";
 
                 foreach (var symbolInfo in SymbolsInfoList)
                 {
