@@ -302,7 +302,12 @@ namespace WpfApplication3
                         Data.dateTimeFormat, CultureInfo.InvariantCulture);
                     DateTime lineEndDate = DateTime.ParseExact(line.EndPointDV.Split('+')[0],
                         Data.dateTimeFormat, CultureInfo.InvariantCulture);
-                    if (lineEndDate < sdd[0].Date)
+                    double extraDaysFromStart = double.Parse(line.StartPointDV.Split('+')[1].Split(';')[0],
+                        Data.numberFormat);
+                    double extraDaysToEnd = double.Parse(line.EndPointDV.Split('+')[1].Split(';')[0],
+                        Data.numberFormat);
+
+                    if (lineEndDate.AddDays(extraDaysToEnd) < sdd[0].Date)
                         continue;
 
                     // find sdd at start of line
@@ -310,10 +315,6 @@ namespace WpfApplication3
                     while (sdd[sddIt].Date > lineStartDate)
                         sddIt++;
 
-                    double extraDaysFromStart = double.Parse(line.StartPointDV.Split('+')[1].Split(';')[0],
-                        Data.numberFormat);
-                    double extraDaysToEnd = double.Parse(line.EndPointDV.Split('+')[1].Split(';')[0],
-                        Data.numberFormat);
                     double numDays = sddIt - extraDaysFromStart + extraDaysToEnd;
 
                     double startVal = double.Parse(line.StartPointDV.Split(';')[1],
