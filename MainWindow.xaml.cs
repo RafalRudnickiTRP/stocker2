@@ -23,6 +23,8 @@ namespace WpfApplication3
         static bool shiftPressed = false;
         static bool ctrlPressed = false;
 
+        static bool showedFromReport = false;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -58,6 +60,7 @@ namespace WpfApplication3
             if ((dataContext is DataViewModel.ReportItem) == false) return;
 
             ShowSymbolTab(((DataViewModel.ReportItem)dataContext).Symbol);
+            showedFromReport = true;
         }
 
         private void ShowSymbolTab(string symbolFullName)
@@ -103,6 +106,8 @@ namespace WpfApplication3
                     }
                 }
             }
+
+            deselectAllLines();
             DataViewModel.SetCurrentDrawing(chart);
             currentSymbolInfo = symbolInfo;
         }
@@ -314,6 +319,11 @@ namespace WpfApplication3
             // first item is a Report
             if (tabCtrl.Items.Count == 1) return;
             if (tabCtrl.SelectedIndex == 0) return;
+            if (showedFromReport)
+            {
+                showedFromReport = false;
+                return;
+            }
 
             TabItem tabItem = (TabItem)tabCtrl.Items[tabCtrl.SelectedIndex];
             Canvas canvas = (Canvas)tabItem.Content;
@@ -455,56 +465,7 @@ namespace WpfApplication3
             UpdateListView();
             UpdateLayout();
         }
-
-        //private void buttonRaport_Click(object sender, RoutedEventArgs e)
-        //{
-        //    TextBlock tb = (TextBlock)FindName("TextBlockControl");
-        //    if (tb == null)
-        //        return;
-
-        //    GetDVM().GenerateRaport();
-
-        //    //foreach (KeyValuePair<string, Chart.DataToSerialize> dic in GetDVM().SymbolsDrawingsToSerialize)
-        //    //{
-        //    //    string name = dic.Key;
-
-        //    //    // find short name
-        //    //    string shname = "";
-        //    //    foreach (Data.SymbolInfo si in GetDVM().SymbolsInfoList)
-        //    //    {
-        //    //        if (si.FullName == name)
-        //    //        {
-        //    //            shname = si.ShortName;
-        //    //            break;
-        //    //        }
-        //    //    }
-
-        //    //    List<Data.SymbolDayData> sdds = GetDVM().SDDs[shname];
-
-        //    //    Chart.DataToSerialize data = dic.Value;
-        //    //    IList<Chart.ChartLine.DataToSerialize> list = data.chartLines;
-
-        //    //    foreach (Chart.ChartLine.DataToSerialize line in list)
-        //    //    {
-        //    //        bool CheckTrendUp = (line.Color.ToString() == Misc.BrushToString(Brushes.Lime));
-        //    //        bool CheckTrendDown = (line.Color.ToString() == Misc.BrushToString(Brushes.Red));
-
-        //    //        if (!CheckTrendUp && !CheckTrendDown)
-        //    //            continue;
-
-        //    //        foreach (Data.SymbolDayData sdd in sdds)
-        //    //        {
-        //    //            // Trigger.Type type = Trigger.Check(line, sdd);
-        //    //            // 
-        //    //            // if (type == Trigger.Type.CrossUpLineWithTrend && CheckTrendUp)
-        //    //            //     tb.Text = "UP at date " + sdd.Date.ToShortDateString();
-        //    //            // if (type == Trigger.Type.CrossDownLineWithTrend && CheckTrendDown)
-        //    //            //     tb.Text = "DOWN at date " + sdd.Date.ToShortDateString();
-        //    //        }
-        //    //    }
-        //    //}
-        //}
-
+        
         private void selectDeselectLines()
         {
             Chart chart = DataViewModel.CurrentDrawing;
@@ -524,6 +485,16 @@ namespace WpfApplication3
             foreach (Chart.ChartLine l in chart.chartLines)
             {
                 l.Select(!everythingSelected);
+            }
+        }
+
+        private void deselectAllLines()
+        {
+            Chart chart = DataViewModel.CurrentDrawing;
+
+            foreach (Chart.ChartLine l in chart.chartLines)
+            {
+                l.Select(false);
             }
         }
 
