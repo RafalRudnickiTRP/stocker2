@@ -49,13 +49,23 @@ namespace WpfApplication3
             var dataContext = ((FrameworkElement)e.OriginalSource).DataContext;
             if ((dataContext is Data.SymbolInfo) == false) return;
 
-            ShowSymbolTab(dataContext as Data.SymbolInfo);
+            ShowSymbolTab(((Data.SymbolInfo)dataContext).FullName);
         }
-        
-        private void ShowSymbolTab(Data.SymbolInfo symbolInfo)
+
+        private void Report_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            var dataContext = ((FrameworkElement)e.OriginalSource).DataContext;
+            if ((dataContext is DataViewModel.ReportItem) == false) return;
+
+            ShowSymbolTab(((DataViewModel.ReportItem)dataContext).Symbol);
+        }
+
+        private void ShowSymbolTab(string symbolFullName)
         {
             var dvm = DataContext as DataViewModel;
             Chart chart = null;
+            Data.SymbolInfo symbolInfo = Data.SymbolInfoList.Single(s => s.FullName == symbolFullName);
+
             if (DataViewModel.SymbolsDrawings.TryGetValue(symbolInfo.FullName, out chart) == false)
             {
                 List<Data.SymbolDayData> sdd = dvm.GetSymbolData(symbolInfo.ShortName);
