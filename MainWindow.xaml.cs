@@ -120,6 +120,8 @@ namespace WpfApplication3
             if (tabCtrl.Items.Count == 1) return;
 
             TabItem tabItem = (TabItem)tabCtrl.Items[tabCtrl.SelectedIndex];
+            if (tabItem.Header.ToString() == "Report") return;
+
             Canvas canvas = (Canvas)tabItem.Content;
             Point mousePosition = e.MouseDevice.GetPosition(canvas);
 
@@ -245,6 +247,8 @@ namespace WpfApplication3
             {
                 TabControl tabCtrl = (TabControl)sender;
                 TabItem tabItem = (TabItem)tabCtrl.Items[tabCtrl.SelectedIndex];
+                if (tabItem.Header.ToString() == "Report") return;
+
                 Canvas canvas = (Canvas)tabItem.Content;
                 Point mousePosition = e.MouseDevice.GetPosition(canvas);
 
