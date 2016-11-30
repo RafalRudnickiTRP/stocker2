@@ -106,6 +106,7 @@ namespace WpfApplication3
             }
 
             chartLines.Remove(line);
+            selectedLines.Remove(line);
         }
 
         public Canvas CreateDrawing(List<Data.SymbolDayData> sddList)

@@ -284,9 +284,7 @@ namespace WpfApplication3
                 workMode = WorkMode.Selecting;
 
                 if (Misc.LineLength(line) < 5)
-                {
-                    throw new NotImplementedException();
-                }
+                    activeChart.DeleteLine(line);
 
                 UpdateListView();
             }
