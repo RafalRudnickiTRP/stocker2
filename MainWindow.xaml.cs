@@ -332,7 +332,7 @@ namespace WpfApplication3
             Chart activeChart = DataViewModel.CurrentDrawing;
             if (activeChart != null)
             {
-                // calc distance to neares object
+                // calc distance to nearest object
                 // lines
 
                 // TODO: limit min distance to some value
