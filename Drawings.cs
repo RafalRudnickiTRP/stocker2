@@ -80,7 +80,34 @@ namespace WpfApplication3
 
             drawingInfo = di;
         }
-        
+
+        public void DeleteLine(ChartLine line)
+        {
+            List<Path> toDel = new List<Path>();
+            foreach (var p in canvas.Children)
+            {
+                if (p.GetType() == typeof(Path))
+                {
+                    Path path = p as Path;
+                    if (path.Name == "rect_" + line.id)
+                    {
+                        toDel.Add(path);
+                    }
+                    if (path.Name == "line_" + line.id)
+                    {
+                        toDel.Add(path);
+                    }
+                }
+            }
+
+            for (int i = 0; i < toDel.Count; i++)
+            {
+                canvas.Children.Remove(toDel[i]);
+            }
+
+            chartLines.Remove(line);
+        }
+
         public Canvas CreateDrawing(List<Data.SymbolDayData> sddList)
         {
             if (sddList.Count == 0)

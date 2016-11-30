@@ -182,6 +182,11 @@ namespace WpfApplication3
                 Math.Sqrt(Math.Pow(p2.Y - p1.Y, 2) + Math.Pow(p2.X - p1.X, 2)));
         }
 
+        public static float LineLength(Chart.ChartLine line)
+        {
+            return PointPointDistance(line.getP1(), line.getP2());
+        }
+
         public static float PointPointDistance(Point p1, Point p2)
         {
             return (float)Math.Sqrt(Math.Pow(p1.X - p2.X, 2) + Math.Pow(p1.Y - p2.Y, 2));

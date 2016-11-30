@@ -283,6 +283,11 @@ namespace WpfApplication3
                 line.mode = Chart.ChartLine.Mode.Selected;
                 workMode = WorkMode.Selecting;
 
+                if (Misc.LineLength(line) < 5)
+                {
+                    throw new NotImplementedException();
+                }
+
                 UpdateListView();
             }
 
@@ -502,7 +507,7 @@ namespace WpfApplication3
         {
             selectDeselectLines();
         }
-
+        
         private void TabItem_OnKeyDown(object sender, KeyEventArgs e)
         {
             Chart chart = DataViewModel.CurrentDrawing;
@@ -510,33 +515,13 @@ namespace WpfApplication3
             if (e.Key == Key.Delete)
             {
                 // delete lines from chart
-                List<System.Windows.Shapes.Path> toDel = new List<System.Windows.Shapes.Path>();
-                foreach (Chart.ChartLine l in chart.chartLines)
+                foreach (Chart.ChartLine l in chart.chartLines.ToList())
                 {
                     if (l.IsSelected())
                     {
-                        foreach (var p in chart.canvas.Children)
-                        {
-                            if (p.GetType() == typeof(System.Windows.Shapes.Path))
-                            {
-                                System.Windows.Shapes.Path path = p as System.Windows.Shapes.Path;
-                                if (path.Name == "rect_" + l.id)
-                                {
-                                    toDel.Add(path);
-                                }
-                                if (path.Name == "line_" + l.id)
-                                {
-                                    toDel.Add(path);
-                                }
-                            }
-                        }
+                        chart.DeleteLine(l);
                     }
                 }
-                for (int i = 0; i < toDel.Count; i++)
-                {
-                    chart.canvas.Children.Remove(toDel.ElementAt(i));
-                }
-                chart.chartLines.RemoveAll(l => l.IsSelected());
                 chart.selectedLines.Clear();
             }
             else if (e.Key == Key.A)
