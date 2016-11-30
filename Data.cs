@@ -182,6 +182,7 @@ namespace WpfApplication3
 
         public struct ReportItem
         {
+            public DateTime Date { get; set; }
             public string Symbol { get; set; }
             public string Event { get; set; }
         }
@@ -334,10 +335,11 @@ namespace WpfApplication3
                             e += "ASCENDING line ";
                         else
                             e += "DESCENDING line ";
-                        e += "crossed at value " + lineValAtSdd0;
+                        e += "crossed at value " + lineValAtSdd0.ToString("F2", Data.numberFormat);
 
                         ReportItem ri = new ReportItem();
                         ri.Symbol = symbolInfo.FullName;
+                        ri.Date = sdd[0].Date;
                         ri.Event = e;
                         ReportItems.Add(ri);
 

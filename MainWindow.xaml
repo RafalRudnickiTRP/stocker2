@@ -108,6 +108,7 @@
                 <ListView x:Name="ReportView">
                     <ListView.View>
                         <GridView>
+                            <GridViewColumn Header="Date" DisplayMemberBinding="{Binding Date, StringFormat={}{0:d}}"/>
                             <GridViewColumn Header="Symbol" DisplayMemberBinding="{Binding Symbol}"/>
                             <GridViewColumn Header="Event" DisplayMemberBinding="{Binding Event}"/>
                         </GridView>
