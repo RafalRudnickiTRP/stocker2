@@ -16,6 +16,8 @@ namespace WpfApplication3
     {
         protected override void OnStartup(StartupEventArgs e)
         {
+            DriveQuickstart.Program.Main2(null);
+
             base.OnStartup(e);        
         }
     }
