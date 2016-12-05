@@ -126,7 +126,7 @@ namespace WpfApplication3
                 {
                     Vector v = line.StartPoint - line.EndPoint;
                     v.Normalize();
-                    p.Y = line.StartPoint.Y + (line.StartPoint.X - p.X) * v.Y;
+                    p.Y = line.StartPoint.Y + (p.X - line.StartPoint.X) / v.X * v.Y;
                 }
 
                 Point p2 = line.EndPoint;
