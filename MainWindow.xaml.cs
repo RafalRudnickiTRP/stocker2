@@ -63,6 +63,18 @@ namespace WpfApplication3
             showedFromReport = true;
         }
 
+        private string GetHeaderName(TabItem tab)
+        {
+            string fullName;
+            var sp = tab.Header as StackPanel;
+            if (sp != null)
+                fullName = (sp.Children[0] as TextBlock).Text;
+            else
+                fullName = tab.Header.ToString();
+
+            return fullName;
+        }
+
         private void ShowSymbolTab(string symbolFullName)
         {
             var dvm = DataContext as DataViewModel;
@@ -77,7 +89,26 @@ namespace WpfApplication3
                 newTab.KeyDown += TabItem_OnKeyDown;
                 newTab.KeyUp += TabItem_OnKeyUp;
 
-                newTab.Header = symbolInfo.FullName;
+                var sp = new StackPanel();
+                sp.Orientation = Orientation.Horizontal;
+                sp.Children.Add(new TextBlock() { Text = symbolInfo.FullName });
+                var btn = new Button()
+                {
+                    Focusable = false,
+                    Content = "X",
+                    FontFamily = new FontFamily("Courier"),
+                    FontSize = 9,
+                    FontWeight = FontWeights.Bold,
+                    Margin = new Thickness(5, 1, 0, 0),
+                    Padding = new Thickness(0, 0, 0, 0),
+                    VerticalContentAlignment = VerticalAlignment.Bottom,
+                    Width = 16,
+                    Height = 16
+                };
+                btn.Click += (o, i) => MessageBox.Show("close");
+                sp.Children.Add(btn);                
+        
+                newTab.Header = sp;
                 SymbolsTabControl.Items.Add(newTab);
 
                 Chart.DrawingInfo di = new Chart.DrawingInfo((int)SymbolsTabControl.ActualWidth, (int)SymbolsTabControl.ActualHeight);
@@ -99,7 +130,7 @@ namespace WpfApplication3
             {
                 foreach (TabItem item in SymbolsTabControl.Items)
                 {
-                    if (item.Header.ToString() == symbolInfo.FullName)
+                    if (GetHeaderName(item) == symbolInfo.FullName)
                     {
                         SymbolsTabControl.SelectedItem = item;
                         break;
@@ -119,7 +150,7 @@ namespace WpfApplication3
             TabItem activeTab = (TabItem)((TabControl)a.Source).SelectedItem;
 
             Chart chart = null;
-            if (DataViewModel.SymbolsDrawings.TryGetValue(activeTab.Header.ToString(), out chart))
+            if (DataViewModel.SymbolsDrawings.TryGetValue(GetHeaderName(activeTab), out chart))
             {
                 DataViewModel.SetCurrentDrawing(chart);
             }
@@ -135,7 +166,7 @@ namespace WpfApplication3
             if (tabCtrl.Items.Count == 1) return;
 
             TabItem tabItem = (TabItem)tabCtrl.Items[tabCtrl.SelectedIndex];
-            if (tabItem.Header.ToString() == "Report") return;
+            if (GetHeaderName(tabItem) == "Report") return;
 
             Canvas canvas = (Canvas)tabItem.Content;
             Point mousePosition = e.MouseDevice.GetPosition(canvas);
