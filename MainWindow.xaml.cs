@@ -65,7 +65,7 @@ namespace WpfApplication3
 
         private string GetHeaderName(TabItem tab)
         {
-            string fullName;
+            string fullName = "";
             var sp = tab.Header as StackPanel;
             if (sp != null)
                 fullName = (sp.Children[0] as TextBlock).Text;
@@ -141,6 +141,34 @@ namespace WpfApplication3
             deselectAllLines();
             DataViewModel.SetCurrentDrawing(chart);
             currentSymbolInfo = symbolInfo;
+
+            ShowCurrentPrice(currentSymbolInfo.ShortName);   
+        }
+
+        private void ShowCurrentPrice(string shortName)
+        {
+            TextBlock tb = (TextBlock)FindName("TextBlockInfo");
+            if (tb == null)
+                return;
+
+            Data.SymbolInfo currentSi = null;
+
+            foreach (Data.SymbolInfo si in DataViewModel.SymbolsInfoList)
+                if (si.ShortName == shortName)
+                {
+                    currentSi = si;
+                    break;
+                }
+            
+            if (currentSi.CurrentPrice == null)
+                currentSi.CurrentPrice = "";
+
+            if (currentSi.CurrentPrice.Equals(""))
+            {
+                currentSi.CurrentPrice = Data.GetCurrentSymbolFromWeb(shortName);
+            }
+
+            tb.Text = shortName + " current price is: " + currentSi.CurrentPrice;                              
         }
 
         private void SymbolTab_SelectionChanged(object sender, SelectionChangedEventArgs a)
@@ -150,9 +178,17 @@ namespace WpfApplication3
             TabItem activeTab = (TabItem)((TabControl)a.Source).SelectedItem;
 
             Chart chart = null;
-            if (DataViewModel.SymbolsDrawings.TryGetValue(GetHeaderName(activeTab), out chart))
+            string headerName = GetHeaderName(activeTab);
+            if (DataViewModel.SymbolsDrawings.TryGetValue(headerName, out chart))
             {
                 DataViewModel.SetCurrentDrawing(chart);
+
+                foreach (Data.SymbolInfo si in DataViewModel.SymbolsInfoList)
+                    if (si.FullName == headerName)
+                    {
+                        ShowCurrentPrice(si.ShortName);
+                        break;
+                    }
             }
 
             activeTab.Focus();

@@ -97,7 +97,7 @@
                 
             </ListView>
         </DockPanel>
-        <TextBlock DockPanel.Dock="Bottom" Name="TextBlockControl" Text="" />
+        <TextBlock DockPanel.Dock="Bottom" Name="TextBlockInfo" Text="" />
         <TabControl Name="SymbolsTabControl" 
                     SelectionChanged="SymbolTab_SelectionChanged"
                     MouseDown="SymbolTab_MouseDown"

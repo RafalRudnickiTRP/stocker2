@@ -79,6 +79,7 @@ namespace WpfApplication3
             public string FullName { get; set; }
             public string InfoName { get; set; }
             public string ShortName { get; set; }
+            public string CurrentPrice { get; set; }
 
             private bool _IsBold()
             {
@@ -122,6 +123,29 @@ namespace WpfApplication3
         public static string dateTimeFormat;
 
         #endregion
+
+        public static string GetCurrentSymbolFromWeb(string symbol)
+        {
+            string price = "";
+
+            try
+            {
+                HtmlWeb web = new HtmlWeb();
+                HtmlDocument doc = new HtmlDocument();
+
+                string data = "http://stooq.pl/q/?s=" + symbol;
+                doc = web.Load(data);
+
+                HtmlNodeCollection symbolNodes = doc.DocumentNode.SelectNodes("//*/font[@id=\"f18\"]");
+                HtmlNode node = symbolNodes[1];
+                price = node.InnerText;
+            }
+            catch (Exception)
+            {
+            }
+
+            return price;
+        }
 
         public static List<SymbolInfo> GetSymbolsFromWeb()
         {
