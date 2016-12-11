@@ -211,7 +211,19 @@ namespace WpfApplication3
             public string Event { get; set; }
         }
         public static List<ReportItem> ReportItems { get; set; }
-        
+
+        public class WalletItem
+        {
+            public string Symbol { get; set; }
+            public string Type { get; set; }
+            public DateTime OpenDate { get; set; }
+            public double OpenPrice { get; set; }
+            public double CurrentPrice { get; set; }
+            public double Gain { get; set; }
+            public double GainPrc { get; set; }
+        }
+        public static List<WalletItem> WalletItems { get; set; }
+
         public static void UpdateInfoNames()
         {
             foreach (var sd in SymbolsDrawings)
@@ -274,7 +286,8 @@ namespace WpfApplication3
             SymbolsDrawingsToSerialize = new Dictionary<string, Chart.DataToSerialize>();
             SDDs = new Dictionary<string, List<Data.SymbolDayData>>();
 
-            ReportItems = new List<ReportItem>(); 
+            ReportItems = new List<ReportItem>();
+            WalletItems = new List<WalletItem>();
 
             // create default dir
             Directory.CreateDirectory(Data.GetPath());

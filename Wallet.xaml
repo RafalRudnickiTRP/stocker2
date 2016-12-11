@@ -1,0 +1,43 @@
+﻿<Window x:Class="WpfApplication3.Wallet"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:WpfApplication3"
+        mc:Ignorable="d"
+        Title="Add item to Wallet" Height="181.4" Width="400">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="300" />
+        </Grid.ColumnDefinitions>
+        <!--props-->
+        <Label Grid.Row="0" Grid.Column="0" Content="Symbol"/>
+        <Label Grid.Row="1" Grid.Column="0" Content="Type"/>
+        <Label Grid.Row="2" Grid.Column="0" Content="Open date"/>
+        <Label Grid.Row="3" Grid.Column="0" Content="Open price"/>
+        <Label Grid.Row="4" Grid.Column="0" Content=""/>
+        <!--vals-->
+        <ComboBox Grid.Column="1" Grid.Row="0" Margin="3" 
+            Name="SymbolsCb" ItemsSource="{Binding SymbolsList}" DisplayMemberPath="FullName" SelectedIndex="0">            
+        </ComboBox>
+        <ComboBox Grid.Column="1" Grid.Row="1" Margin="3" 
+            Name="TypeCb"  ItemsSource="{Binding TypesList}" SelectedIndex="0"/>
+        <DatePicker Grid.Column="1" Grid.Row="2" Margin="3"
+            Name="DatePicker" IsTodayHighlighted="True"/>
+        <TextBox Grid.Column="1" Grid.Row="3" Margin="3"
+            Name="Price"/>
+        <StackPanel Grid.Column="1" Grid.Row="4" HorizontalAlignment="Right" Orientation="Horizontal">
+            <Button MinWidth="80" Margin="3" Content="Add/Edit" Click="ButtonAddEdit_Click" Name="AddEditBtn" />
+            <Button MinWidth="80" Margin="3" Content="Remove" Click="ButtonRemove_Click" Name="RemoveBtn" />
+            <Button MinWidth="80" Margin="3" Content="Cancel" Click="ButtonCancel_Click" />
+        </StackPanel>
+    </Grid>
+</Window>

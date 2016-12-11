@@ -102,6 +102,9 @@
     <Compile Include="Drive.cs" />
     <Compile Include="Serialization.cs" />
     <Compile Include="Trigger.cs" />
+    <Compile Include="Wallet.xaml.cs">
+      <DependentUpon>Wallet.xaml</DependentUpon>
+    </Compile>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -121,6 +124,10 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="Wallet.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Misc.cs" />

@@ -47,10 +47,12 @@
                             BorderThickness="0" BorderBrush="Cyan"
                             Content="" HorizontalAlignment="Left" Margin="40,0,0,0" VerticalAlignment="Center" Width="15" Background="Blue" Click="buttonColor_Click"/>
                 </Grid>
-                <Label Name="Label1" Content=" " />
+                <Separator/>
                 <Button Name="buttonInverse" Content="yInverse" Click="buttonInverse_Click" />
-                <Label Name="Label2" Content=" " />
-                <Button x:Name="buttonSelectDeselect" Content="select/deselect" Height="26" VerticalAlignment="Top" Click="buttonSelectDeselect_Click"/>
+                <Separator/>
+                <Button x:Name="buttonSelectDeselect" Content="select/deselect" Click="buttonSelectDeselect_Click"/>
+                <Separator/>
+                <Button x:Name="buttonWalletAdd" Content="add to wallet" Click="buttonbuttonWalletAdd_Click"/>
                 <!--<Label Name="Label2" Content=" " />
                 <Button Name="buttonRaport" Content="raport" Click="buttonRaport_Click" />-->
             </ToolBar>
@@ -105,20 +107,41 @@
                     MouseDoubleClick="SymbolTab_MouseDoubleClick"
                     MouseMove="SymbolTab_MouseMove">
             <TabItem Header="Report" HorizontalAlignment="Left" Height="20" Margin="0" VerticalAlignment="Top" Width="55">
-                <ListView x:Name="ReportView">
-                    <ListView.ItemContainerStyle>
-                        <Style TargetType="ListViewItem">
-                            <EventSetter Event="MouseDoubleClick" Handler="Report_MouseDoubleClick" />
-                        </Style>
-                    </ListView.ItemContainerStyle>
-                    <ListView.View>
-                        <GridView>
-                            <GridViewColumn Header="Date" DisplayMemberBinding="{Binding Date, StringFormat={}{0:d}}"/>
-                            <GridViewColumn Header="Symbol" DisplayMemberBinding="{Binding Symbol}"/>
-                            <GridViewColumn Header="Event" DisplayMemberBinding="{Binding Event}"/>
-                        </GridView>
-                    </ListView.View>
-                </ListView>
+                <StackPanel>
+                    <ListView x:Name="WalletView">
+                        <ListView.ItemContainerStyle>
+                            <Style TargetType="ListViewItem">
+                                <EventSetter Event="MouseDoubleClick" Handler="Wallet_MouseDoubleClick" />
+                            </Style>
+                        </ListView.ItemContainerStyle>
+                        <ListView.View>
+                            <GridView AllowsColumnReorder="False">
+                                <GridViewColumn Header="Symbol" DisplayMemberBinding="{Binding Symbol}"/>
+                                <GridViewColumn Header="Type" DisplayMemberBinding="{Binding Type}"/>
+                                <GridViewColumn Header="Open date" DisplayMemberBinding="{Binding OpenDate, StringFormat={}{0:d}}"/>
+                                <GridViewColumn Header="Open price"  DisplayMemberBinding="{Binding OpenPrice}"/>
+                                <GridViewColumn Header="Current price"/>
+                                <GridViewColumn Header="Gain"/>
+                                <GridViewColumn Header="Gain %"/>
+                            </GridView>    
+                        </ListView.View>
+                    </ListView>
+                    <Separator Width="5"/>
+                    <ListView x:Name="ReportView">
+                        <ListView.ItemContainerStyle>
+                            <Style TargetType="ListViewItem">
+                                <EventSetter Event="MouseDoubleClick" Handler="Report_MouseDoubleClick" />
+                            </Style>
+                        </ListView.ItemContainerStyle>
+                        <ListView.View>
+                            <GridView>
+                                <GridViewColumn Header="Date" DisplayMemberBinding="{Binding Date, StringFormat={}{0:d}}"/>
+                                <GridViewColumn Header="Symbol" DisplayMemberBinding="{Binding Symbol}"/>
+                                <GridViewColumn Header="Event" DisplayMemberBinding="{Binding Event}"/>
+                            </GridView>
+                        </ListView.View>
+                    </ListView>
+                </StackPanel>
             </TabItem>
         </TabControl>
     </DockPanel>

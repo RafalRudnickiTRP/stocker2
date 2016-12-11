@@ -646,5 +646,57 @@ namespace WpfApplication3
         {
             SortSymbolsList();
         }
+
+        private void buttonbuttonWalletAdd_Click(object sender, RoutedEventArgs e)
+        {
+            var wiDialog = new Wallet(Data.SymbolInfoList, fromList:false);
+            wiDialog.ShowDialog();
+            if (wiDialog.add)
+            {
+                var wi = new DataViewModel.WalletItem()
+                {
+                    Symbol = wiDialog.selectedSymbol.FullName,
+                    Type = wiDialog.type,
+                    OpenDate = wiDialog.selectedDateTime,
+                    OpenPrice = wiDialog.price
+                };
+
+                DataViewModel.WalletItems.Add(wi);
+
+                WalletView.ItemsSource = null;
+                WalletView.ItemsSource = DataViewModel.WalletItems;
+            }
+        }
+
+        private void Wallet_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            var dataContext = ((FrameworkElement)e.OriginalSource).DataContext;
+            if ((dataContext is DataViewModel.WalletItem) == false) return;
+            DataViewModel.WalletItem wi = (DataViewModel.WalletItem)dataContext;
+
+            var wiDialog = new Wallet(Data.SymbolInfoList, fromList: true);
+            wiDialog.SymbolsCb.SelectedItem = Data.SymbolInfoList.First(s => s.FullName == wi.Symbol);
+            wiDialog.TypeCb.SelectedValue = wi.Type;
+            wiDialog.DatePicker.SelectedDate = wi.OpenDate;
+            wiDialog.Price.Text = wi.OpenPrice.ToString();
+            wiDialog.ShowDialog();
+
+            if (wiDialog.edit)
+            {
+                int wid = DataViewModel.WalletItems.FindIndex(it => it.Equals((DataViewModel.WalletItem)WalletView.SelectedItem));
+                DataViewModel.WalletItems[wid].Symbol = wiDialog.selectedSymbol.FullName;
+                DataViewModel.WalletItems[wid].Type = wiDialog.type;
+                DataViewModel.WalletItems[wid].OpenDate = wiDialog.selectedDateTime;
+                DataViewModel.WalletItems[wid].OpenPrice = wiDialog.price;
+            }
+            else if (wiDialog.remove)
+            {
+                int wid = DataViewModel.WalletItems.FindIndex(it => it.Equals((DataViewModel.WalletItem)WalletView.SelectedItem));
+                DataViewModel.WalletItems.RemoveAt(wid);
+            }
+
+            WalletView.ItemsSource = null;
+            WalletView.ItemsSource = DataViewModel.WalletItems;
+        }
     }
 }
