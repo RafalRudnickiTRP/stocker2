@@ -105,7 +105,7 @@ namespace WpfApplication3
                     Width = 16,
                     Height = 16
                 };
-                btn.Click += (o, i) => MessageBox.Show("close");
+                btn.Click += CloseSymbolTab;
                 sp.Children.Add(btn);                
         
                 newTab.Header = sp;
@@ -143,6 +143,12 @@ namespace WpfApplication3
             currentSymbolInfo = symbolInfo;
 
             ShowCurrentPrice(currentSymbolInfo.ShortName);   
+        }
+
+        private void CloseSymbolTab(object sender, EventArgs a)
+        {
+            string name = ((((Button)sender).Parent as StackPanel).Children[0] as TextBlock).Text;
+            MessageBox.Show("close " + name);
         }
 
         private void ShowCurrentPrice(string shortName)

@@ -72,12 +72,6 @@ namespace DriveQuickstart
                 Console.WriteLine("No files found.");
             }
             Console.Read();
-
-        }
-
-        internal void Main()
-        {
-            throw new NotImplementedException();
-        }
+        }        
     }
 }
