@@ -31,6 +31,7 @@ namespace WpfApplication3
             public int crossMargin;
 
             public double maxVal, minVal;
+            public int maxNoVertLines;
 
             public int minViewport;
             public int maxViewport;
@@ -52,6 +53,7 @@ namespace WpfApplication3
                 crossMargin = 15;
                 candleWidth = 5;
                 candleMargin = 1;
+                maxNoVertLines = 15; // should be max PIXELS height
 
                 maxVal = minVal = 0;
                 minViewport = maxViewport = 0;
@@ -129,22 +131,40 @@ namespace WpfApplication3
             int numCandlesToDraw = frameWidth / candleWidthWithMargins;
             numCandlesToDraw = Math.Min(sddList.Count, numCandlesToDraw);
 
-            int minLow = 1000000, maxHi = 0;
+            double minLow = 1000000, maxHi = 0;
             if (drawingInfo.viewAutoScale)
             {
                 foreach(Data.SymbolDayData sdd in sddList.GetRange(0, numCandlesToDraw))
                 {
-                    int hi = (int)Math.Ceiling(sdd.Hi);
-                    int low = (int)Math.Floor(sdd.Low);
+                    double hi = sdd.Hi;
+                    double low = sdd.Low;
 
                     minLow = low < minLow ? low : minLow;
                     maxHi = hi > maxHi ? hi : maxHi;
                 }
             }
 
-            drawingInfo.maxVal = maxHi;
-            drawingInfo.minVal = minLow;
+            double minMaxStep = 0.1;
+            if ((maxHi - minLow) / 0.1 > drawingInfo.maxNoVertLines)
+                minMaxStep = 1;
+            if ((maxHi - minLow) / 1 > drawingInfo.maxNoVertLines)
+                minMaxStep = 5;
+            if ((maxHi - minLow) / 5 > drawingInfo.maxNoVertLines)
+                minMaxStep = 10;
+            if ((maxHi - minLow) / 10 > drawingInfo.maxNoVertLines)
+                minMaxStep = 100;
 
+            if (minMaxStep > 1)
+            {
+                drawingInfo.maxVal = Math.Ceiling(maxHi);
+                drawingInfo.minVal = Math.Floor(minLow);
+            }
+            else
+            {
+                drawingInfo.maxVal = Math.Round(maxHi + minMaxStep, 1);
+                drawingInfo.minVal = Math.Round(minLow, 1);
+            }
+            
             int start = drawingInfo.viewWidth - drawingInfo.viewMarginRight - drawingInfo.candleMargin - 
                 (int)frame.StrokeThickness - drawingInfo.candleWidth / 2;
             int minViewport = drawingInfo.viewMarginBottom + (int)frame.StrokeThickness + drawingInfo.candleMargin;
@@ -183,9 +203,7 @@ namespace WpfApplication3
             }
 
             // Horizontal snap lines of prices
-            // Currently every 1.00 zł for delta < 5 zł else every 10zł
-            int step = (drawingInfo.maxVal - drawingInfo.minVal) / 10 > 5 ? 10 : 1;
-            for (int i = (int)drawingInfo.minVal % step; i < drawingInfo.maxVal; i += step)
+            for (double i = drawingInfo.minVal % minMaxStep; i < drawingInfo.maxVal; i += minMaxStep)
             {
                 double x = Misc.RemapRange(i, drawingInfo.maxVal, maxViewport,
                     drawingInfo.minVal, minViewport);
