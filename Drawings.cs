@@ -38,6 +38,8 @@ namespace WpfApplication3
             public DateTime refDateStart;
             public int refPixelXStart;
 
+            public string currentPriceTime;
+
             public List<Data.SymbolDayData> sddList;
 
             public DrawingInfo(int width, int height)
@@ -59,6 +61,7 @@ namespace WpfApplication3
                 refPixelXStart = 0;
                 sddList = null;
 
+                currentPriceTime = "";
             }
         }
         public DrawingInfo drawingInfo;
@@ -204,6 +207,7 @@ namespace WpfApplication3
 
             // Candles
             bool refStartCreated = false;
+            bool first = true;
             foreach (Data.SymbolDayData sdd in sddList.GetRange(0, numCandlesToDraw))
             {
                 double[] sortedVals = {
@@ -231,7 +235,10 @@ namespace WpfApplication3
 
                 Path shadowPath = new Path();
                 shadowPath.StrokeThickness = 1;
-                shadowPath.Stroke = Brushes.Black;
+                if (first)
+                    shadowPath.Stroke = Brushes.Red;
+                else
+                    shadowPath.Stroke = Brushes.Black;
                 shadowPath.Data = shadowGeom;
                 canvas.Children.Add(shadowPath);
 
@@ -241,7 +248,10 @@ namespace WpfApplication3
                     new Point(start + drawingInfo.candleWidth / 2, sortedVals[2]))));
                 Path bodyPath = new Path();
                 bodyPath.StrokeThickness = 1;
-                bodyPath.Stroke = Brushes.Black;
+                if (first)
+                    bodyPath.Stroke = Brushes.Red;
+                else
+                    bodyPath.Stroke = Brushes.Black;
                 bodyPath.Fill = sdd.Open > sdd.Close ? Brushes.Black : Brushes.White;
                 bodyPath.Data = bodyGeom;
 
@@ -255,6 +265,8 @@ namespace WpfApplication3
                 }
                 
                 start -= candleWidthWithMargins;
+
+                first = false;
             }
 
             CreateCross(canvas);

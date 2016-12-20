@@ -79,7 +79,6 @@ namespace WpfApplication3
             public string FullName { get; set; }
             public string InfoName { get; set; }
             public string ShortName { get; set; }
-            public string CurrentPrice { get; set; }
 
             private bool _IsBold()
             {
@@ -124,27 +123,54 @@ namespace WpfApplication3
 
         #endregion
 
-        public static string GetCurrentSymbolFromWeb(string symbol)
+        public static SymbolDayData GetCurrentSdd(string shortName, out string time)
         {
-            string price = "";
+            time = "";
+            SymbolDayData current = null;
+
+            SymbolInfo currentSi = null;
+            foreach (SymbolInfo si in DataViewModel.SymbolsInfoList)
+                if (si.ShortName == shortName)
+                {
+                    currentSi = si;
+                    break;
+                }
 
             try
             {
                 HtmlWeb web = new HtmlWeb();
                 HtmlDocument doc = new HtmlDocument();
 
-                string data = "http://stooq.pl/q/?s=" + symbol;
+                string data = "http://stooq.pl/q/?s=" + currentSi.ShortName;
                 doc = web.Load(data);
 
                 HtmlNodeCollection symbolNodes = doc.DocumentNode.SelectNodes("//*/font[@id=\"f18\"]");
-                HtmlNode node = symbolNodes[1];
-                price = node.InnerText;
+                string currentPrice = symbolNodes[1].InnerText;
+                HtmlNodeCollection hiCol = doc.DocumentNode.SelectNodes("//*/span[@id='aq_"
+                    + currentSi.ShortName.ToLower(CultureInfo.InvariantCulture) + "_h']");
+                string hi = hiCol[0].InnerText;
+                HtmlNodeCollection lowCol = doc.DocumentNode.SelectNodes("//*/span[@id='aq_"
+                    + currentSi.ShortName.ToLower(CultureInfo.InvariantCulture) + "_l']");
+                string low = lowCol[0].InnerText;
+                HtmlNodeCollection openCol = doc.DocumentNode.SelectNodes("//*/span[@id='aq_"
+                    + currentSi.ShortName.ToLower(CultureInfo.InvariantCulture) + "_o']");
+                string open = openCol[0].InnerText;
+
+                HtmlNodeCollection timeCol = doc.DocumentNode.SelectNodes("//*/span[@id='aqdat']");
+                time = timeCol[0].InnerText.Remove(timeCol[0].InnerText.IndexOf("CET") + 3);
+
+                current = new Data.SymbolDayData(DateTime.Today,
+                    float.Parse(open, CultureInfo.InvariantCulture),
+                    float.Parse(hi, CultureInfo.InvariantCulture),
+                    float.Parse(low, CultureInfo.InvariantCulture),
+                    float.Parse(currentPrice, CultureInfo.InvariantCulture),
+                    0); //TODO vol maybe in future
             }
             catch (Exception)
             {
             }
 
-            return price;
+            return current;
         }
 
         public static List<SymbolInfo> GetSymbolsFromWeb()
