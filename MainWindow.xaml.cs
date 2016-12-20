@@ -9,6 +9,8 @@ using System.IO;
 using System;
 using System.ComponentModel;
 using System.Windows.Data;
+using System.Globalization;
+using HtmlAgilityPack;
 
 namespace WpfApplication3
 {
@@ -80,7 +82,7 @@ namespace WpfApplication3
             var dvm = DataContext as DataViewModel;
             Chart chart = null;
             Data.SymbolInfo symbolInfo = Data.SymbolInfoList.Single(s => s.FullName == symbolFullName);
-
+      
             if (DataViewModel.SymbolsDrawings.TryGetValue(symbolInfo.FullName, out chart) == false)
             {
                 List<Data.SymbolDayData> sdd = dvm.GetSymbolData(symbolInfo.ShortName);
@@ -124,6 +126,17 @@ namespace WpfApplication3
                     DataViewModel.SymbolsDrawingsToSerialize.Remove(symbolInfo.FullName);
                 }
 
+                // current price - new sdd at [0] and price time in drawingInfo
+                string time = "";
+                Data.SymbolDayData current = Data.GetCurrentSdd(symbolInfo.ShortName, out time);
+                if (current != null)
+                {
+                    sdd.Insert(0, current);
+                    chart.drawingInfo.currentPriceTime = time;
+                }
+
+                // select current tab
+                // this should be done last
                 SymbolsTabControl.SelectedItem = newTab;
             }
             else
@@ -141,40 +154,12 @@ namespace WpfApplication3
             deselectAllLines();
             DataViewModel.SetCurrentDrawing(chart);
             currentSymbolInfo = symbolInfo;
-
-            ShowCurrentPrice(currentSymbolInfo.ShortName);   
         }
 
         private void CloseSymbolTab(object sender, EventArgs a)
         {
             string name = ((((Button)sender).Parent as StackPanel).Children[0] as TextBlock).Text;
             MessageBox.Show("close " + name);
-        }
-
-        private void ShowCurrentPrice(string shortName)
-        {
-            TextBlock tb = (TextBlock)FindName("TextBlockInfo");
-            if (tb == null)
-                return;
-
-            Data.SymbolInfo currentSi = null;
-
-            foreach (Data.SymbolInfo si in DataViewModel.SymbolsInfoList)
-                if (si.ShortName == shortName)
-                {
-                    currentSi = si;
-                    break;
-                }
-            
-            if (currentSi.CurrentPrice == null)
-                currentSi.CurrentPrice = "";
-
-            if (currentSi.CurrentPrice.Equals(""))
-            {
-                currentSi.CurrentPrice = Data.GetCurrentSymbolFromWeb(shortName);
-            }
-
-            tb.Text = shortName + " current price is: " + currentSi.CurrentPrice;                              
         }
 
         private void SymbolTab_SelectionChanged(object sender, SelectionChangedEventArgs a)
@@ -186,16 +171,18 @@ namespace WpfApplication3
             Chart chart = null;
             string headerName = GetHeaderName(activeTab);
             if (DataViewModel.SymbolsDrawings.TryGetValue(headerName, out chart))
-            {
                 DataViewModel.SetCurrentDrawing(chart);
 
-                foreach (Data.SymbolInfo si in DataViewModel.SymbolsInfoList)
-                    if (si.FullName == headerName)
-                    {
-                        ShowCurrentPrice(si.ShortName);
-                        break;
-                    }
-            }
+            foreach (Data.SymbolInfo si in DataViewModel.SymbolsInfoList)
+                if (si.FullName == headerName)
+                {
+                    TextBlock tb = (TextBlock)FindName("TextBlockInfo");
+                    if (tb != null)
+                        tb.Text =
+                            si.ShortName + " current price is: " + chart.drawingInfo.sddList[0].Close
+                            + " at " + chart.drawingInfo.currentPriceTime;
+                    break;
+                }
 
             activeTab.Focus();
             UpdateLayout();
