@@ -85,7 +85,18 @@ namespace WpfApplication3
       
             if (DataViewModel.SymbolsDrawings.TryGetValue(symbolInfo.FullName, out chart) == false)
             {
+                Chart.DrawingInfo di = new Chart.DrawingInfo((int)SymbolsTabControl.ActualWidth, (int)SymbolsTabControl.ActualHeight);
+
                 List<Data.SymbolDayData> sdd = dvm.GetSymbolData(symbolInfo.ShortName);
+                
+                // current price - new sdd at [0] and price time in drawingInfo
+                string time = "";
+                Data.SymbolDayData current = Data.GetCurrentSdd(symbolInfo.ShortName, out time);
+                if (current != null)
+                {
+                    sdd.Insert(0, current);
+                    di.currentPriceTime = time;
+                }
 
                 TabItem newTab = new TabItem();
                 newTab.KeyDown += TabItem_OnKeyDown;
@@ -112,9 +123,7 @@ namespace WpfApplication3
         
                 newTab.Header = sp;
                 SymbolsTabControl.Items.Add(newTab);
-
-                Chart.DrawingInfo di = new Chart.DrawingInfo((int)SymbolsTabControl.ActualWidth, (int)SymbolsTabControl.ActualHeight);
-
+                
                 chart = new Chart(di);
                 DataViewModel.SymbolsDrawings.Add(symbolInfo.FullName, chart);
                 newTab.Content = chart.CreateDrawing(sdd);
@@ -125,16 +134,7 @@ namespace WpfApplication3
                     // remove added symbol
                     DataViewModel.SymbolsDrawingsToSerialize.Remove(symbolInfo.FullName);
                 }
-
-                // current price - new sdd at [0] and price time in drawingInfo
-                string time = "";
-                Data.SymbolDayData current = Data.GetCurrentSdd(symbolInfo.ShortName, out time);
-                if (current != null)
-                {
-                    sdd.Insert(0, current);
-                    chart.drawingInfo.currentPriceTime = time;
-                }
-
+                
                 // select current tab
                 // this should be done last
                 SymbolsTabControl.SelectedItem = newTab;
