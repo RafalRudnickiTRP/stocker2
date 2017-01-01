@@ -28,7 +28,7 @@ namespace WpfApplication3
                 geo.Children.Add(new LineGeometry());
                 geo.Children.Add(new LineGeometry());
                 geo.Children.Add(new LineGeometry());
-
+                
                 Visibility = Visibility.Hidden;
                 StrokeThickness = 1;
                 Stroke = Brushes.Black;
@@ -36,7 +36,7 @@ namespace WpfApplication3
 
             public void Show(bool show)
             {
-                Visibility = show ? Visibility.Visible : Visibility.Hidden;                
+                Visibility = show ? Visibility.Visible : Visibility.Hidden;
             }
 
             public void Move(Point p)
@@ -64,12 +64,66 @@ namespace WpfApplication3
             }
         }
 
-        private CrossGeom cross;
+        public class HelperLineGeom : Shape
+        {
+            private GeometryGroup geo = new GeometryGroup();
+            private DrawingInfo drawingInfo;
 
-        public void MoveCross(Point p)
+            public HelperLineGeom(DrawingInfo _drawingInfo)
+            {
+                drawingInfo = _drawingInfo;
+
+                geo.Children.Add(new LineGeometry());
+
+                Visibility = Visibility.Hidden;
+                StrokeThickness = 1;
+                Stroke = Brushes.Black;
+            }
+
+            public void Start(Point p)
+            {
+                var line = geo.Children[0] as LineGeometry;
+                line.StartPoint = p;
+            }
+
+            public void End(Point p)
+            {
+                var line = geo.Children[0] as LineGeometry;
+                line.EndPoint = p;
+            }
+
+            public void Show(bool show)
+            {
+                Visibility = show ? Visibility.Visible : Visibility.Hidden;
+            }
+
+            protected override Geometry DefiningGeometry
+            {
+                get { return geo; }
+            }
+        }
+
+        private CrossGeom cross;
+        private HelperLineGeom helper;
+        private bool helperLineStarted;
+
+        public void MoveCross(Point p, bool lpm)
         {
             if (cross == null)
                 return;
+            
+            // helper line
+            helper.Visibility = lpm ? Visibility.Visible : Visibility.Hidden;
+            if (lpm)
+            {
+                if (!helperLineStarted)
+                {
+                    helper.Start(p);
+                    helperLineStarted = true;
+                }
+
+                helper.End(p);        
+            }
 
             cross.Move(p);
             ShowCross(frame.InsideFrame(p));
@@ -90,6 +144,12 @@ namespace WpfApplication3
         public void ShowCross(bool show)
         {
             cross.Visibility = show ? Visibility.Visible : Visibility.Hidden;
+
+            if (!show)
+            {
+                helperLineStarted = false;
+                helper.Visibility = Visibility.Hidden;
+            }
             
             crossValue.Show(show);
             crossDate.Show(show);
@@ -98,7 +158,12 @@ namespace WpfApplication3
         public void CreateCross(Canvas canvas)
         {
             cross = new CrossGeom(drawingInfo);
-            canvas.Children.Add(cross);            
+            helper = new HelperLineGeom(drawingInfo);
+
+            helperLineStarted = false;
+
+            canvas.Children.Add(cross);
+            canvas.Children.Add(helper);
         }
     }
 }

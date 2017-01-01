@@ -24,6 +24,7 @@ namespace WpfApplication3
         static public Data.SymbolInfo currentSymbolInfo;
         static bool shiftPressed = false;
         static bool ctrlPressed = false;
+        static bool lpmPressed = false;
 
         static bool showedFromReport = false;
 
@@ -197,6 +198,8 @@ namespace WpfApplication3
             TabItem tabItem = (TabItem)tabCtrl.Items[tabCtrl.SelectedIndex];
             if (GetHeaderName(tabItem) == "Report") return;
 
+            lpmPressed = (e.LeftButton == MouseButtonState.Pressed);
+
             Canvas canvas = (Canvas)tabItem.Content;
             Point mousePosition = e.MouseDevice.GetPosition(canvas);
 
@@ -217,7 +220,7 @@ namespace WpfApplication3
                 workMode = WorkMode.Cross;
                 Chart activeChart = DataViewModel.CurrentDrawing;
                 activeChart.ShowCross(true);
-                activeChart.MoveCross(mousePosition);
+                activeChart.MoveCross(mousePosition, false);
             }
         }
 
@@ -327,7 +330,7 @@ namespace WpfApplication3
                 Canvas canvas = (Canvas)tabItem.Content;
                 Point mousePosition = e.MouseDevice.GetPosition(canvas);
 
-                activeChart.MoveCross(mousePosition);
+                activeChart.MoveCross(mousePosition, lpmPressed);
             }
         }
 
@@ -335,6 +338,8 @@ namespace WpfApplication3
         {
             Chart activeChart = DataViewModel.CurrentDrawing;
             if (activeChart == null) return;
+
+            lpmPressed = (e.LeftButton == MouseButtonState.Pressed);
 
             Chart.ChartLine line = activeChart.chartLines.FirstOrDefault(l => l.mode == Chart.ChartLine.Mode.Drawing);
             if (line != null)
