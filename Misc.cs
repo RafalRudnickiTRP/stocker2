@@ -165,9 +165,10 @@ namespace WpfApplication3
                 int candleStart = start - drawingInfo.candleWidth / 2;
                 int nextCandleStart = start + drawingInfo.candleWidth / 2 + drawingInfo.candleMargin * 2;
 
-                if (sddIt.Date == dt)
+                if (sddIt.Date <= dt)
                 {
                     result = candleStart + (nextCandleStart - candleStart) * frac;
+                    break;
                 }
 
                 start -= candleWidthWithMargins;
