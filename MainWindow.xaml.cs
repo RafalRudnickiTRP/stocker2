@@ -198,6 +198,8 @@ namespace WpfApplication3
             TabItem tabItem = (TabItem)tabCtrl.Items[tabCtrl.SelectedIndex];
             if (GetHeaderName(tabItem) == "Report") return;
 
+            tabItem.Focus();
+            
             lpmPressed = (e.LeftButton == MouseButtonState.Pressed);
 
             Canvas canvas = (Canvas)tabItem.Content;
