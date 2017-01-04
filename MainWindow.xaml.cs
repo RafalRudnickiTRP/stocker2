@@ -422,6 +422,15 @@ namespace WpfApplication3
                 {
                     closestLine.Select(!closestLine.IsSelected());
                     workMode = WorkMode.Selecting;
+
+                    foreach (Button b in colors.Children)
+                    {
+                        if (b.Background == closestLine.color)
+                        {
+                            UpdateCurrentColor(b);
+                            break;
+                        }
+                    }
                 }
             }
         }
@@ -495,18 +504,22 @@ namespace WpfApplication3
                 newLine.Select(true);
             }
         }
-        
-        private void buttonColor_Click(object sender, RoutedEventArgs e)
+
+        void UpdateCurrentColor(Button button)
         {
-            foreach (Button b in ((Grid)((Button)sender).Parent).Children)
+            foreach (Button b in colors.Children)
             {
                 b.BorderThickness = new Thickness(0);
             }
+            button.BorderThickness = new Thickness(2);
 
-            ((Button)sender).BorderThickness = new Thickness(2);
-
-            string colorName = ((Button)sender).Name.ToString().Split('_')[1];
+            string colorName = button.Name.ToString().Split('_')[1];
             currentColor = Misc.StringToBrush(colorName);
+        }
+        
+        private void buttonColor_Click(object sender, RoutedEventArgs e)
+        {
+            UpdateCurrentColor((Button)sender);
 
             Chart activeChart = DataViewModel.CurrentDrawing;
             if (activeChart != null)

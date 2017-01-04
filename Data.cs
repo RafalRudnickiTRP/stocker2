@@ -315,14 +315,14 @@ namespace WpfApplication3
             ReportItems = new List<ReportItem>();
             WalletItems = new List<WalletItem>();
 
-            // create default dir
-            Directory.CreateDirectory(Data.GetPath());
-
             LoadSymbolsInfoList();
 
             // try to load symbols drawings
             try
             {
+                // create default dir
+                Directory.CreateDirectory(Data.GetPath());
+
                 using (StreamReader reader = new StreamReader(Data.GetPath() + @"charts.json"))
                 {
                     string input = reader.ReadToEnd();
