@@ -208,8 +208,7 @@ namespace WpfApplication3
             // Horizontal snap lines of prices
             for (double i = drawingInfo.minVal % minMaxStep; i < drawingInfo.maxVal; i += minMaxStep)
             {
-                double x = Misc.RemapRange(i, drawingInfo.maxVal, maxViewport,
-                    drawingInfo.minVal, minViewport);
+                double x = Misc.RemapRangeValToPix(i, drawingInfo);
 
                 GeometryGroup snapGeom = new GeometryGroup();
                 snapGeom.Children.Add(new LineGeometry(
@@ -237,10 +236,10 @@ namespace WpfApplication3
 
                 if (drawingInfo.viewAutoScale)
                 {
-                    sortedVals[0] = Misc.RemapRange(sortedVals[0], minLow, maxViewport, maxHi, minViewport);
-                    sortedVals[1] = Misc.RemapRange(sortedVals[1], minLow, maxViewport, maxHi, minViewport);
-                    sortedVals[2] = Misc.RemapRange(sortedVals[2], minLow, maxViewport, maxHi, minViewport);
-                    sortedVals[3] = Misc.RemapRange(sortedVals[3], minLow, maxViewport, maxHi, minViewport);
+                    sortedVals[0] = Misc.RemapRangeValToPix(sortedVals[0], drawingInfo);
+                    sortedVals[1] = Misc.RemapRangeValToPix(sortedVals[1], drawingInfo);
+                    sortedVals[2] = Misc.RemapRangeValToPix(sortedVals[2], drawingInfo);
+                    sortedVals[3] = Misc.RemapRangeValToPix(sortedVals[3], drawingInfo);
                 }
 
                 GeometryGroup shadowGeom = new GeometryGroup();

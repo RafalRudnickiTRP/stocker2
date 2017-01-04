@@ -78,12 +78,8 @@ namespace WpfApplication3
                 var P2DT = Misc.PixelToSdd(drawingInfo, getP2());
 
                 // values
-                double P1ValY = Math.Round(Misc.RemapRange(getP1().Y,
-                    drawingInfo.viewMarginBottom, drawingInfo.maxVal,
-                    drawingInfo.viewHeight - drawingInfo.viewMarginBottom, drawingInfo.minVal), 6);
-                double P2ValY = Math.Round(Misc.RemapRange(getP2().Y,
-                    drawingInfo.viewMarginBottom, drawingInfo.maxVal,
-                    drawingInfo.viewHeight - drawingInfo.viewMarginBottom, drawingInfo.minVal), 6);
+                double P1ValY = Math.Round(Misc.RemapRangePixToVal(getP1().Y, drawingInfo), 6);
+                double P2ValY = Math.Round(Misc.RemapRangePixToVal(getP2().Y, drawingInfo), 6);
 
                 DataToSerialize toSerialize = new DataToSerialize();
 

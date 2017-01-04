@@ -35,7 +35,17 @@ namespace WpfApplication3
             return map[br];
         }
 
-        public static double RemapRange(double value, double fromMin, double toMin, double fromMax, double toMax)
+        public static double RemapRangePixToVal(double pix, DrawingInfo di)
+        {
+            return RemapRange(pix, di.minViewport, di.maxVal, di.maxViewport, di.minVal);
+        }
+
+        public static double RemapRangeValToPix(double value, DrawingInfo di)
+        {
+            return RemapRange(value, di.minVal, di.maxViewport, di.maxVal, di.minViewport);
+        }
+
+        private static double RemapRange(double value, double fromMin, double toMin, double fromMax, double toMax)
         {
             return (value - fromMin) / (fromMax - fromMin) * (toMax - toMin) + toMin;
         }

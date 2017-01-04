@@ -129,9 +129,7 @@ namespace WpfApplication3
             ShowCross(frame.InsideFrame(p));
             
             // value
-            double val = Misc.RemapRange(p.Y,
-                drawingInfo.viewMarginBottom, drawingInfo.maxVal,
-                drawingInfo.viewHeight - drawingInfo.viewMarginBottom, drawingInfo.minVal);
+            double val = Misc.RemapRangePixToVal(p.Y, drawingInfo);
             crossValue.SetValue(val);
             crossValue.SetPosition(new Point(drawingInfo.viewWidth - drawingInfo.viewMarginRight + 2, p.Y));
 
