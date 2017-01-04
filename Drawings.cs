@@ -220,6 +220,8 @@ namespace WpfApplication3
                 snapPath.Stroke = Brushes.LightGray;
                 snapPath.Data = snapGeom;
                 canvas.Children.Add(snapPath);
+
+                Label currentVal = CreatePriceLabel(canvas, i, true, Label.Mode.GhostPrice);
             }
 
             // Candles
@@ -288,6 +290,7 @@ namespace WpfApplication3
 
             CreateCross(canvas);
             CreateLabels(canvas);
+            CreatePriceLabel(canvas, drawingInfo.sddList[0].Close, true, Label.Mode.Price);
 
             return canvas;
         }

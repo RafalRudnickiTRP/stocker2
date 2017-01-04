@@ -1,15 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Shapes;
 using System.Windows.Controls;
 using System.Windows.Media;
-using System.Diagnostics;
-
-using Newtonsoft.Json;
 
 namespace WpfApplication3
 {
@@ -24,12 +16,12 @@ namespace WpfApplication3
             public enum Mode
             {
                 Price,
+                GhostPrice,
                 Date
             };
 
             private Mode mode;
             private TextBlock valueTextBlock;
-
 
             public Label(Canvas canvas, Mode _mode, int z)
             {
@@ -42,8 +34,16 @@ namespace WpfApplication3
                 valueTextBlock.TextAlignment = TextAlignment.Left;
                 valueTextBlock.FontSize = 11;
                 valueTextBlock.Width = 100;
-                valueTextBlock.Background = Brushes.Black;
-                valueTextBlock.Foreground = Brushes.White;
+                if (mode == Mode.GhostPrice)
+                {
+                    valueTextBlock.Background = Brushes.White;
+                    valueTextBlock.Foreground = Brushes.Gray;
+                }
+                else
+                {
+                    valueTextBlock.Background = Brushes.Black;
+                    valueTextBlock.Foreground = Brushes.White;
+                }
                 valueTextBlock.Visibility = Visibility.Hidden;
 
                 Canvas.SetLeft(valueTextBlock, 0);
@@ -86,22 +86,27 @@ namespace WpfApplication3
             public bool VerticalCenterAlignment { get; set; }
             public bool HorizontalCenterAlignment { get; set; }
         }
-        
+
+        Label CreatePriceLabel(Canvas canvas, double value, bool show, Label.Mode mode)
+        {
+            currentValue = new Label(canvas, mode, 0);
+            currentValue.SetValue(value);
+            double y = Misc.RemapRangeValToPix(value, drawingInfo);
+            currentValue.SetPosition(new Point(drawingInfo.viewWidth - drawingInfo.viewMarginRight + 2, y));
+            currentValue.Show(show);
+
+            return currentValue;
+        }
+
         void CreateLabels(Canvas canvas)
         {
             crossValue = new Label(canvas, Label.Mode.Price, 1);
             crossValue.Show(false);
             crossValue.VerticalCenterAlignment = true;
 
-            currentValue = new Label(canvas, Label.Mode.Price, 0);
-            currentValue.SetValue(drawingInfo.sddList[0].Close);
-            double y = Misc.RemapRangeValToPix(drawingInfo.sddList[0].Close, drawingInfo);
-            currentValue.SetPosition(new Point(drawingInfo.viewWidth - drawingInfo.viewMarginRight + 2, y));
-            currentValue.Show(true);
-
             crossDate = new Label(canvas, Label.Mode.Date, 0);
             crossDate.Show(false);
-            crossDate.HorizontalCenterAlignment = true;
+            crossDate.HorizontalCenterAlignment = true;            
         }
     }
 }
