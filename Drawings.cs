@@ -147,27 +147,6 @@ namespace WpfApplication3
                 }
             }
 
-            double minMaxStep = 0.1;
-            if ((maxHi - minLow) / 0.1 > drawingInfo.maxNoVertLines)
-                minMaxStep = 1;
-            if ((maxHi - minLow) / 1 > drawingInfo.maxNoVertLines)
-                minMaxStep = 5;
-            if ((maxHi - minLow) / 5 > drawingInfo.maxNoVertLines)
-                minMaxStep = 10;
-            if ((maxHi - minLow) / 10 > drawingInfo.maxNoVertLines)
-                minMaxStep = 100;
-
-            if (minMaxStep > 1)
-            {
-                drawingInfo.maxVal = Math.Ceiling(maxHi);
-                drawingInfo.minVal = Math.Floor(minLow);
-            }
-            else
-            {
-                drawingInfo.maxVal = Math.Round(maxHi + minMaxStep, 1);
-                drawingInfo.minVal = Math.Round(minLow, 1);
-            }
-            
             int start = drawingInfo.viewWidth - drawingInfo.viewMarginRight - drawingInfo.candleMargin - 
                 (int)frame.StrokeThickness - drawingInfo.candleWidth / 2;
             int minViewport = drawingInfo.viewMarginBottom + (int)frame.StrokeThickness + drawingInfo.candleMargin;
@@ -206,9 +185,32 @@ namespace WpfApplication3
             }
 
             // Horizontal snap lines of prices
-            for (double i = drawingInfo.minVal % minMaxStep; i < drawingInfo.maxVal; i += minMaxStep)
+            double minMaxStep = 0.1;
+            if ((maxHi - minLow) / 0.1 > drawingInfo.maxNoVertLines)
+                minMaxStep = 1;
+            if ((maxHi - minLow) / 1 > drawingInfo.maxNoVertLines)
+                minMaxStep = 5;
+            if ((maxHi - minLow) / 5 > drawingInfo.maxNoVertLines)
+                minMaxStep = 10;
+            if ((maxHi - minLow) / 10 > drawingInfo.maxNoVertLines)
+                minMaxStep = 100;
+
+            if (minMaxStep > 1)
+            {
+                drawingInfo.maxVal = Math.Ceiling(maxHi);
+                drawingInfo.minVal = Math.Floor(minLow);
+            }
+            else
+            {
+                drawingInfo.maxVal = Math.Round(maxHi + minMaxStep, 1);
+                drawingInfo.minVal = Math.Round(minLow - minMaxStep, 1);
+            }
+
+            for (double i = drawingInfo.minVal % minMaxStep; i <= drawingInfo.maxVal; i += minMaxStep)
             {
                 double x = Misc.RemapRangeValToPix(i, drawingInfo);
+                if (x > drawingInfo.viewHeight)
+                    continue;
 
                 GeometryGroup snapGeom = new GeometryGroup();
                 snapGeom.Children.Add(new LineGeometry(
