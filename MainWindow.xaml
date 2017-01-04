@@ -46,6 +46,9 @@
                     <Button x:Name="button_Blue"
                             BorderThickness="0" BorderBrush="Cyan"
                             Content="" HorizontalAlignment="Left" Margin="40,0,0,0" VerticalAlignment="Center" Width="15" Background="Blue" Click="buttonColor_Click"/>
+                    <Button x:Name="button_Orange"
+                            BorderThickness="0" BorderBrush="Cyan"
+                            Content="" HorizontalAlignment="Left" Margin="60,0,0,0" VerticalAlignment="Center" Width="15" Background="Orange" Click="buttonColor_Click"/>
                 </Grid>
                 <Separator/>
                 <Button Name="buttonInverse" Content="yInverse" Click="buttonInverse_Click" />

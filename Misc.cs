@@ -16,6 +16,7 @@ namespace WpfApplication3
                 { Brushes.Black, "Black" },
                 { Brushes.Lime, "Lime" },
                 { Brushes.Blue, "Blue" },
+                { Brushes.Orange, "Orange" },
                 { Brushes.Red, "Red" },
             };
 
@@ -29,6 +30,7 @@ namespace WpfApplication3
                 { "Black", Brushes.Black },
                 { "Lime", Brushes.Lime },
                 { "Blue", Brushes.Blue },
+                { "Orange", Brushes.Orange },
                 { "Red", Brushes.Red },
             };
             
