@@ -7,7 +7,8 @@ namespace WpfApplication3
 {
     public partial class Chart
     {
-        private Label crossValue;
+        private Label crossValueEnd;
+        private Label crossValueStart;
         private Label currentValue;
         private Label crossDate;
 
@@ -17,6 +18,7 @@ namespace WpfApplication3
             {
                 Price,
                 GhostPrice,
+                CrossPrice,
                 Date
             };
 
@@ -39,6 +41,11 @@ namespace WpfApplication3
                     valueTextBlock.Background = Brushes.White;
                     valueTextBlock.Foreground = Brushes.Gray;
                 }
+                else if (mode == Mode.CrossPrice)
+                {
+                    valueTextBlock.Background = Brushes.Green;
+                    valueTextBlock.Foreground = Brushes.White;
+                }
                 else
                 {
                     valueTextBlock.Background = Brushes.Black;
@@ -57,10 +64,12 @@ namespace WpfApplication3
                 valueTextBlock.Visibility = show ? Visibility.Visible : Visibility.Hidden;
             }
 
-            public void SetValue(double val)
+            public void SetValue(double val, string comment = "")
             {
                 string valStr = string.Format(" {0:F2}", val);
                 valueTextBlock.Text = valStr;
+                if (!comment.Equals("") && !comment.Equals("0"))
+                    valueTextBlock.Text += " dist: " + comment;
             }
 
             public void SetDate(DateTime? date)
@@ -100,9 +109,12 @@ namespace WpfApplication3
 
         void CreateLabels(Canvas canvas)
         {
-            crossValue = new Label(canvas, Label.Mode.Price, 1);
-            crossValue.Show(false);
-            crossValue.VerticalCenterAlignment = true;
+            crossValueStart = new Label(canvas, Label.Mode.CrossPrice, 1);
+            crossValueStart.Show(false);
+            crossValueStart.VerticalCenterAlignment = true;
+            crossValueEnd = new Label(canvas, Label.Mode.CrossPrice, 1);
+            crossValueEnd.Show(false);
+            crossValueEnd.VerticalCenterAlignment = true;
 
             crossDate = new Label(canvas, Label.Mode.Date, 0);
             crossDate.Show(false);

@@ -80,6 +80,12 @@ namespace WpfApplication3
                 Stroke = Brushes.Black;
             }
 
+            public Point GetStart()
+            {
+                var line = geo.Children[0] as LineGeometry;
+                return line.StartPoint;
+            }
+
             public void Start(Point p)
             {
                 var line = geo.Children[0] as LineGeometry;
@@ -127,11 +133,17 @@ namespace WpfApplication3
 
             cross.Move(p);
             ShowCross(frame.InsideFrame(p));
-            
+
             // value
-            double val = Misc.RemapRangePixToVal(p.Y, drawingInfo);
-            crossValue.SetValue(val);
-            crossValue.SetPosition(new Point(drawingInfo.viewWidth - drawingInfo.viewMarginRight + 2, p.Y));
+            string dist = "";
+            if (helperLineStarted)
+            {
+                crossValueStart.SetValue(Misc.RemapRangePixToVal(helper.GetStart().Y, drawingInfo));
+                crossValueStart.SetPosition(new Point(drawingInfo.viewWidth - drawingInfo.viewMarginRight + 2, helper.GetStart().Y));
+                dist = "" + (p.Y - helper.GetStart().Y);
+            }
+            crossValueEnd.SetValue(Misc.RemapRangePixToVal(p.Y, drawingInfo), dist);
+            crossValueEnd.SetPosition(new Point(drawingInfo.viewWidth - drawingInfo.viewMarginRight + 2, p.Y));
 
             // date
             var dt = Misc.PixelToSdd(drawingInfo, p);
@@ -148,8 +160,9 @@ namespace WpfApplication3
                 helperLineStarted = false;
                 helper.Visibility = Visibility.Hidden;
             }
-            
-            crossValue.Show(show);
+
+            crossValueStart.Show(show);
+            crossValueEnd.Show(show);
             crossDate.Show(show);
         }
 
