@@ -56,7 +56,7 @@ namespace WpfApplication3
             selectedSymbol = SymbolsCb.SelectedItem as Data.SymbolInfo;
             selectedDateTime = DatePicker.SelectedDate ?? DateTime.Today;
             type = TypeCb.SelectedItem as string;
-            price = double.Parse(Price.Text.ToString(), Data.numberFormat);
+            price = double.Parse(Price.Text.ToString().Replace(",", "."), Data.numberFormat);
 
             Close();
         }
