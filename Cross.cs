@@ -135,14 +135,18 @@ namespace WpfApplication3
             ShowCross(frame.InsideFrame(p));
 
             // value
-            string dist = "";
             if (helperLineStarted)
             {
                 crossValueStart.SetValue(Misc.RemapRangePixToVal(helper.GetStart().Y, drawingInfo));
                 crossValueStart.SetPosition(new Point(drawingInfo.viewWidth - drawingInfo.viewMarginRight + 2, helper.GetStart().Y));
-                dist = "" + (p.Y - helper.GetStart().Y);
+
+                double distS = Math.Round(Misc.RemapRangePixToVal(p.Y, drawingInfo), 2);
+                double distE = Math.Round(Misc.RemapRangePixToVal(helper.GetStart().Y, drawingInfo), 2);              
+                double prc = 100 * (distE - distS) / -distE;
+                crossValueInfo.SetValue(Math.Abs(distE - distS), " " + Math.Round(prc, 2) + "%");
+                crossValueInfo.SetPosition(new Point(p.X + 2, p.Y - 10));
             }
-            crossValueEnd.SetValue(Misc.RemapRangePixToVal(p.Y, drawingInfo), dist);
+            crossValueEnd.SetValue(Misc.RemapRangePixToVal(p.Y, drawingInfo));
             crossValueEnd.SetPosition(new Point(drawingInfo.viewWidth - drawingInfo.viewMarginRight + 2, p.Y));
 
             // date
@@ -161,7 +165,9 @@ namespace WpfApplication3
                 helper.Visibility = Visibility.Hidden;
             }
 
-            crossValueStart.Show(show);
+            crossValueStart.Show(helperLineStarted);
+            crossValueInfo.Show(helperLineStarted);
+
             crossValueEnd.Show(show);
             crossDate.Show(show);
         }

@@ -149,6 +149,7 @@ namespace WpfApplication3
 
             int start = drawingInfo.viewWidth - drawingInfo.viewMarginRight - drawingInfo.candleMargin - 
                 (int)frame.StrokeThickness - drawingInfo.candleWidth / 2;
+
             int minViewport = drawingInfo.viewMarginBottom + (int)frame.StrokeThickness + drawingInfo.candleMargin;
             int maxViewport = drawingInfo.viewHeight - minViewport;
 
@@ -206,11 +207,13 @@ namespace WpfApplication3
                 drawingInfo.minVal = Math.Round(minLow - minMaxStep, 1);
             }
 
-            for (double i = drawingInfo.minVal % minMaxStep; i <= drawingInfo.maxVal; i += minMaxStep)
+            for (double i = drawingInfo.minVal % minMaxStep; i < drawingInfo.maxVal + 2 * minMaxStep; i += minMaxStep)
             {
                 double x = Misc.RemapRangeValToPix(i, drawingInfo);
                 if (x > drawingInfo.viewHeight)
                     continue;
+                if (x < 0)
+                    break;
 
                 GeometryGroup snapGeom = new GeometryGroup();
                 snapGeom.Children.Add(new LineGeometry(

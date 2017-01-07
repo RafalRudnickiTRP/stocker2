@@ -8,6 +8,7 @@ namespace WpfApplication3
     public partial class Chart
     {
         private Label crossValueEnd;
+        private Label crossValueInfo;
         private Label crossValueStart;
         private Label currentValue;
         private Label crossDate;
@@ -69,7 +70,7 @@ namespace WpfApplication3
                 string valStr = string.Format(" {0:F2}", val);
                 valueTextBlock.Text = valStr;
                 if (!comment.Equals("") && !comment.Equals("0"))
-                    valueTextBlock.Text += " dist: " + comment;
+                    valueTextBlock.Text += comment;
             }
 
             public void SetDate(DateTime? date)
@@ -112,6 +113,9 @@ namespace WpfApplication3
             crossValueStart = new Label(canvas, Label.Mode.CrossPrice, 1);
             crossValueStart.Show(false);
             crossValueStart.VerticalCenterAlignment = true;
+            crossValueInfo = new Label(canvas, Label.Mode.CrossPrice, 1);
+            crossValueInfo.Show(false);
+            crossValueInfo.VerticalCenterAlignment = true;
             crossValueEnd = new Label(canvas, Label.Mode.CrossPrice, 1);
             crossValueEnd.Show(false);
             crossValueEnd.VerticalCenterAlignment = true;
