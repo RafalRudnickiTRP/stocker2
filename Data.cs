@@ -250,27 +250,60 @@ namespace WpfApplication3
         }
         public static List<WalletItem> WalletItems { get; set; }
 
-        public static void UpdateInfoNames()
+        static bool IsClActive(Chart.ChartLine.DataToSerialize data)
+        {
+            bool isClActive = false;
+
+            double extraDaysToEnd = double.Parse(data.EndPointDV.Split('+')[1].Split(';')[0],
+                Data.numberFormat);
+            DateTime lineEndDate = DateTime.ParseExact(data.EndPointDV.Split('+')[0],
+                Data.dateTimeFormat, CultureInfo.InvariantCulture);
+            DateTime current = DateTime.Today;
+            int days = (current - lineEndDate).Days;
+            if (days - (int)extraDaysToEnd < 0)
+                isClActive = true;
+
+            return isClActive;
+        }
+
+        static void UpdateOnList(int cls, int clsActive, string sdKey)
+        {
+            string info = " " + cls + "/" + clsActive;
+            if (cls == 0 && clsActive == 0)
+                info = "";
+
+            foreach (var symbolInfo in SymbolsInfoList)
+            {
+                if (symbolInfo.FullName == sdKey)
+                {
+                    symbolInfo.InfoName = symbolInfo.FullName + info;
+                    break;
+                }
+            }
+        }
+
+        public static void UpdateInfoNames(string fullName)
         {
             foreach (var sd in SymbolsDrawings)
             {
+                if (sd.Key != fullName)
+                    continue;
+
                 int cls = sd.Value.chartLines.Count;
+                if (cls == 0)
+                    continue;
 
-                int clsActive = sd.Value.chartLines.Count(
-                    l => Misc.BrushToString(l.color) == "Red" || Misc.BrushToString(l.color) == "Lime");
-
-                string info = " " + cls + "/" + clsActive;
-                if (cls == 0 && clsActive == 0)
-                    info = "";
-
-                foreach (var symbolInfo in SymbolsInfoList)
+                int clsActive = 0;
+                foreach (var cl in sd.Value.chartLines)
                 {
-                    if (symbolInfo.FullName == sd.Key)
+                    if (Misc.BrushToString(cl.color) == "Red" || Misc.BrushToString(cl.color) == "Lime")
                     {
-                        symbolInfo.InfoName = symbolInfo.FullName + info;
-                        break;
+                        if (IsClActive(cl.SerializeToJson(cl.GetDrawingInfo())))
+                            clsActive++;
                     }
                 }
+
+                UpdateOnList(cls, clsActive, sd.Key);
             }
         }
 
@@ -286,19 +319,13 @@ namespace WpfApplication3
                 foreach (var cl in sd.Value.chartLines)
                 {
                     if (cl.Color == "Red" || cl.Color == "Lime")
-                        clsActive++;
-                }
-
-                string info = " " + cls + "/" + clsActive;
-
-                foreach (var symbolInfo in SymbolsInfoList)
-                {
-                    if (symbolInfo.FullName == sd.Key)
                     {
-                        symbolInfo.InfoName = symbolInfo.FullName + info;
-                        break;
+                        if (IsClActive(cl))
+                            clsActive++;
                     }
                 }
+
+                UpdateOnList(cls, clsActive, sd.Key);
             }
         }
 

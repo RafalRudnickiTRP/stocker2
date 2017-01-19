@@ -366,7 +366,10 @@ namespace WpfApplication3
 
         private void UpdateListView()
         {
-            DataViewModel.UpdateInfoNames();
+            string name = "";
+            if (currentSymbolInfo != null)
+                name = currentSymbolInfo.FullName;
+            DataViewModel.UpdateInfoNames(name);
 
             SortSymbolsList();            
 
