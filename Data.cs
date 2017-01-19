@@ -80,11 +80,30 @@ namespace WpfApplication3
             public string InfoName { get; set; }
             public string ShortName { get; set; }
 
+            private bool _IsRed()
+            {
+                string[] arr = InfoName.Split('/');
+                if (arr.Length > 1)
+                {
+                    int act = 0;
+                    if (int.TryParse(arr[1], out act))
+                    {
+                        if (act > 0)
+                            return false;
+                    }
+                    return true;
+                }
+                return false;
+            }
+            public bool IsRed
+            {
+                get { return _IsRed(); }
+            }
+
             private bool _IsBold()
             {
                 return (InfoName != FullName);
             }
-
             public bool IsBold
             {
                 get { return _IsBold(); }

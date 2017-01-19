@@ -96,6 +96,9 @@
                             <DataTrigger Binding="{Binding Path=IsBold}" Value="True">
                                 <Setter Property="FontWeight" Value="Bold" />
                             </DataTrigger>
+                            <DataTrigger Binding="{Binding Path=IsRed}" Value="True">
+                                <Setter Property="Foreground" Value="Red" />
+                            </DataTrigger>
                         </Style.Triggers>
                     </Style>
                 </ListView.ItemContainerStyle>
