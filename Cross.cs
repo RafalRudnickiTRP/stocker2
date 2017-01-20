@@ -132,7 +132,7 @@ namespace WpfApplication3
             }
 
             cross.Move(p);
-            ShowCross(frame.InsideFrame(p));
+            ShowCross(frame.InsideFrame(p), true);
 
             // value
             if (helperLineStarted)
@@ -155,11 +155,11 @@ namespace WpfApplication3
             crossDate.SetPosition(new Point(p.X, drawingInfo.viewHeight - drawingInfo.viewMarginBottom + 2));
         }
 
-        public void ShowCross(bool show)
+        public void ShowCross(bool show, bool fromMove = false)
         {
             cross.Visibility = show ? Visibility.Visible : Visibility.Hidden;
 
-            if (!show)
+            if (!show && !fromMove)
             {
                 helperLineStarted = false;
                 helper.Visibility = Visibility.Hidden;
