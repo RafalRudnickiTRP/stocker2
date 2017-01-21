@@ -28,6 +28,8 @@ namespace WpfApplication3
 
         static bool showedFromReport = false;
 
+        static public bool testMode = false;
+
         public MainWindow()
         {
             InitializeComponent();

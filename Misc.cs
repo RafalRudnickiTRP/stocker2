@@ -152,11 +152,8 @@ namespace WpfApplication3
 
             double PDR = DateToPixel(di, sdd.Date, 0);
 
-            double PVRLO = Math.Round(RemapRange(sdd.Low, di.maxVal, di.viewMarginBottom,
-                di.minVal, di.viewHeight - di.viewMarginBottom), 6);
-
-            double PVRHI = Math.Round(RemapRange(sdd.Hi, di.maxVal, di.viewMarginBottom,
-                di.minVal, di.viewHeight - di.viewMarginBottom), 6);
+            double PVRLO = Math.Round(RemapRangeValToPix(sdd.Low, di), 6);
+            double PVRHI = Math.Round(RemapRangeValToPix(sdd.Hi, di), 6);
 
             Point pLO = new Point(PDR, PVRLO);
             Point pHI = new Point(PDR, PVRHI);
@@ -212,9 +209,7 @@ namespace WpfApplication3
 
             // value
             double PV = double.Parse(PDV[2], Data.numberFormat);
-            double PVR = Math.Round(RemapRange(PV,
-                drawingInfo.maxVal, drawingInfo.viewMarginBottom,
-                drawingInfo.minVal, drawingInfo.viewHeight - drawingInfo.viewMarginBottom), 6);
+            double PVR = Math.Round(RemapRangeValToPix(PV, drawingInfo), 6);
 
             // date
             DateTime PD = DateTime.ParseExact(PDV[0], Data.dateTimeFormat,

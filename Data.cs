@@ -23,10 +23,15 @@ namespace WpfApplication3
 
         public static string GetPath()
         {
-            while (currentPath == "" || currentPath == null)
+            string path;
+            while (!MainWindow.testMode &&
+            (currentPath == "" || currentPath == null))
                 ChooseDefaultPath();
 
-            string path = currentPath + @"\stocker\";
+            if (MainWindow.testMode)
+                path = @"\\samba-users.igk.intel.com\samba\Users\rrudnick\invest\stocker_test\";
+            else
+                path = currentPath + @"\stocker\";
             return path;
         }
 
@@ -481,6 +486,10 @@ namespace WpfApplication3
             // try to load from disk
             string today = DateTime.Today.ToString("dd-MM-yyyy");
             string filename = "stocker_symbols_" + today + ".html";
+
+            if (MainWindow.testMode)
+                filename = "stocker_symbols_00-00-0000.html";
+
             Directory.CreateDirectory(Data.GetPath() + @"temp\");
             try
             {
@@ -521,6 +530,10 @@ namespace WpfApplication3
             string csv = "";
             string today = DateTime.Today.ToString("dd -MM-yyyy");
             string filename = "stocker_" + today + "_" + symbolName + ".csv";
+
+            if (MainWindow.testMode)
+                filename = "stocker_00-00-0000_AAA.csv";
+
             try
             {
                 using (StreamReader reader = new StreamReader(Data.GetPath() + @"temp\" + filename))

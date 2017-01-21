@@ -2,6 +2,7 @@
 using System.Windows;
 using System.Windows.Shapes;
 using System.Windows.Media;
+using System.Diagnostics;
 
 namespace WpfApplication3
 {
@@ -129,6 +130,11 @@ namespace WpfApplication3
                     p.Y = line.StartPoint.Y + (p.X - line.StartPoint.X) / v.X * v.Y;
                 }
 
+                if (MainWindow.testMode)
+                {
+                    Debug.WriteLine("move P1: " + p.ToString());
+                }
+
                 Point p2 = line.EndPoint;
                 line.StartPoint = p;
                 midRect.Transform = new TranslateTransform((p.X + p2.X) / 2 - selectionRectWidth2, (p.Y + p2.Y) / 2 - selectionRectWidth2);
@@ -144,6 +150,11 @@ namespace WpfApplication3
                     Vector v = line.StartPoint - line.EndPoint;
                     v.Normalize();
                     p.Y = line.EndPoint.Y + (p.X - line.EndPoint.X) / v.X * v.Y;
+                }
+
+                if (MainWindow.testMode)
+                {
+                    Debug.WriteLine("move P2: " + p.ToString());
                 }
 
                 Point p1 = line.StartPoint;
