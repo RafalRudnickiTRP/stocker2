@@ -150,9 +150,18 @@ namespace WpfApplication3
             crossValueEnd.SetPosition(new Point(drawingInfo.viewWidth - drawingInfo.viewMarginRight + 2, p.Y));
 
             // date
-            var dt = Misc.PixelToSdd(drawingInfo, p);
+            var dt = Misc.PixelToDate(drawingInfo, p);
             crossDate.SetDate(dt?.Item1);
             crossDate.SetPosition(new Point(p.X, drawingInfo.viewHeight - drawingInfo.viewMarginBottom + 2));
+
+            if (MainWindow.testMode)
+            {
+                var df = Misc.PixelToDate(drawingInfo, p);
+                Debug.WriteLine("cross: " + p.ToString());
+                Debug.WriteLine("df: " + df.ToString());
+                double px = Misc.DateToPixel(drawingInfo, df.Item1, df.Item2);
+                Debug.WriteLine("px: " + px.ToString());
+            }
         }
 
         public void ShowCross(bool show, bool fromMove = false)

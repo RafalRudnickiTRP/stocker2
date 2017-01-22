@@ -52,42 +52,44 @@ namespace WpfApplication3
             return (value - fromMin) / (fromMax - fromMin) * (toMax - toMin) + toMin;
         }
 
-        public static Tuple<DateTime, double> PixelToSdd(DrawingInfo drawingInfo, Point p)
+        public static Tuple<DateTime, double> PixelToDate(DrawingInfo di, Point p)
         {
-            int start = drawingInfo.viewWidth - drawingInfo.viewMarginRight - drawingInfo.candleMargin -
-                /*(int)framePath.StrokeThickness*/ 1 - drawingInfo.candleWidth / 2;
-            int candleWidthWithMargins = drawingInfo.candleWidth + drawingInfo.candleMargin * 2;
+            int start = di.viewWidth - di.viewMarginRight - di.candleMargin -
+                /*(int)framePath.StrokeThickness*/ 1 - di.candleWidth / 2;
+            int candleWidthWithMargins = di.candleWidth + di.candleMargin * 2;
+            int candleStart = start - di.candleWidth / 2;
+            int nextCandleStart = start + di.candleWidth / 2 + di.candleMargin * 2;
+            double maxFract = (double)(nextCandleStart - candleStart - 1) / (nextCandleStart - candleStart);
 
-            if (p.X > start)
-            {
-                // point is drawn in "future"
-                // set date to current (last day) + fract > 1
-                double fract = RemapRange(p.X - start, 0, 0, candleWidthWithMargins, 1);
-                return Tuple.Create(drawingInfo.sddList[0].Date, fract);
-            }
-            else foreach (Data.SymbolDayData sddIt in drawingInfo.sddList)
-            {
-                int candleStart = start - drawingInfo.candleWidth / 2;
-                int nextCandleStart = start + drawingInfo.candleWidth / 2 + drawingInfo.candleMargin * 2;
+            int sddIt = 0;
+            int candles = 0;
 
-                if (candleStart <= (int)p.X &&
-                    nextCandleStart >= (int)p.X)
+            while (true)
+            {
+                candleStart = start - di.candleWidth / 2; 
+                nextCandleStart = start + di.candleWidth / 2 + di.candleMargin * 2;
+
+                if (candleStart <= p.X &&
+                p.X <= nextCandleStart)
+                    break;
+
+                if (p.X > nextCandleStart)
                 {
-                    DateTime dt = new DateTime(sddIt.Date.Ticks);
-                    double fract = RemapRange(p.X, candleStart, 0, nextCandleStart, 1);
-
-                    return Tuple.Create(sddIt.Date, fract);
+                    candles += 1;
+                    start += candleWidthWithMargins;
                 }
-
-                start -= candleWidthWithMargins;
+                else
+                {
+                    start -= candleWidthWithMargins;
+                    sddIt++;
+                }
             }
 
-            // shouldn't ever happen
-            Debug.Assert(false);
-            return null;
+            double fract = candles + RemapRange(p.X, candleStart, 0, nextCandleStart, maxFract);
+            return Tuple.Create(di.sddList[sddIt].Date, fract);
         }
 
-        // Given three colinear points p, q, r, the function checks if
+        // Given three co-linear points p, q, r, the function checks if
         // point q lies on line segment 'pr'
         static bool OnSegment(Point p, Point q, Point r)
         {
@@ -176,7 +178,7 @@ namespace WpfApplication3
 
                 if (sddIt.Date <= dt)
                 {
-                    result = candleStart + (nextCandleStart - candleStart) * frac;
+                    result = candleStart + Math.Round((nextCandleStart - candleStart + 1) * frac);
                     break;
                 }
 

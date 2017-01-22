@@ -155,6 +155,7 @@ namespace WpfApplication3
                 if (MainWindow.testMode)
                 {
                     Debug.WriteLine("move P2: " + p.ToString());
+                    //p.X = 763; // save this... will be loaded as 761
                 }
 
                 Point p1 = line.StartPoint;

@@ -74,8 +74,8 @@ namespace WpfApplication3
             public DataToSerialize SerializeToJson(DrawingInfo drawingInfo)
             {
                 // dates 
-                var P1DT = Misc.PixelToSdd(drawingInfo, getP1());
-                var P2DT = Misc.PixelToSdd(drawingInfo, getP2());
+                var P1DT = Misc.PixelToDate(drawingInfo, getP1());
+                var P2DT = Misc.PixelToDate(drawingInfo, getP2());
 
                 // values
                 double P1ValY = Math.Round(Misc.RemapRangePixToVal(getP1().Y, drawingInfo), 6);
