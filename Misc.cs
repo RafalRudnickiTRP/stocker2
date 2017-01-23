@@ -66,11 +66,12 @@ namespace WpfApplication3
 
             while (true)
             {
+                Debug.Assert(di.candleWidth % 2 == 1);
                 candleStart = start - di.candleWidth / 2; 
                 nextCandleStart = start + di.candleWidth / 2 + di.candleMargin * 2;
-
-                if (candleStart <= p.X &&
-                p.X <= nextCandleStart)
+                
+                if (candleStart <= Math.Floor(p.X) &&
+                Math.Floor(p.X) <= nextCandleStart)
                     break;
 
                 if (p.X > nextCandleStart)
@@ -82,6 +83,7 @@ namespace WpfApplication3
                 {
                     start -= candleWidthWithMargins;
                     sddIt++;
+                    Debug.Assert(sddIt < di.sddList.Count);
                 }
             }
 
