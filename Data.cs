@@ -240,6 +240,21 @@ namespace WpfApplication3
                 page += 1;
             }
 
+            // manually added
+            {
+                SymbolInfo intel = new SymbolInfo("_US_INTEL", "INTC.US");
+                symbols.Add(intel);
+
+                SymbolInfo usdpln = new SymbolInfo("_FX_USDPLN", "USDPLN");
+                symbols.Add(usdpln);
+                SymbolInfo eurpln = new SymbolInfo("_FX_EURPLN", "EURPLN");
+                symbols.Add(eurpln);
+                SymbolInfo chfpln = new SymbolInfo("_FX_CHFPLN", "CHFPLN");
+                symbols.Add(chfpln);
+                SymbolInfo gbppln = new SymbolInfo("_FX_GBPPLN", "GBPPLN");
+                symbols.Add(gbppln);
+            }
+
             return symbols;
         }
     }
@@ -406,7 +421,7 @@ namespace WpfApplication3
                 if (SymbolsDrawingsToSerialize.ContainsKey(symbolInfo.FullName) == false)
                     continue;
 
-                var sdd = GetSymbolData(symbolInfo.ShortName);                
+                var sdd = GetSymbolData(symbolInfo.ShortName);
 
                 foreach (var line in SymbolsDrawingsToSerialize[symbolInfo.FullName].chartLines)
                 {
@@ -472,7 +487,7 @@ namespace WpfApplication3
         private void SaveReportFile(string raport)
         {
             string today = DateTime.Today.ToString("dd-MM-yyyy");
-            string filename = "stocker_report_" + today + ".html";            
+            string filename = "stocker_report_" + today + ".html";
 
             Directory.CreateDirectory(Data.GetPath());
             using (StreamWriter outputFile = new StreamWriter(Data.GetPath() + filename))
