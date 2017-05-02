@@ -229,7 +229,38 @@ namespace WpfApplication3
                 Label currentVal = CreatePriceLabel(canvas, i, true, Label.Mode.GhostPrice);
             }
 
-            // Candles
+            // Volume
+            // Calculate max volume first
+            int maxVol = -1;
+            foreach (Data.SymbolDayData sdd in sddList.GetRange(0, numCandlesToDraw))
+            {
+                if (maxVol < sdd.Volume)
+                    maxVol = (int)sdd.Volume;
+            }
+            int vol = start;
+            if (maxVol > 0)
+            {
+                foreach (Data.SymbolDayData sdd in sddList.GetRange(0, numCandlesToDraw))
+                {
+                    GeometryGroup volumeGeom = new GeometryGroup();
+                    volumeGeom.Children.Add(new RectangleGeometry(new Rect(
+                        new Point(vol - drawingInfo.candleWidth / 2,
+                            drawingInfo.maxViewport - sdd.Volume / (maxVol / drawingInfo.maxViewport + drawingInfo.viewMarginBottom)),
+                        new Point(vol + drawingInfo.candleWidth / 2 + 2,
+                            drawingInfo.maxViewport))));
+
+                    Path volumePath = new Path();
+                    volumePath.StrokeThickness = 0;
+                    volumePath.Fill = Brushes.LightBlue;
+                    volumePath.Data = volumeGeom;
+                    canvas.Children.Add(volumePath);
+
+                    vol -= candleWidthWithMargins;
+                }
+            }
+
+            // Price candles
+            int pr = start;
             bool refStartCreated = false;
             bool first = true;
             foreach (Data.SymbolDayData sdd in sddList.GetRange(0, numCandlesToDraw))
@@ -251,11 +282,11 @@ namespace WpfApplication3
 
                 GeometryGroup shadowGeom = new GeometryGroup();
                 shadowGeom.Children.Add(new LineGeometry(
-                    new Point(start, sortedVals[0]),
-                    new Point(start, sortedVals[1])));
+                    new Point(pr, sortedVals[0]),
+                    new Point(pr, sortedVals[1])));
                 shadowGeom.Children.Add(new LineGeometry(
-                    new Point(start, sortedVals[2]),
-                    new Point(start, sortedVals[3])));
+                    new Point(pr, sortedVals[2]),
+                    new Point(pr, sortedVals[3])));
 
                 Path shadowPath = new Path();
                 shadowPath.StrokeThickness = 1;
@@ -268,8 +299,8 @@ namespace WpfApplication3
 
                 GeometryGroup bodyGeom = new GeometryGroup();
                 bodyGeom.Children.Add(new RectangleGeometry(new Rect(
-                    new Point(start - drawingInfo.candleWidth / 2, sortedVals[1]),
-                    new Point(start + drawingInfo.candleWidth / 2, sortedVals[2]))));
+                    new Point(pr - drawingInfo.candleWidth / 2, sortedVals[1]),
+                    new Point(pr + drawingInfo.candleWidth / 2, sortedVals[2]))));
                 Path bodyPath = new Path();
                 bodyPath.StrokeThickness = 1;
                 if (first)
@@ -284,11 +315,11 @@ namespace WpfApplication3
                 if (!refStartCreated)
                 {
                     drawingInfo.refDateStart = sdd.Date;
-                    drawingInfo.refPixelXStart = start;
+                    drawingInfo.refPixelXStart = pr;
                     refStartCreated = true;
                 }
                 
-                start -= candleWidthWithMargins;
+                pr -= candleWidthWithMargins;
 
                 first = false;
             }
