@@ -77,11 +77,14 @@ namespace WpfApplication3
                 var P1DT = Misc.PixelToDate(drawingInfo, getP1());
                 var P2DT = Misc.PixelToDate(drawingInfo, getP2());
 
-                if (P1DT.Item1 > P2DT.Item1)
+                var P1Date = P1DT.Item1;
+                var P2Date = P2DT.Item1;
+
+                if (P1Date > P2Date)
                 {
-                    var temp = P1DT;
-                    P1DT = P2DT;
-                    P2DT = temp;
+                    DateTime temp = P1Date;
+                    P1Date = P2Date;
+                    P2Date = temp;
                 }
 
                 // values
@@ -98,10 +101,10 @@ namespace WpfApplication3
                 */
 
                 // date + value
-                toSerialize.StartPointDV = P1DT.Item1.ToString(Data.dateTimeFormat) + "+" +
+                toSerialize.StartPointDV = P1Date.ToString(Data.dateTimeFormat) + "+" +
                     P1DT.Item2.ToString(Data.numberFormat) + ";" +
                     P1ValY.ToString(Data.numberFormat);
-                toSerialize.EndPointDV = P2DT.Item1.ToString(Data.dateTimeFormat) + "+" +
+                toSerialize.EndPointDV = P2Date.ToString(Data.dateTimeFormat) + "+" +
                     P2DT.Item2.ToString(Data.numberFormat) + ";" +
                     P2ValY.ToString(Data.numberFormat);
 

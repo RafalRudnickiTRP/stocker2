@@ -207,6 +207,9 @@ namespace WpfApplication3
                 drawingInfo.minVal = Math.Round(minLow - minMaxStep, 1);
             }
 
+            if (drawingInfo.minVal < 0)
+                drawingInfo.minVal = 0;
+
             for (double i = drawingInfo.minVal % minMaxStep; i < drawingInfo.maxVal + 2 * minMaxStep; i += minMaxStep)
             {
                 double x = Misc.RemapRangeValToPix(i, drawingInfo);
@@ -226,7 +229,7 @@ namespace WpfApplication3
                 snapPath.Data = snapGeom;
                 canvas.Children.Add(snapPath);
 
-                Label currentVal = CreatePriceLabel(canvas, i, true, Label.Mode.GhostPrice);
+                Label currentVal = CreatePriceLabel(canvas, i, true, Label.Mode.GhostPrice);                
             }
 
             // Volume
