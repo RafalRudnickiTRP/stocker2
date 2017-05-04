@@ -77,6 +77,13 @@ namespace WpfApplication3
                 var P1DT = Misc.PixelToDate(drawingInfo, getP1());
                 var P2DT = Misc.PixelToDate(drawingInfo, getP2());
 
+                if (P1DT.Item1 > P2DT.Item1)
+                {
+                    var temp = P1DT;
+                    P1DT = P2DT;
+                    P2DT = temp;
+                }
+
                 // values
                 double P1ValY = Math.Round(Misc.RemapRangePixToVal(getP1().Y, drawingInfo), 6);
                 double P2ValY = Math.Round(Misc.RemapRangePixToVal(getP2().Y, drawingInfo), 6);

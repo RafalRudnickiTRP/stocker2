@@ -251,7 +251,12 @@ namespace WpfApplication3
 
                     Path volumePath = new Path();
                     volumePath.StrokeThickness = 0;
-                    volumePath.Fill = Brushes.LightBlue;
+
+                    if (sdd.Open < sdd.Close)
+                        volumePath.Fill = Brushes.LightGreen;
+                    else
+                        volumePath.Fill = Brushes.LightPink;
+
                     volumePath.Data = volumeGeom;
                     canvas.Children.Add(volumePath);
 
@@ -325,7 +330,7 @@ namespace WpfApplication3
             }
 
             CreateCross(canvas);
-            CreateLabels(canvas);
+            CreateCrossLabels(canvas);
             CreatePriceLabel(canvas, drawingInfo.sddList[0].Close, true, Label.Mode.Price);
 
             return canvas;

@@ -108,7 +108,7 @@ namespace WpfApplication3
             return currentValue;
         }
 
-        void CreateLabels(Canvas canvas)
+        void CreateCrossLabels(Canvas canvas)
         {
             crossValueStart = new Label(canvas, Label.Mode.CrossPrice, 1);
             crossValueStart.Show(false);
