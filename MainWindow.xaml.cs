@@ -221,10 +221,24 @@ namespace WpfApplication3
             }
             else if (e.ChangedButton == MouseButton.Middle)
             {
-                workMode = WorkMode.Cross;
                 Chart activeChart = DataViewModel.CurrentDrawing;
-                activeChart.ShowCross(true);
-                activeChart.MoveCross(mousePosition, false);
+
+                if (workMode == WorkMode.Cross)
+                {
+                    System.Windows.Shapes.Ellipse ellipse = new System.Windows.Shapes.Ellipse();
+                    ellipse.Stroke = Brushes.Blue;
+                    ellipse.Width = 10;
+                    ellipse.Height = 10;
+                    ellipse.Margin = new Thickness(mousePosition.X - 5, mousePosition.Y - 5, 0, 0);
+
+                    activeChart.canvas.Children.Add(ellipse);
+                }
+                else
+                {
+                    workMode = WorkMode.Cross;
+                    activeChart.ShowCross(true);
+                    activeChart.MoveCross(mousePosition, false);
+                }
             }
         }
 
