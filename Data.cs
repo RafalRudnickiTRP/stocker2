@@ -330,7 +330,17 @@ namespace WpfApplication3
 
                 int cls = sd.Value.chartLines.Count;
                 if (cls == 0)
+                {
+                    foreach (var symbolInfo in SymbolsInfoList)
+                    {
+                        if (symbolInfo.FullName == sd.Key)
+                        {
+                            symbolInfo.InfoName = symbolInfo.FullName;
+                            break;
+                        }
+                    }
                     continue;
+                }
 
                 int clsActive = 0;
                 foreach (var cl in sd.Value.chartLines)
