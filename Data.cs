@@ -289,13 +289,13 @@ namespace WpfApplication3
         }
         public static List<WalletItem> WalletItems { get; set; }
 
-        static bool IsClActive(Chart.ChartLine.DataToSerialize data)
+        static bool IsClActive(string point)
         {
-            bool isClActive = false;
+            bool isClActive = false;                        
 
-            double extraDaysToEnd = double.Parse(data.EndPointDV.Split('+')[1].Split(';')[0],
+            double extraDaysToEnd = double.Parse(point.Split('+')[1].Split(';')[0],
                 Data.numberFormat);
-            DateTime lineEndDate = DateTime.ParseExact(data.EndPointDV.Split('+')[0],
+            DateTime lineEndDate = DateTime.ParseExact(point.Split('+')[0],
                 Data.dateTimeFormat, CultureInfo.InvariantCulture);
             DateTime current = DateTime.Today;
             int days = (current - lineEndDate).Days;
@@ -347,7 +347,8 @@ namespace WpfApplication3
                 {
                     if (Misc.BrushToString(cl.color) == "Red" || Misc.BrushToString(cl.color) == "Lime")
                     {
-                        if (IsClActive(cl.SerializeToJson(cl.GetDrawingInfo())))
+                        Chart.ChartLine.DataToSerialize temp = cl.SerializeToJson(cl.GetDrawingInfo());
+                        if (IsClActive(temp.StartPointDV) || IsClActive(temp.EndPointDV))
                             clsActive++;
                     }
                 }
@@ -369,7 +370,7 @@ namespace WpfApplication3
                 {
                     if (cl.Color == "Red" || cl.Color == "Lime")
                     {
-                        if (IsClActive(cl))
+                        if (IsClActive(cl.StartPointDV) || IsClActive(cl.EndPointDV))
                             clsActive++;
                     }
                 }

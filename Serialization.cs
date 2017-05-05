@@ -76,35 +76,18 @@ namespace WpfApplication3
                 // dates 
                 var P1DT = Misc.PixelToDate(drawingInfo, getP1());
                 var P2DT = Misc.PixelToDate(drawingInfo, getP2());
-
-                var P1Date = P1DT.Item1;
-                var P2Date = P2DT.Item1;
-
-                if (P1Date > P2Date)
-                {
-                    DateTime temp = P1Date;
-                    P1Date = P2Date;
-                    P2Date = temp;
-                }
-
+                
                 // values
                 double P1ValY = Math.Round(Misc.RemapRangePixToVal(getP1().Y, drawingInfo), 6);
                 double P2ValY = Math.Round(Misc.RemapRangePixToVal(getP2().Y, drawingInfo), 6);
 
                 DataToSerialize toSerialize = new DataToSerialize();
 
-                /*
-                toSerialize.StartPoint = getP1().X.ToString(Data.numberFormat) + ";" +
-                    getP1().Y.ToString(Data.numberFormat);
-                toSerialize.EndPoint = getP2().X.ToString(Data.numberFormat) + ";" +
-                    getP2().Y.ToString(Data.numberFormat);
-                */
-
                 // date + value
-                toSerialize.StartPointDV = P1Date.ToString(Data.dateTimeFormat) + "+" +
+                toSerialize.StartPointDV = P1DT.Item1.ToString(Data.dateTimeFormat) + "+" +
                     P1DT.Item2.ToString(Data.numberFormat) + ";" +
                     P1ValY.ToString(Data.numberFormat);
-                toSerialize.EndPointDV = P2Date.ToString(Data.dateTimeFormat) + "+" +
+                toSerialize.EndPointDV = P2DT.Item1.ToString(Data.dateTimeFormat) + "+" +
                     P2DT.Item2.ToString(Data.numberFormat) + ";" +
                     P2ValY.ToString(Data.numberFormat);
 
