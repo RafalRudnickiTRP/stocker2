@@ -101,6 +101,7 @@
     </ApplicationDefinition>
     <Compile Include="Drive.cs" />
     <Compile Include="Serialization.cs" />
+    <Compile Include="Sources.cs" />
     <Compile Include="Trigger.cs" />
     <Compile Include="Wallet.xaml.cs">
       <DependentUpon>Wallet.xaml</DependentUpon>

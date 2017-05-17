@@ -460,7 +460,7 @@ namespace WpfApplication3
             string now = DateTime.Now.ToString("dd-MM-yyyy-HH-mm-ss");
             try
             {
-                File.Move(Data.GetPath() + @"charts.json", Data.GetPath() + @"charts_" + now + ".json");
+                File.Move(Drive.GetPath() + @"charts.json", Drive.GetPath() + @"charts_" + now + ".json");
             }
             catch (Exception)
             {
@@ -468,7 +468,7 @@ namespace WpfApplication3
             }
 
             // try to write data
-            using (StreamWriter outputFile = new StreamWriter(Data.GetPath() + @"charts.json"))
+            using (StreamWriter outputFile = new StreamWriter(Drive.GetPath() + @"charts.json"))
             {
                 string output = GetDVM().SerializeToJson();
                 outputFile.WriteLine(output);
@@ -479,7 +479,7 @@ namespace WpfApplication3
         {
             string input;
             // Open the text file using a stream reader.
-            using (StreamReader sr = new StreamReader(Data.GetPath() + @"charts.json"))
+            using (StreamReader sr = new StreamReader(Drive.GetPath() + @"charts.json"))
             {
                 // Read the stream to a string, and write the string to the console.
                 input = sr.ReadToEnd();

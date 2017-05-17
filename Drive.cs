@@ -10,21 +10,73 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows;
 
 // package installation: 
 // open Package Manager Console
 // Install-Package Google.Apis.Drive.v3
 
-namespace DriveQuickstart
+namespace WpfApplication3
 {
-    public class Program
+    public class Drive
     {
         // If modifying these scopes, delete your previously saved credentials
         // at ~/.credentials/drive-dotnet-quickstart.json
-        static string[] Scopes = { DriveService.Scope.Drive };
-        static string ApplicationName = "Stocker";
+        static string[] scopes = { DriveService.Scope.Drive };
+        static string applicationName = "Stocker";
+        private static string currentPath = "";
 
-        public static void Main2(string[] args)
+        public static string GetPath()
+        {
+            string path;
+            while (!MainWindow.testMode &&
+            (currentPath == "" || currentPath == null))
+                ChooseDefaultPath();
+
+            if (MainWindow.testMode)
+                path = @"\\samba-users.igk.intel.com\samba\Users\rrudnick\invest\stocker_test\";
+            else
+                path = currentPath + @"\stocker\";
+            return path;
+        }
+
+        public static void ChooseDefaultPath()
+        {
+            // Configure the message box to be displayed
+            string messageBoxText = "Use samba path?";
+            string caption = "Choose default path";
+            MessageBoxButton button = MessageBoxButton.YesNo;
+            MessageBoxImage icon = MessageBoxImage.Question;
+            // Display message box
+            MessageBoxResult result = MessageBox.Show(messageBoxText, caption, button, icon);
+
+            // Process message box results
+            switch (result)
+            {
+                case MessageBoxResult.Yes:
+                    // User pressed Yes button
+                    currentPath = @"\\samba-users.igk.intel.com\samba\Users\rrudnick\invest";
+                    break;
+                case MessageBoxResult.No:
+                    // User pressed No button
+                    currentPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+                    break;
+            }
+        }
+
+        public static void SaveReportFile(string raport)
+        {
+            string today = DateTime.Today.ToString("dd-MM-yyyy");
+            string filename = "stocker_report_" + today + ".html";
+
+            Directory.CreateDirectory(Drive.GetPath());
+            using (StreamWriter outputFile = new StreamWriter(Drive.GetPath() + filename))
+            {
+                outputFile.Write(raport);
+            }
+        }
+
+        public static void Main2()
         {
             UserCredential credential;
 
@@ -37,35 +89,33 @@ namespace DriveQuickstart
 
                 credential = GoogleWebAuthorizationBroker.AuthorizeAsync(
                     GoogleClientSecrets.Load(stream).Secrets,
-                    Scopes,
+                    scopes,
                     "user",
                     CancellationToken.None,
                     new FileDataStore(credPath, true)).Result;
                 Console.WriteLine("Credential file saved to: " + credPath);
             }
 
-            // Create Drive API service.
+            // Create Drive API service
             var service = new DriveService(new BaseClientService.Initializer()
             {
                 HttpClientInitializer = credential,
-                ApplicationName = ApplicationName,
+                ApplicationName = applicationName,
             });
 
-            // Define parameters of request.
+            // Define parameters of request
             FilesResource.ListRequest listRequest = service.Files.List();
             listRequest.PageSize = 10;
             listRequest.Fields = "nextPageToken, files(id, name)";
 
-            // List files.
+            // List files
             IList<Google.Apis.Drive.v3.Data.File> files = listRequest.Execute()
                 .Files;
             Console.WriteLine("Files:");
             if (files != null && files.Count > 0)
             {
                 foreach (var file in files)
-                {
                     Console.WriteLine("{0} ({1})", file.Name, file.Id);
-                }
             }
             else
             {

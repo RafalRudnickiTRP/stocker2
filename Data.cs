@@ -19,46 +19,6 @@ namespace WpfApplication3
 {
     public class Data
     {
-        private static string currentPath;
-
-        public static string GetPath()
-        {
-            string path;
-            while (!MainWindow.testMode &&
-            (currentPath == "" || currentPath == null))
-                ChooseDefaultPath();
-
-            if (MainWindow.testMode)
-                path = @"\\samba-users.igk.intel.com\samba\Users\rrudnick\invest\stocker_test\";
-            else
-                path = currentPath + @"\stocker\";
-            return path;
-        }
-
-        public static void ChooseDefaultPath()
-        {
-            // Configure the message box to be displayed
-            string messageBoxText = "Use samba path?";
-            string caption = "Choose default path";
-            MessageBoxButton button = MessageBoxButton.YesNo;
-            MessageBoxImage icon = MessageBoxImage.Question;
-            // Display message box
-            MessageBoxResult result = MessageBox.Show(messageBoxText, caption, button, icon);
-
-            // Process message box results
-            switch (result)
-            {
-                case MessageBoxResult.Yes:
-                    // User pressed Yes button
-                    currentPath = @"\\samba-users.igk.intel.com\samba\Users\rrudnick\invest";
-                    break;
-                case MessageBoxResult.No:
-                    // User pressed No button
-                    currentPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-                    break;
-            }
-        }
-
         public class SymbolDayData
         {
             public DateTime Date { get; }
@@ -160,103 +120,10 @@ namespace WpfApplication3
                     break;
                 }
 
-            try
-            {
-                HtmlWeb web = new HtmlWeb();
-                HtmlDocument doc = new HtmlDocument();
-
-                string data = "http://stooq.pl/q/?s=" + currentSi.ShortName;
-                doc = web.Load(data);
-
-                HtmlNodeCollection symbolNodes = doc.DocumentNode.SelectNodes("//*/font[@id=\"f18\"]");
-                string currentPrice = symbolNodes[1].InnerText;
-                HtmlNodeCollection hiCol = doc.DocumentNode.SelectNodes("//*/span[@id='aq_"
-                    + currentSi.ShortName.ToLower(CultureInfo.InvariantCulture) + "_h']");
-                string hi = hiCol[0].InnerText;
-                HtmlNodeCollection lowCol = doc.DocumentNode.SelectNodes("//*/span[@id='aq_"
-                    + currentSi.ShortName.ToLower(CultureInfo.InvariantCulture) + "_l']");
-                string low = lowCol[0].InnerText;
-                HtmlNodeCollection openCol = doc.DocumentNode.SelectNodes("//*/span[@id='aq_"
-                    + currentSi.ShortName.ToLower(CultureInfo.InvariantCulture) + "_o']");
-                string open = openCol[0].InnerText;
-
-                HtmlNodeCollection timeCol = doc.DocumentNode.SelectNodes("//*/span[@id='aqdat']");
-                time = timeCol[0].InnerText.Remove(timeCol[0].InnerText.IndexOf("CET") + 3);
-
-                current = new Data.SymbolDayData(DateTime.Today,
-                    float.Parse(open, CultureInfo.InvariantCulture),
-                    float.Parse(hi, CultureInfo.InvariantCulture),
-                    float.Parse(low, CultureInfo.InvariantCulture),
-                    float.Parse(currentPrice, CultureInfo.InvariantCulture),
-                    0); //TODO vol maybe in future
-            }
-            catch (Exception)
-            {
-            }
-
+            current = Sources.GetSdd(currentSi, out time);
             return current;
         }
 
-        public static List<SymbolInfo> GetSymbolsFromWeb()
-        {
-            List<SymbolInfo> symbols = new List<SymbolInfo>();
-
-            HtmlWeb web = new HtmlWeb();
-            HtmlDocument doc = new HtmlDocument();
-            int page = 1;
-            int added = 0;
-
-            while (true)
-            {
-                string data = "http://stooq.pl/t/?i=513&v=1&l=" + page.ToString();
-                doc = web.Load(data);
-
-                // XPath of symbol name
-                // *[@id="f10"]
-                HtmlNodeCollection symbolNodes = doc.DocumentNode.SelectNodes("//*/td[@id=\"f10\"]");
-                foreach (HtmlNode node in symbolNodes.Skip(2))
-                {
-                    string fullName = node.InnerText;
-                    string shortName = node.ParentNode.FirstChild.FirstChild.InnerText;
-                    SymbolInfo si = new SymbolInfo(fullName, shortName);
-                    symbols.Add(si);
-                }
-
-                if (symbols.Count <= added)
-                    throw new Exception("assert");
-                added = symbols.Count;
-
-                // check if this is a last page
-                string numOfItemsStr = doc.DocumentNode.SelectNodes("//*[@id=\"f13\"]/text()[1]")[0].InnerText;
-                Regex reNumOfItems = new Regex(@".*?(\d+) z (\d+).*");
-                Match m = reNumOfItems.Match(numOfItemsStr);
-                if (m.Groups[1].ToString() == m.Groups[2].ToString())
-                {
-                    if (symbols.Count.ToString() != m.Groups[2].ToString())
-                        throw new Exception("assert");
-                    break;
-                }
-
-                page += 1;
-            }
-
-            // manually added
-            {
-                SymbolInfo intel = new SymbolInfo("_US_INTEL", "INTC.US");
-                symbols.Add(intel);
-
-                SymbolInfo usdpln = new SymbolInfo("_FX_USDPLN", "USDPLN");
-                symbols.Add(usdpln);
-                SymbolInfo eurpln = new SymbolInfo("_FX_EURPLN", "EURPLN");
-                symbols.Add(eurpln);
-                SymbolInfo chfpln = new SymbolInfo("_FX_CHFPLN", "CHFPLN");
-                symbols.Add(chfpln);
-                SymbolInfo gbppln = new SymbolInfo("_FX_GBPPLN", "GBPPLN");
-                symbols.Add(gbppln);
-            }
-
-            return symbols;
-        }
     }
 
     public partial class DataViewModel
@@ -381,6 +248,8 @@ namespace WpfApplication3
 
         public DataViewModel()
         {
+            //WpfApplication3.Drive.Main2();
+
             Data.numberFormat.NumberGroupSeparator = ""; // thousands
             Data.numberFormat.NumberDecimalSeparator = ".";
             Data.dateTimeFormat = CultureInfo.CurrentCulture.DateTimeFormat.UniversalSortableDateTimePattern;
@@ -398,9 +267,9 @@ namespace WpfApplication3
             try
             {
                 // create default dir
-                Directory.CreateDirectory(Data.GetPath());
+                Directory.CreateDirectory(Drive.GetPath());
 
-                using (StreamReader reader = new StreamReader(Data.GetPath() + @"charts.json"))
+                using (StreamReader reader = new StreamReader(Drive.GetPath() + @"charts.json"))
                 {
                     string input = reader.ReadToEnd();
                     SymbolsDrawingsToSerialize =
@@ -492,21 +361,10 @@ namespace WpfApplication3
                     report += "\n";
             }
 
-            SaveReportFile(report);
+            Drive.SaveReportFile(report);
         }
-
-        private void SaveReportFile(string raport)
-        {
-            string today = DateTime.Today.ToString("dd-MM-yyyy");
-            string filename = "stocker_report_" + today + ".html";
-
-            Directory.CreateDirectory(Data.GetPath());
-            using (StreamWriter outputFile = new StreamWriter(Data.GetPath() + filename))
-            {
-                outputFile.Write(raport);
-            }
-        }
-
+        
+        // move to Drive
         private void LoadSymbolsInfoList()
         {
             // try to load from disk
@@ -516,10 +374,10 @@ namespace WpfApplication3
             if (MainWindow.testMode)
                 filename = "stocker_symbols_00-00-0000.html";
 
-            Directory.CreateDirectory(Data.GetPath() + @"temp\");
+            Directory.CreateDirectory(Drive.GetPath() + @"temp\");
             try
             {
-                using (StreamReader reader = new StreamReader(Data.GetPath() + @"temp\" + filename))
+                using (StreamReader reader = new StreamReader(Drive.GetPath() + @"temp\" + filename))
                 {
                     // Read the stream to a string, and write the string to the console.
                     string loaded = reader.ReadToEnd();
@@ -531,11 +389,11 @@ namespace WpfApplication3
                 if (SymbolsInfoList == null)
                 {
                     // load from web
-                    SymbolsInfoList = new List<Data.SymbolInfo>(Data.GetSymbolsFromWeb());
+                    SymbolsInfoList = new List<Data.SymbolInfo>(Sources.GetSymbolsFromWeb());
 
                     // save to disk
                     string output = JsonConvert.SerializeObject(SymbolsInfoList, Formatting.Indented);
-                    using (StreamWriter outputFile = new StreamWriter(Data.GetPath() + @"temp\" + filename))
+                    using (StreamWriter outputFile = new StreamWriter(Drive.GetPath() + @"temp\" + filename))
                     {
                         outputFile.Write(output);
                     }
@@ -562,7 +420,7 @@ namespace WpfApplication3
 
             try
             {
-                using (StreamReader reader = new StreamReader(Data.GetPath() + @"temp\" + filename))
+                using (StreamReader reader = new StreamReader(Drive.GetPath() + @"temp\" + filename))
                 {
                     // Read the stream to a string, and write the string to the console.
                     csv = reader.ReadToEnd();
@@ -574,15 +432,10 @@ namespace WpfApplication3
 
             if (csv == "")
             {
-                string url = "http://stooq.pl/q/d/l/?s=" + symbolName + "&i=d";
+                csv = Sources.GetHtml(symbolName);
 
-                HttpWebRequest req = (HttpWebRequest)WebRequest.Create(url);
-                HttpWebResponse resp = (HttpWebResponse)req.GetResponse();
-                StreamReader sr = new StreamReader(resp.GetResponseStream());
-                csv = sr.ReadToEnd();
-
-                Directory.CreateDirectory(Data.GetPath() + @"temp\");
-                using (StreamWriter outputFile = new StreamWriter(Data.GetPath() + @"temp\" + filename))
+                Directory.CreateDirectory(Drive.GetPath() + @"temp\");
+                using (StreamWriter outputFile = new StreamWriter(Drive.GetPath() + @"temp\" + filename))
                 {
                     outputFile.Write(csv);
                 }
