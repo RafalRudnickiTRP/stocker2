@@ -16,6 +16,9 @@ using System.Windows;
 // open Package Manager Console
 // Install-Package Google.Apis.Drive.v3
 
+// login: stocker.application@gmail.com
+// pass: 1stocker*
+
 namespace WpfApplication3
 {
     public class Drive
@@ -25,7 +28,7 @@ namespace WpfApplication3
         static string[] scopes = { DriveService.Scope.Drive };
         static string applicationName = "Stocker";
         private static string currentPath = "";
-
+        
         public static string GetPath()
         {
             string path;

@@ -248,7 +248,7 @@ namespace WpfApplication3
 
         public DataViewModel()
         {
-            //WpfApplication3.Drive.Main2();
+            WpfApplication3.Drive.Main2();
 
             Data.numberFormat.NumberGroupSeparator = ""; // thousands
             Data.numberFormat.NumberDecimalSeparator = ".";
