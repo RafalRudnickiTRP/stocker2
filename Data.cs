@@ -248,7 +248,8 @@ namespace WpfApplication3
 
         public DataViewModel()
         {
-            WpfApplication3.Drive.Main2();
+            Drive.CreateService();
+            Drive.Main2();
 
             Data.numberFormat.NumberGroupSeparator = ""; // thousands
             Data.numberFormat.NumberDecimalSeparator = ".";
@@ -374,6 +375,7 @@ namespace WpfApplication3
             if (MainWindow.testMode)
                 filename = "stocker_symbols_00-00-0000.html";
 
+            Drive.CreateDirectory("temp");
             Directory.CreateDirectory(Drive.GetPath() + @"temp\");
             try
             {

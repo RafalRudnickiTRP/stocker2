@@ -29,6 +29,7 @@ namespace WpfApplication3
         static string[] scopes = { DriveService.Scope.Drive };
         static string applicationName = "Stocker";
         private static string currentPath = "";
+        private static DriveService service = null;
         
         public static string GetPath()
         {
@@ -80,7 +81,45 @@ namespace WpfApplication3
             }
         }
 
-        public static void Main2()
+        public static string CreateDirectory(string path)
+        {
+            // don't create a dir if it already extists
+            string id = GetFileId(path);
+            if (id != "")
+                return id;
+
+            var fileMetadata = new Google.Apis.Drive.v3.Data.File()
+            {
+                Name = path,
+                MimeType = "application/vnd.google-apps.folder"
+            };
+
+            var request = service.Files.Create(fileMetadata);
+            request.Fields = "id";
+            var file = request.Execute();
+
+            Console.WriteLine("Folder ID: " + file.Id);
+            return file.Id;
+        }
+
+        public static string GetFileId(string file)
+        {
+            // Define parameters of request
+            FilesResource.ListRequest listRequest = service.Files.List();
+            listRequest.PageSize = 10;
+            listRequest.Q = "name = '" + file + "'";
+            listRequest.Fields = "nextPageToken, files(id, name)";
+
+            // List files
+            IList<Google.Apis.Drive.v3.Data.File> files = listRequest.Execute().Files;
+            Console.WriteLine("Files:");
+            if (files.Count == 0)
+                return "";
+            else
+                return files[0].Id;
+        }
+
+        public static DriveService CreateService()
         {
             UserCredential credential;
 
@@ -101,15 +140,21 @@ namespace WpfApplication3
             }
 
             // Create Drive API service
-            var service = new DriveService(new BaseClientService.Initializer()
+            service = new DriveService(new BaseClientService.Initializer()
             {
                 HttpClientInitializer = credential,
                 ApplicationName = applicationName,
             });
+            
+            return service;
+        }
 
+        public static void Main2()
+        {
             // Define parameters of request
             FilesResource.ListRequest listRequest = service.Files.List();
             listRequest.PageSize = 10;
+            listRequest.Q = "mimeType='application/vnd.google-apps.folder'";
             listRequest.Fields = "nextPageToken, files(id, name)";
 
             // List files
