@@ -1,4 +1,5 @@
 ﻿using Google.Apis.Auth.OAuth2;
+using Google.Apis.Download;
 using Google.Apis.Drive.v3;
 using Google.Apis.Drive.v3.Data;
 using Google.Apis.Services;
@@ -125,6 +126,40 @@ namespace WpfApplication3
                 Console.WriteLine("No files found.");
             }
             Console.Read();
+            
+            var fileId = "0B97KvUGtiCZUVkdSWmp6amdjWFU";
+            var request = service.Files.Get(fileId);
+            var stream2 = new System.IO.MemoryStream();
+
+            // Add a handler which will be notified on progress changes.
+            // It will notify on each chunk download and when the
+            // download is completed or failed.
+            request.MediaDownloader.ProgressChanged +=
+                (IDownloadProgress progress) =>
+                {
+                    switch (progress.Status)
+                    {
+                        case DownloadStatus.Downloading:
+                            {
+                                Console.WriteLine(progress.BytesDownloaded);
+                                break;
+                            }
+                        case DownloadStatus.Completed:
+                            {
+                                Console.WriteLine("Download complete.");
+                                break;
+                            }
+                        case DownloadStatus.Failed:
+                            {
+                                Console.WriteLine("Download failed.");
+                                break;
+                            }
+                    }
+                };
+            request.Download(stream2);
+            stream2.Seek(0, SeekOrigin.Begin);
+            var sr = new StreamReader(stream2);
+            string content = sr.ReadToEnd();
         }        
     }
 }
