@@ -249,7 +249,6 @@ namespace WpfApplication3
         public DataViewModel()
         {
             Drive.CreateService();
-            Drive.Main2();
 
             Data.numberFormat.NumberGroupSeparator = ""; // thousands
             Data.numberFormat.NumberDecimalSeparator = ".";
@@ -375,7 +374,27 @@ namespace WpfApplication3
             if (MainWindow.testMode)
                 filename = "stocker_symbols_00-00-0000.html";
 
-            Drive.CreateDirectory("temp");
+            string folderId = Drive.CreateDirectory("temp");
+            string fileId = Drive.GetFileId(filename);
+            if (fileId != "")
+            {
+                string content = Drive.DownloadFile(fileId);
+                SymbolsInfoList = JsonConvert.DeserializeObject<List<Data.SymbolInfo>>(content);
+            }
+            else
+            {
+                if (SymbolsInfoList == null)
+                {
+                    // load from web
+                    SymbolsInfoList = new List<Data.SymbolInfo>(Sources.GetSymbolsFromWeb());
+
+                    // save to disk
+                    string output = JsonConvert.SerializeObject(SymbolsInfoList, Formatting.Indented);
+                    Drive.UploadFile(folderId, filename, output);                    
+                }
+            }
+
+            /*
             Directory.CreateDirectory(Drive.GetPath() + @"temp\");
             try
             {
@@ -400,7 +419,7 @@ namespace WpfApplication3
                         outputFile.Write(output);
                     }
                 }
-            }
+            }*/
         }
 
         public static void SetCurrentDrawing(Chart currentChart)

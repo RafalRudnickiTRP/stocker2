@@ -97,8 +97,7 @@ namespace WpfApplication3
             var request = service.Files.Create(fileMetadata);
             request.Fields = "id";
             var file = request.Execute();
-
-            Console.WriteLine("Folder ID: " + file.Id);
+            
             return file.Id;
         }
 
@@ -112,11 +111,67 @@ namespace WpfApplication3
 
             // List files
             IList<Google.Apis.Drive.v3.Data.File> files = listRequest.Execute().Files;
-            Console.WriteLine("Files:");
             if (files.Count == 0)
                 return "";
             else
                 return files[0].Id;
+        }
+
+        public static string UploadFile(string folderId, string filename, string content)
+        {
+            var fileMetadata = new Google.Apis.Drive.v3.Data.File();
+            fileMetadata.Name = filename;
+            fileMetadata.Parents = new List<string> { folderId };
+
+            FilesResource.CreateMediaUpload request;
+            using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(content)))
+            {
+                request = service.Files.Create(fileMetadata, stream, "text/plain");
+                request.Fields = "id";
+                request.Upload();
+            }
+
+            var file = request.ResponseBody;
+            return file.Id;
+        }
+        
+        public static string DownloadFile(string fileId)
+        {
+            var request = service.Files.Get(fileId);
+            var stream2 = new System.IO.MemoryStream();
+
+            // Add a handler which will be notified on progress changes.
+            // It will notify on each chunk download and when the
+            // download is completed or failed.
+            request.MediaDownloader.ProgressChanged +=
+                (IDownloadProgress progress) =>
+                {
+                    switch (progress.Status)
+                    {
+                        case DownloadStatus.Downloading:
+                        {
+                            Console.WriteLine(progress.BytesDownloaded);
+                            break;
+                        }
+                        case DownloadStatus.Completed:
+                        {
+                            Console.WriteLine(fileId + ": download complete.");
+                            break;
+                        }
+                        case DownloadStatus.Failed:
+                        {
+                            Console.WriteLine(fileId + ": download failed.");
+                            break;
+                        }
+                    }
+                };
+
+            request.Download(stream2);
+
+            stream2.Seek(0, SeekOrigin.Begin);
+            var sr = new StreamReader(stream2);
+            string content = sr.ReadToEnd();
+            return content;
         }
 
         public static DriveService CreateService()
@@ -128,7 +183,7 @@ namespace WpfApplication3
             {
                 string credPath = System.Environment.GetFolderPath(
                     System.Environment.SpecialFolder.Personal);
-                credPath = Path.Combine(credPath, ".credentials/drive-dotnet-quickstart.json");
+                credPath = Path.Combine(credPath, ".credentials/drive-stocker.json");
 
                 credential = GoogleWebAuthorizationBroker.AuthorizeAsync(
                     GoogleClientSecrets.Load(stream).Secrets,
@@ -170,41 +225,7 @@ namespace WpfApplication3
             {
                 Console.WriteLine("No files found.");
             }
-            Console.Read();
-            
-            var fileId = "0B97KvUGtiCZUVkdSWmp6amdjWFU";
-            var request = service.Files.Get(fileId);
-            var stream2 = new System.IO.MemoryStream();
-
-            // Add a handler which will be notified on progress changes.
-            // It will notify on each chunk download and when the
-            // download is completed or failed.
-            request.MediaDownloader.ProgressChanged +=
-                (IDownloadProgress progress) =>
-                {
-                    switch (progress.Status)
-                    {
-                        case DownloadStatus.Downloading:
-                            {
-                                Console.WriteLine(progress.BytesDownloaded);
-                                break;
-                            }
-                        case DownloadStatus.Completed:
-                            {
-                                Console.WriteLine("Download complete.");
-                                break;
-                            }
-                        case DownloadStatus.Failed:
-                            {
-                                Console.WriteLine("Download failed.");
-                                break;
-                            }
-                    }
-                };
-            request.Download(stream2);
-            stream2.Seek(0, SeekOrigin.Begin);
-            var sr = new StreamReader(stream2);
-            string content = sr.ReadToEnd();
+            Console.Read();            
         }        
     }
 }
