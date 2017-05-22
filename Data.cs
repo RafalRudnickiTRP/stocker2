@@ -264,29 +264,23 @@ namespace WpfApplication3
             LoadSymbolsInfoList();
 
             // try to load symbols drawings
-            try
+            // create default dir
+            string folderId = Drive.CreateDirectory("temp");
+            string fileId = Drive.GetFileId("charts.json");
+            if (fileId != "")
             {
-                // create default dir
-                Directory.CreateDirectory(Drive.GetPath());
+                string input = Drive.DownloadFile(fileId, "charts.json");
 
-                using (StreamReader reader = new StreamReader(Drive.GetPath() + @"charts.json"))
-                {
-                    string input = reader.ReadToEnd();
-                    SymbolsDrawingsToSerialize =
-                        JsonConvert.DeserializeObject<Dictionary<string, Chart.DataToSerialize>>(input);
+                SymbolsDrawingsToSerialize =
+                    JsonConvert.DeserializeObject<Dictionary<string, Chart.DataToSerialize>>(input);
 
-                    // in case of empty file the result of deserialization will be null,
-                    // so create new object
-                    if (SymbolsDrawingsToSerialize == null)
-                        SymbolsDrawingsToSerialize = new Dictionary<string, Chart.DataToSerialize>();
-                }
+                // in case of empty file the result of deserialization will be null,
+                // so create new object
+                if (SymbolsDrawingsToSerialize == null)
+                    SymbolsDrawingsToSerialize = new Dictionary<string, Chart.DataToSerialize>();
 
                 UpdateInfoNamesOnLoad();
-            }
-            catch (FileNotFoundException)
-            {
-                // no problem
-            }
+            }                
 
             GenerateReport();
         }
@@ -364,7 +358,6 @@ namespace WpfApplication3
             Drive.SaveReportFile(report);
         }
         
-        // move to Drive
         private void LoadSymbolsInfoList()
         {
             // try to load from disk
@@ -378,7 +371,7 @@ namespace WpfApplication3
             string fileId = Drive.GetFileId(filename);
             if (fileId != "")
             {
-                string content = Drive.DownloadFile(fileId);
+                string content = Drive.DownloadFile(fileId, filename);
                 SymbolsInfoList = JsonConvert.DeserializeObject<List<Data.SymbolInfo>>(content);
             }
             else
@@ -392,34 +385,7 @@ namespace WpfApplication3
                     string output = JsonConvert.SerializeObject(SymbolsInfoList, Formatting.Indented);
                     Drive.UploadFile(folderId, filename, output);                    
                 }
-            }
-
-            /*
-            Directory.CreateDirectory(Drive.GetPath() + @"temp\");
-            try
-            {
-                using (StreamReader reader = new StreamReader(Drive.GetPath() + @"temp\" + filename))
-                {
-                    // Read the stream to a string, and write the string to the console.
-                    string loaded = reader.ReadToEnd();
-                    SymbolsInfoList = JsonConvert.DeserializeObject<List<Data.SymbolInfo>>(loaded);
-                }
-            }
-            catch (FileNotFoundException)
-            {
-                if (SymbolsInfoList == null)
-                {
-                    // load from web
-                    SymbolsInfoList = new List<Data.SymbolInfo>(Sources.GetSymbolsFromWeb());
-
-                    // save to disk
-                    string output = JsonConvert.SerializeObject(SymbolsInfoList, Formatting.Indented);
-                    using (StreamWriter outputFile = new StreamWriter(Drive.GetPath() + @"temp\" + filename))
-                    {
-                        outputFile.Write(output);
-                    }
-                }
-            }*/
+            }            
         }
 
         public static void SetCurrentDrawing(Chart currentChart)
@@ -433,34 +399,24 @@ namespace WpfApplication3
                 return SDDs[symbolName];
 
             string csv = "";
-            string today = DateTime.Today.ToString("dd -MM-yyyy");
+            string today = DateTime.Today.ToString("dd-MM-yyyy");
             string filename = "stocker_" + today + "_" + symbolName + ".csv";
 
             if (MainWindow.testMode)
                 filename = "stocker_00-00-0000_AAA.csv";
-
-            try
+            
+            string fileId = Drive.GetFileId(filename);
+            if (fileId != "")
             {
-                using (StreamReader reader = new StreamReader(Drive.GetPath() + @"temp\" + filename))
-                {
-                    // Read the stream to a string, and write the string to the console.
-                    csv = reader.ReadToEnd();
-                }
+                csv = Drive.DownloadFile(fileId, filename);
             }
-            catch (Exception)
-            {
-            }
-
-            if (csv == "")
+            else
             {
                 csv = Sources.GetHtml(symbolName);
 
-                Directory.CreateDirectory(Drive.GetPath() + @"temp\");
-                using (StreamWriter outputFile = new StreamWriter(Drive.GetPath() + @"temp\" + filename))
-                {
-                    outputFile.Write(csv);
-                }
-            }
+                string folderId = Drive.CreateDirectory("temp");
+                Drive.UploadFile(folderId, filename, csv);
+            }            
 
             if (csv == "Przekroczony dzienny limit wywolan")
             {

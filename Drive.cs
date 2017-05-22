@@ -28,62 +28,24 @@ namespace WpfApplication3
         // at ~/.credentials/drive-dotnet-quickstart.json
         static string[] scopes = { DriveService.Scope.Drive };
         static string applicationName = "Stocker";
-        private static string currentPath = "";
         private static DriveService service = null;
         
-        public static string GetPath()
-        {
-            string path;
-            while (!MainWindow.testMode &&
-            (currentPath == "" || currentPath == null))
-                ChooseDefaultPath();
-
-            if (MainWindow.testMode)
-                path = @"\\samba-users.igk.intel.com\samba\Users\rrudnick\invest\stocker_test\";
-            else
-                path = currentPath + @"\stocker\";
-            return path;
-        }
-
-        public static void ChooseDefaultPath()
-        {
-            // Configure the message box to be displayed
-            string messageBoxText = "Use samba path?";
-            string caption = "Choose default path";
-            MessageBoxButton button = MessageBoxButton.YesNo;
-            MessageBoxImage icon = MessageBoxImage.Question;
-            // Display message box
-            MessageBoxResult result = MessageBox.Show(messageBoxText, caption, button, icon);
-
-            // Process message box results
-            switch (result)
-            {
-                case MessageBoxResult.Yes:
-                    // User pressed Yes button
-                    currentPath = @"\\samba-users.igk.intel.com\samba\Users\rrudnick\invest";
-                    break;
-                case MessageBoxResult.No:
-                    // User pressed No button
-                    currentPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-                    break;
-            }
-        }
-
         public static void SaveReportFile(string raport)
         {
             string today = DateTime.Today.ToString("dd-MM-yyyy");
             string filename = "stocker_report_" + today + ".html";
 
-            Directory.CreateDirectory(Drive.GetPath());
-            using (StreamWriter outputFile = new StreamWriter(Drive.GetPath() + filename))
-            {
-                outputFile.Write(raport);
-            }
+            string folderId = Drive.CreateDirectory("temp");
+            string fileId = Drive.GetFileId(filename);
+            if (fileId != "")
+                Drive.DeleteFile(filename);
+
+            Drive.UploadFile(folderId, filename, raport);
         }
 
         public static string CreateDirectory(string path)
         {
-            // don't create a dir if it already extists
+            // don't create a dir if it already exists
             string id = GetFileId(path);
             if (id != "")
                 return id;
@@ -101,12 +63,12 @@ namespace WpfApplication3
             return file.Id;
         }
 
-        public static string GetFileId(string file)
+        public static string GetFileId(string filename)
         {
             // Define parameters of request
             FilesResource.ListRequest listRequest = service.Files.List();
             listRequest.PageSize = 10;
-            listRequest.Q = "name = '" + file + "'";
+            listRequest.Q = "name = '" + filename + "'";
             listRequest.Fields = "nextPageToken, files(id, name)";
 
             // List files
@@ -115,6 +77,20 @@ namespace WpfApplication3
                 return "";
             else
                 return files[0].Id;
+        }
+
+        public static string RenameFile(string folderId, string filename, string newFilename)
+        {
+            string fileId = Drive.GetFileId(filename);
+
+            var fileMetadata = new Google.Apis.Drive.v3.Data.File();
+            fileMetadata.Name = newFilename;
+            var request = service.Files.Update(fileMetadata, fileId);
+            request.Execute();
+
+            Console.WriteLine("Renamed: {0} to {1}", filename, newFilename);
+
+            return fileId;
         }
 
         public static string UploadFile(string folderId, string filename, string content)
@@ -129,13 +105,24 @@ namespace WpfApplication3
                 request = service.Files.Create(fileMetadata, stream, "text/plain");
                 request.Fields = "id";
                 request.Upload();
+
+                Console.WriteLine("Uploaded: {0}", filename);
             }
 
             var file = request.ResponseBody;
             return file.Id;
         }
-        
-        public static string DownloadFile(string fileId)
+
+        public static void DeleteFile(string filename)
+        {
+            string fileId = Drive.GetFileId(filename);
+            var request = service.Files.Delete(fileId);
+            request.Execute();
+
+            Console.WriteLine("Deleted: {0}", filename);
+        }
+
+        public static string DownloadFile(string fileId, string filename = "")
         {
             var request = service.Files.Get(fileId);
             var stream2 = new System.IO.MemoryStream();
@@ -155,18 +142,18 @@ namespace WpfApplication3
                         }
                         case DownloadStatus.Completed:
                         {
-                            Console.WriteLine(fileId + ": download complete.");
+                            Console.WriteLine("Download completed: {0}", filename);
                             break;
                         }
                         case DownloadStatus.Failed:
                         {
-                            Console.WriteLine(fileId + ": download failed.");
+                            Console.WriteLine("Download failed: {0}", filename);
                             break;
                         }
                     }
                 };
 
-            request.Download(stream2);
+            request.Download(stream2);           
 
             stream2.Seek(0, SeekOrigin.Begin);
             var sr = new StreamReader(stream2);

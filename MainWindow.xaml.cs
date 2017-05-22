@@ -458,33 +458,21 @@ namespace WpfApplication3
         {
             // backup first previous data
             string now = DateTime.Now.ToString("dd-MM-yyyy-HH-mm-ss");
-            try
-            {
-                File.Move(Drive.GetPath() + @"charts.json", Drive.GetPath() + @"charts_" + now + ".json");
-            }
-            catch (Exception)
-            {
-                // file missing or sth worse..
-            }
 
+            string folderId = Drive.CreateDirectory("temp");
+            Drive.RenameFile(folderId, "charts.json", "charts_" + now + ".json");
+            
             // try to write data
-            using (StreamWriter outputFile = new StreamWriter(Drive.GetPath() + @"charts.json"))
-            {
-                string output = GetDVM().SerializeToJson();
-                outputFile.WriteLine(output);
-            }
+            string output = GetDVM().SerializeToJson();
+            string fileId = Drive.UploadFile(folderId, "charts.json", output);
         }
 
         private void buttonLoad_Click(object sender, RoutedEventArgs e)
-        {
-            string input;
-            // Open the text file using a stream reader.
-            using (StreamReader sr = new StreamReader(Drive.GetPath() + @"charts.json"))
-            {
-                // Read the stream to a string, and write the string to the console.
-                input = sr.ReadToEnd();
-            }
-
+        {            
+            string folderId = Drive.CreateDirectory("temp");
+            string fileId = Drive.GetFileId("charts.json");
+            string input = Drive.DownloadFile(fileId, "charts.json");
+            
             // clear all SymbolsDrawingsToSerialize and create new based on loaded data
             GetDVM().DeserializeFromJson(input);
 

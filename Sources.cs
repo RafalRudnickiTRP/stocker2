@@ -16,6 +16,7 @@ namespace WpfApplication3
         public static Data.SymbolDayData GetSdd(Data.SymbolInfo si, out string time)
         {
             time = "";
+            Console.WriteLine("GetSdd: {0}", si.FullName);
 
             try
             {
@@ -63,6 +64,8 @@ namespace WpfApplication3
             HtmlDocument doc = new HtmlDocument();
             int page = 1;
             int added = 0;
+
+            Console.WriteLine("GetSymbolsFromWeb()");
 
             while (true)
             {
@@ -118,6 +121,8 @@ namespace WpfApplication3
 
         public static string GetHtml(string symbolName)
         {
+            Console.WriteLine("GetHtml: " + symbolName);
+
             string url = "http://stooq.pl/q/d/l/?s=" + symbolName + "&i=d";
 
             HttpWebRequest req = (HttpWebRequest)WebRequest.Create(url);
