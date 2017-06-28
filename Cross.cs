@@ -91,6 +91,11 @@ namespace WpfApplication3
                 var line = geo.Children[0] as LineGeometry;
                 line.StartPoint = p;
             }
+            public Point GetEnd()
+            {
+                var line = geo.Children[0] as LineGeometry;
+                return line.EndPoint;
+            }
 
             public void End(Point p)
             {
@@ -111,6 +116,7 @@ namespace WpfApplication3
 
         private CrossGeom cross;
         private HelperLineGeom helper;
+        private HelperLineGeom middle;
         private bool helperLineStarted;
 
         public void MoveCross(Point p, bool lpm)
@@ -120,6 +126,7 @@ namespace WpfApplication3
             
             // helper line
             helper.Visibility = lpm ? Visibility.Visible : Visibility.Hidden;
+            middle.Visibility = helper.Visibility;
             if (lpm)
             {
                 if (!helperLineStarted)
@@ -128,7 +135,13 @@ namespace WpfApplication3
                     helperLineStarted = true;
                 }
 
-                helper.End(p);        
+                helper.End(p);
+
+                Point mid = new Point(
+                    helper.GetEnd().X - (helper.GetEnd().X - helper.GetStart().X) / 2,
+                    helper.GetEnd().Y - (helper.GetEnd().Y - helper.GetStart().Y) / 2);
+                middle.Start(helper.GetStart());
+                middle.End(mid);
             }
 
             cross.Move(p);
@@ -174,6 +187,7 @@ namespace WpfApplication3
             {
                 helperLineStarted = false;
                 helper.Visibility = Visibility.Hidden;
+                middle.Visibility = Visibility.Hidden;
             }
 
             crossValueStart.Show(helperLineStarted);
@@ -187,11 +201,14 @@ namespace WpfApplication3
         {
             cross = new CrossGeom(drawingInfo);
             helper = new HelperLineGeom(drawingInfo);
+            middle = new HelperLineGeom(drawingInfo);
+            middle.StrokeThickness = 4;
 
             helperLineStarted = false;
 
             canvas.Children.Add(cross);
             canvas.Children.Add(helper);
+            canvas.Children.Add(middle);
         }
     }
 }
