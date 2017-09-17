@@ -1,16 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Diagnostics;
-using System.IO;
-using System;
-using System.ComponentModel;
-using System.Windows.Data;
-using System.Globalization;
-using HtmlAgilityPack;
+using System.Windows.Shapes;
 
 namespace WpfApplication3
 {
@@ -106,7 +102,7 @@ namespace WpfApplication3
                 newTab.KeyUp += TabItem_OnKeyUp;
 
                 var sp = new StackPanel();
-                sp.Orientation = Orientation.Horizontal;
+                sp.Orientation = System.Windows.Controls.Orientation.Horizontal;
                 sp.Children.Add(new TextBlock() { Text = symbolInfo.FullName });
                 var btn = new Button()
                 {
@@ -175,6 +171,9 @@ namespace WpfApplication3
             string headerName = GetHeaderName(activeTab);
             if (DataViewModel.SymbolsDrawings.TryGetValue(headerName, out chart))
                 DataViewModel.SetCurrentDrawing(chart);
+
+            if (chart == null)
+                return;
 
             foreach (Data.SymbolInfo si in DataViewModel.SymbolsInfoList)
                 if (si.FullName == headerName)
@@ -387,9 +386,9 @@ namespace WpfApplication3
                 name = currentSymbolInfo.FullName;
             DataViewModel.UpdateInfoNames(name);
 
-            SortSymbolsList();            
+            SortSymbolsList();
 
-            ListView sl = (ListView)FindName("SymbolsList");
+            System.Windows.Controls.ListView sl = (System.Windows.Controls.ListView)FindName("SymbolsList");
             if (sl != null)
             {
                 sl.Items.Refresh();
@@ -404,7 +403,7 @@ namespace WpfApplication3
 
         private void SymbolTab_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            TabControl tabCtrl = (TabControl)sender;
+            System.Windows.Controls.TabControl tabCtrl = (System.Windows.Controls.TabControl)sender;
             // first item is a Report
             if (tabCtrl.Items.Count == 1) return;
             if (tabCtrl.SelectedIndex == 0) return;
@@ -430,6 +429,9 @@ namespace WpfApplication3
                 Chart.ChartLine closestLine = null;
                 foreach (Chart.ChartLine line in activeChart.chartLines)
                 {
+                    if (line.linePath.Visibility == Visibility.Hidden)
+                        continue;
+
                     float dist = Misc.LinePointDistance(line.getP1(), line.getP2(), mousePosition);
                     if (dist < minDist)
                     {
@@ -442,7 +444,7 @@ namespace WpfApplication3
                     closestLine.Select(!closestLine.IsSelected());
                     workMode = WorkMode.Selecting;
 
-                    foreach (Button b in colors.Children)
+                    foreach (System.Windows.Controls.Button b in colors.Children)
                     {
                         if (b.Background == closestLine.color)
                         {
@@ -512,9 +514,9 @@ namespace WpfApplication3
             }
         }
 
-        void UpdateCurrentColor(Button button)
+        void UpdateCurrentColor(System.Windows.Controls.Button button)
         {
-            foreach (Button b in colors.Children)
+            foreach (System.Windows.Controls.Button b in colors.Children)
             {
                 b.BorderThickness = new Thickness(0);
             }
@@ -526,7 +528,7 @@ namespace WpfApplication3
         
         private void buttonColor_Click(object sender, RoutedEventArgs e)
         {
-            UpdateCurrentColor((Button)sender);
+            UpdateCurrentColor((System.Windows.Controls.Button)sender);
 
             Chart activeChart = DataViewModel.CurrentDrawing;
             if (activeChart != null)
@@ -593,9 +595,208 @@ namespace WpfApplication3
             selectDeselectLines();
         }
         
-        private void TabItem_OnKeyDown(object sender, KeyEventArgs e)
+        private void TabItem_OnKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
         {
             Chart chart = DataViewModel.CurrentDrawing;
+            Chart.DrawingInfo di = chart.drawingInfo;
+
+            switch (e.Key)
+            {
+                // generate peaks
+                case Key.P:
+                    {
+                        // cleanup first;
+                        List<UIElement> toDel = new List<UIElement>();
+                        foreach (var obj in chart.canvas.Children)
+                        {
+                            Ellipse ellipse = obj as Ellipse;
+                            if (ellipse != null)
+                            {
+                                if ((string)ellipse.Tag == "peak")
+                                    toDel.Add(ellipse);
+                            }
+                        }
+                        foreach (UIElement ui in toDel)
+                        {
+                            chart.canvas.Children.Remove(ui);
+                        }
+
+                        // find peaks
+                        int space = 2;
+                        for (int i = space; i < di.sddList.Count - space; i++)
+                        {
+                            Data.SymbolDayData sdd = di.sddList[i];
+                            double x = Misc.DateToPixel(di, sdd.Date, 0);
+                            if (x < 0)
+                                continue;
+
+                            {
+                                double max = -1;
+                                for (int j = -space; j < space; j++)
+                                    max = max > di.sddList[i + j].Hi ? max : di.sddList[i + j].Hi;
+                                if (sdd.Hi >= max)
+                                {
+                                    double y = Math.Round(Misc.RemapRangeValToPix(sdd.Hi, di), 0);
+                                    chart.AddCircle(x, y, 10, Brushes.Red, "peak");
+                                }
+                            }
+                            {
+                                double max = -1;
+                                for (int j = -space; j < space; j++)
+                                    max = max > di.sddList[i + j].Close ? max : di.sddList[i + j].Close;
+                                if (sdd.Close >= max)
+                                {
+                                    double y = Math.Round(Misc.RemapRangeValToPix(sdd.Close, di), 0);
+                                    chart.AddCircle(x, y, 10, Brushes.Blue, "peak");
+                                }
+                            }
+                            {
+                                double min = 10000;
+                                for (int j = -space; j < space; j++)
+                                    min = min < di.sddList[i + j].Low ? min : di.sddList[i + j].Low;
+                                if (sdd.Low <= min)
+                                {
+                                    double y = Math.Round(Misc.RemapRangeValToPix(sdd.Low, di), 0);
+                                    chart.AddCircle(x, y, 10, Brushes.Green, "peak");
+                                }
+                            }
+                            {
+                                double min = 10000;
+                                for (int j = -space; j < space; j++)
+                                    min = min < di.sddList[i + j].Open ? min : di.sddList[i + j].Open;
+                                if (sdd.Open <= min)
+                                {
+                                    double y = Math.Round(Misc.RemapRangeValToPix(sdd.Open, di), 0);
+                                    chart.AddCircle(x, y, 10, Brushes.Brown, "peak");
+                                }
+                            }
+                        }
+                    }
+                    break;
+                    
+                    // generate trends
+                case Key.T:
+                    {
+                        // cleanup first;
+                        List<UIElement> toDel = new List<UIElement>();
+                        foreach (var obj in chart.canvas.Children)
+                        {
+                            Line line = obj as Line;
+                            if (line != null)
+                            {
+                                if ((string)line.Tag == "trend")
+                                    toDel.Add(line);
+                            }
+                        }
+                        foreach (UIElement ui in toDel)
+                        {
+                            chart.canvas.Children.Remove(ui);
+                        }
+
+                        List<Point> points = new List<Point>();
+                        for (int i = 0; i < di.sddList.Count; i++)
+                        {
+                            Data.SymbolDayData sdd = di.sddList[i];
+                            double x = Misc.DateToPixel(di, sdd.Date, 0);
+                            if (x < 0)
+                                continue;
+
+                            double yHi = Math.Round(Misc.RemapRangeValToPix(sdd.Hi, di), 0);
+                            points.Add(new Point(x, yHi));
+                            double yLow = Math.Round(Misc.RemapRangeValToPix(sdd.Low, di), 0);
+                            points.Add(new Point(x, yLow));
+                            double yOpen = Math.Round(Misc.RemapRangeValToPix(sdd.Open, di), 0);
+                            points.Add(new Point(x, yOpen));
+                            double yClose = Math.Round(Misc.RemapRangeValToPix(sdd.Close, di), 0);
+                            points.Add(new Point(x, yClose));
+                        }
+
+                        double dist = 0.5;
+                        int minHits = 5;
+
+                        List<Line> lines = new List<Line>();
+
+                        // create lines
+                        for (int i = 0; i < points.Count; i++)
+                        {
+                            Point x = points[i];
+
+                            for (int j = i; j < points.Count; j++)
+                            {
+                                if (i == j)
+                                    continue;                               
+
+                                Point y = points[j];
+
+                                // find if some point is aligned to this line
+                                int hits = 0;
+                                // line should be as long as possible
+                                Point lowp = new Point();
+                                Point hip = new Point();
+                                for (int p = j; p < points.Count; p++)
+                                {
+                                    if (p == j || p == i)
+                                        continue;
+
+                                    Point z = points[p];
+
+                                    // eliminate the same points
+                                    if (x.X == y.X && x.Y == y.Y)
+                                        continue;
+                                    if (x.X == z.X && x.Y == z.Y)
+                                        continue;
+                                    if (z.X == y.X && z.Y == y.Y)
+                                        continue;
+                                    // eliminate vertical lines
+                                    if (x.X == y.X || x.X == z.X)
+                                        continue;
+                                    // eliminate horizontal lines
+                                    if (x.Y == y.Y || x.Y == z.Y)
+                                        continue;
+
+                                    if (Misc.LinePointDistance(x, y, z) < dist)
+                                    {
+                                        hits++;
+
+                                        lowp.X = x.X;
+                                        lowp.Y = x.Y;
+                                        hip.X = z.X;
+                                        hip.Y = z.Y;
+                                    }
+                                }
+
+                                if (hits >= minHits)
+                                {
+                                    Line l = new Line();
+                                    l.X1 = lowp.X;
+                                    l.X2 = hip.X;
+                                    l.Y1 = lowp.Y;
+                                    l.Y2 = hip.Y;
+                                    lines.Add(l);
+                                }
+                            }
+                        }
+
+                        foreach (var l in lines)
+                            chart.AddLine(l, Brushes.Black, "trend");
+                    }
+                    break;
+                    
+                    // hide all lines added to chart
+                case Key.H:
+                    {
+                        foreach (Chart.ChartLine l in chart.chartLines.ToList())
+                        {
+                            l.linePath.Visibility = l.linePath.Visibility ==
+                                Visibility.Hidden ? Visibility.Visible : Visibility.Hidden;
+                        }
+                    }
+                    break;
+
+                default:
+                    break;
+            }
+            
 
             if (e.Key == Key.Delete)
             {
@@ -634,7 +835,7 @@ namespace WpfApplication3
             UpdateListView();
         }
 
-        private void TabItem_OnKeyUp(object sender, KeyEventArgs e)
+        private void TabItem_OnKeyUp(object sender, System.Windows.Input.KeyEventArgs e)
         {
             if (e.Key == Key.LeftCtrl ||
                 e.Key == Key.RightCtrl)
@@ -711,6 +912,70 @@ namespace WpfApplication3
 
             WalletView.ItemsSource = null;
             WalletView.ItemsSource = DataViewModel.WalletItems;
+        }
+
+        public string text;
+        
+        private void buttonPeaks_Click(object sender, RoutedEventArgs e)
+        {
+            // Create a new instance of the form.
+            System.Windows.Forms.Form form1 = new System.Windows.Forms.Form();
+            // Create two buttons to use as the accept and cancel buttons.
+            System.Windows.Forms.Button button1 = new System.Windows.Forms.Button();
+            System.Windows.Forms.Button button2 = new System.Windows.Forms.Button();
+            
+            // Set the text of button1 to "OK".
+            button1.Text = "OK";
+            // Set the position of the button on the form.
+            button1.Location = new System.Drawing.Point(10, 10);
+            // Set the text of button2 to "Cancel".
+            button2.Text = "Cancel";
+            // Set the position of the button based on the location of button1.
+            button2.Location = new System.Drawing.Point(button1.Left, button1.Height + button1.Top + 10);
+            // Make button1's dialog result OK.
+            button1.DialogResult = System.Windows.Forms.DialogResult.OK;
+            // Make button2's dialog result Cancel.
+            button2.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+            // Set the caption bar text of the form.   
+            form1.Text = "My Dialog Box";
+
+            System.Windows.Forms.TextBox tb = new System.Windows.Forms.TextBox();
+            button2.Location = new System.Drawing.Point(button2.Left, button2.Height + button2.Top + 10);
+
+            // Define the border style of the form to a dialog box.
+            form1.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
+            // Set the accept button of the form to button1.
+            form1.AcceptButton = button1;
+            // Set the cancel button of the form to button2.
+            form1.CancelButton = button2;
+            // Set the start position of the form to the center of the screen.
+            form1.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
+
+            // Add button1 to the form.
+            form1.Controls.Add(button1);
+            // Add button2 to the form.
+            form1.Controls.Add(button2);
+
+            form1.Controls.Add(tb);
+
+            // Display the form as a modal dialog box.
+            form1.ShowDialog();
+
+            // Determine if the OK button was clicked on the dialog box.
+            if (form1.DialogResult == System.Windows.Forms.DialogResult.OK)
+            {
+                // Display a message box indicating that the OK button was clicked.
+                MessageBox.Show("The OK button on the form was clicked.");
+                // Optional: Call the Dispose method when you are finished with the dialog box.
+                form1.Dispose();
+            }
+            else
+            {
+                // Display a message box indicating that the Cancel button was clicked.
+                MessageBox.Show("The Cancel button on the form was clicked.");
+                // Optional: Call the Dispose method when you are finished with the dialog box.
+                form1.Dispose();
+            }
         }
     }
 }

@@ -440,6 +440,11 @@ namespace WpfApplication3
                 string[] data = l.Split(',');
 
                 DateTime date = DateTime.ParseExact(data[0], "yyyy-MM-dd", CultureInfo.InvariantCulture);
+
+                // discard old data for perf
+                if (date.Year < 2016)
+                    continue;
+
                 float open = float.Parse(data[1], CultureInfo.InvariantCulture);
                 float hi = float.Parse(data[2], CultureInfo.InvariantCulture);
                 float low = float.Parse(data[3], CultureInfo.InvariantCulture);

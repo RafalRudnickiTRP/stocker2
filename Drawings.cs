@@ -339,7 +339,42 @@ namespace WpfApplication3
             return canvas;
         }
 
-        public void AddLoadedChartLines(Dictionary<string, Chart.DataToSerialize> symbolsDrawingsToSerialize, string name)
+        public void AddCircle(double x, double y, double r, Brush brush, string tag = "")
+        {
+            Ellipse ellipse = new Ellipse();
+
+            ellipse.Tag = tag;
+            ellipse.Stroke = brush;
+            ellipse.Width = r;
+            ellipse.Height = r;
+            ellipse.Margin = new Thickness(x - r/2, y - r/2, 0, 0);
+
+            canvas.Children.Add(ellipse);
+        }
+
+        public void AddLine(Line l, Brush brush, string tag = "")
+        {
+            l.Stroke = brush;
+            l.Tag = tag;
+
+            canvas.Children.Add(l);
+        }
+
+        public void AddLine(Point x, Point y, Brush brush, string tag = "")
+        {
+            Line line = new Line();
+
+            line.Tag = tag;
+            line.Stroke = brush;
+            line.X1 = x.X;
+            line.X2 = y.X;
+            line.Y1 = x.Y;
+            line.Y2 = y.Y;
+
+            canvas.Children.Add(line);            
+        }
+
+        public void AddLoadedChartLines(Dictionary<string, DataToSerialize> symbolsDrawingsToSerialize, string name)
         {
             // add loaded chart lines
             foreach (var data in symbolsDrawingsToSerialize)

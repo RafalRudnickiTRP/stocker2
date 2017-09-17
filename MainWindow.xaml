@@ -39,7 +39,7 @@
                 <Grid x:Name="colors">
                     <Button x:Name="button_Black"
                             BorderThickness="2" BorderBrush="Cyan"
-                            Content="" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Center" Width="15" Background="Black" Click="buttonColor_Click"/>                    
+                            Content="" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Center" Width="15" Background="Black" Click="buttonColor_Click"/>
                     <Button x:Name="button_Lime"
                             BorderThickness="0" BorderBrush="Cyan"
                             Content="" HorizontalAlignment="Left" Margin="20,0,0,0" VerticalAlignment="Center" Width="15" Background="Lime" Click="buttonColor_Click"/>
@@ -56,6 +56,8 @@
                 <Button x:Name="buttonSelectDeselect" Content="select/deselect" Click="buttonSelectDeselect_Click"/>
                 <Separator/>
                 <Button x:Name="buttonWalletAdd" Content="add to wallet" Click="buttonbuttonWalletAdd_Click"/>
+                <Separator/>
+                <Button x:Name="buttonPeaks" Content="peaks" Click="buttonPeaks_Click"/>
                 <!--<Label Name="Label2" Content=" " />
                 <Button Name="buttonRaport" Content="raport" Click="buttonRaport_Click" />-->
             </ToolBar>
@@ -102,7 +104,7 @@
                         </Style.Triggers>
                     </Style>
                 </ListView.ItemContainerStyle>
-                
+
             </ListView>
         </DockPanel>
         <TextBlock DockPanel.Dock="Bottom" Name="TextBlockInfo" Text="" />
@@ -129,7 +131,7 @@
                                 <GridViewColumn Header="Current price"/>
                                 <GridViewColumn Header="Gain"/>
                                 <GridViewColumn Header="Gain %"/>
-                            </GridView>    
+                            </GridView>
                         </ListView.View>
                     </ListView>
                     <Separator Width="5"/>
