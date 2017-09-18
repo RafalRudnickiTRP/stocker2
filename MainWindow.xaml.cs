@@ -597,6 +597,7 @@ namespace WpfApplication3
 
         public string peaksOptions = "o c l h";
         public string peaksSpace = "2";
+        List<Point> peaksPoints = new List<Point>();
 
         private void TabItem_OnKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
         {
@@ -624,6 +625,8 @@ namespace WpfApplication3
                             chart.canvas.Children.Remove(ui);
                         }
 
+                        peaksPoints.Clear();
+
                         // find peaks
                         int space = 2;
                         int.TryParse(peaksSpace, out space);
@@ -644,6 +647,7 @@ namespace WpfApplication3
                                 {
                                     double y = Math.Round(Misc.RemapRangeValToPix(sdd.Hi, di), 0);
                                     chart.AddCircle(x, y, 10, Brushes.Red, "peak");
+                                    peaksPoints.Add(new Point(x, y));
                                 }
                             }
                             if (peaksOptions.Contains("c"))
@@ -655,6 +659,7 @@ namespace WpfApplication3
                                 {
                                     double y = Math.Round(Misc.RemapRangeValToPix(sdd.Close, di), 0);
                                     chart.AddCircle(x, y, 10, Brushes.Blue, "peak");
+                                    peaksPoints.Add(new Point(x, y));
                                 }
                             }
                             if (peaksOptions.Contains("l"))
@@ -666,6 +671,7 @@ namespace WpfApplication3
                                 {
                                     double y = Math.Round(Misc.RemapRangeValToPix(sdd.Low, di), 0);
                                     chart.AddCircle(x, y, 10, Brushes.Green, "peak");
+                                    peaksPoints.Add(new Point(x, y));
                                 }
                             }
                             if (peaksOptions.Contains("o"))
@@ -677,6 +683,7 @@ namespace WpfApplication3
                                 {
                                     double y = Math.Round(Misc.RemapRangeValToPix(sdd.Open, di), 0);
                                     chart.AddCircle(x, y, 10, Brushes.Brown, "peak");
+                                    peaksPoints.Add(new Point(x, y));
                                 }
                             }
                         }
@@ -700,25 +707,7 @@ namespace WpfApplication3
                         foreach (UIElement ui in toDel)
                         {
                             chart.canvas.Children.Remove(ui);
-                        }
-
-                        List<Point> points = new List<Point>();
-                        for (int i = 0; i < di.sddList.Count; i++)
-                        {
-                            Data.SymbolDayData sdd = di.sddList[i];
-                            double x = Misc.DateToPixel(di, sdd.Date, 0);
-                            if (x < 0)
-                                continue;
-
-                            double yHi = Math.Round(Misc.RemapRangeValToPix(sdd.Hi, di), 0);
-                            points.Add(new Point(x, yHi));
-                            double yLow = Math.Round(Misc.RemapRangeValToPix(sdd.Low, di), 0);
-                            points.Add(new Point(x, yLow));
-                            double yOpen = Math.Round(Misc.RemapRangeValToPix(sdd.Open, di), 0);
-                            points.Add(new Point(x, yOpen));
-                            double yClose = Math.Round(Misc.RemapRangeValToPix(sdd.Close, di), 0);
-                            points.Add(new Point(x, yClose));
-                        }
+                        }          
 
                         double dist = 0.5;
                         int minHits = 5;
@@ -726,28 +715,28 @@ namespace WpfApplication3
                         List<Line> lines = new List<Line>();
 
                         // create lines
-                        for (int i = 0; i < points.Count; i++)
+                        for (int i = 0; i < peaksPoints.Count; i++)
                         {
-                            Point x = points[i];
+                            Point x = peaksPoints[i];
 
-                            for (int j = i; j < points.Count; j++)
+                            for (int j = i; j < peaksPoints.Count; j++)
                             {
                                 if (i == j)
                                     continue;                               
 
-                                Point y = points[j];
+                                Point y = peaksPoints[j];
 
                                 // find if some point is aligned to this line
                                 int hits = 0;
                                 // line should be as long as possible
                                 Point lowp = new Point();
                                 Point hip = new Point();
-                                for (int p = j; p < points.Count; p++)
+                                for (int p = j; p < peaksPoints.Count; p++)
                                 {
                                     if (p == j || p == i)
                                         continue;
 
-                                    Point z = points[p];
+                                    Point z = peaksPoints[p];
 
                                     // eliminate the same points
                                     if (x.X == y.X && x.Y == y.Y)
