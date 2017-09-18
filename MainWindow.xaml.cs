@@ -594,7 +594,10 @@ namespace WpfApplication3
         {
             selectDeselectLines();
         }
-        
+
+        public string peaksOptions = "o c l h";
+        public string peaksSpace = "2";
+
         private void TabItem_OnKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
         {
             Chart chart = DataViewModel.CurrentDrawing;
@@ -623,13 +626,16 @@ namespace WpfApplication3
 
                         // find peaks
                         int space = 2;
+                        int.TryParse(peaksSpace, out space);
+
                         for (int i = space; i < di.sddList.Count - space; i++)
                         {
                             Data.SymbolDayData sdd = di.sddList[i];
                             double x = Misc.DateToPixel(di, sdd.Date, 0);
                             if (x < 0)
                                 continue;
-
+                            
+                            if (peaksOptions.Contains("h"))
                             {
                                 double max = -1;
                                 for (int j = -space; j < space; j++)
@@ -640,6 +646,7 @@ namespace WpfApplication3
                                     chart.AddCircle(x, y, 10, Brushes.Red, "peak");
                                 }
                             }
+                            if (peaksOptions.Contains("c"))
                             {
                                 double max = -1;
                                 for (int j = -space; j < space; j++)
@@ -650,6 +657,7 @@ namespace WpfApplication3
                                     chart.AddCircle(x, y, 10, Brushes.Blue, "peak");
                                 }
                             }
+                            if (peaksOptions.Contains("l"))
                             {
                                 double min = 10000;
                                 for (int j = -space; j < space; j++)
@@ -660,6 +668,7 @@ namespace WpfApplication3
                                     chart.AddCircle(x, y, 10, Brushes.Green, "peak");
                                 }
                             }
+                            if (peaksOptions.Contains("o"))
                             {
                                 double min = 10000;
                                 for (int j = -space; j < space; j++)
@@ -913,67 +922,54 @@ namespace WpfApplication3
             WalletView.ItemsSource = null;
             WalletView.ItemsSource = DataViewModel.WalletItems;
         }
-
-        public string text;
         
         private void buttonPeaks_Click(object sender, RoutedEventArgs e)
         {
-            // Create a new instance of the form.
             System.Windows.Forms.Form form1 = new System.Windows.Forms.Form();
-            // Create two buttons to use as the accept and cancel buttons.
-            System.Windows.Forms.Button button1 = new System.Windows.Forms.Button();
-            System.Windows.Forms.Button button2 = new System.Windows.Forms.Button();
-            
-            // Set the text of button1 to "OK".
-            button1.Text = "OK";
-            // Set the position of the button on the form.
-            button1.Location = new System.Drawing.Point(10, 10);
-            // Set the text of button2 to "Cancel".
-            button2.Text = "Cancel";
-            // Set the position of the button based on the location of button1.
-            button2.Location = new System.Drawing.Point(button1.Left, button1.Height + button1.Top + 10);
-            // Make button1's dialog result OK.
-            button1.DialogResult = System.Windows.Forms.DialogResult.OK;
-            // Make button2's dialog result Cancel.
-            button2.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            // Set the caption bar text of the form.   
-            form1.Text = "My Dialog Box";
+            form1.Text = "peaks options";
 
             System.Windows.Forms.TextBox tb = new System.Windows.Forms.TextBox();
-            button2.Location = new System.Drawing.Point(button2.Left, button2.Height + button2.Top + 10);
-
-            // Define the border style of the form to a dialog box.
-            form1.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
-            // Set the accept button of the form to button1.
-            form1.AcceptButton = button1;
-            // Set the cancel button of the form to button2.
-            form1.CancelButton = button2;
-            // Set the start position of the form to the center of the screen.
-            form1.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-
-            // Add button1 to the form.
-            form1.Controls.Add(button1);
-            // Add button2 to the form.
-            form1.Controls.Add(button2);
-
+            tb.Location = new System.Drawing.Point(10, 10);
+            tb.Text = peaksOptions;
             form1.Controls.Add(tb);
 
-            // Display the form as a modal dialog box.
-            form1.ShowDialog();
+            int h = tb.Height + 5;
 
-            // Determine if the OK button was clicked on the dialog box.
+            System.Windows.Forms.TextBox tb2 = new System.Windows.Forms.TextBox();
+            tb2.Location = new System.Drawing.Point(10, 10 + h * 1);
+            tb2.Text = peaksSpace;
+            form1.Controls.Add(tb2);
+
+            System.Windows.Forms.Button button1 = new System.Windows.Forms.Button();
+            button1.Text = "OK";
+            button1.Location = new System.Drawing.Point(10, 10 + h * 2);
+            button1.DialogResult = System.Windows.Forms.DialogResult.OK;
+            form1.Controls.Add(button1);
+
+            System.Windows.Forms.Button button2 = new System.Windows.Forms.Button();            
+            button2.Text = "Cancel";
+            button2.Location = new System.Drawing.Point(10, 10 + h * 3);
+            button2.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+            form1.Controls.Add(button2);
+
+            form1.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
+            form1.AcceptButton = button1;
+            form1.CancelButton = button2;
+            form1.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;           
+            
+            form1.ShowDialog();
+            
             if (form1.DialogResult == System.Windows.Forms.DialogResult.OK)
             {
-                // Display a message box indicating that the OK button was clicked.
-                MessageBox.Show("The OK button on the form was clicked.");
-                // Optional: Call the Dispose method when you are finished with the dialog box.
+                peaksOptions = tb.Text;
+                peaksSpace = tb2.Text;
+
+                MessageBox.Show("Peaks set to: " + peaksOptions + " with space: " + peaksSpace);
                 form1.Dispose();
             }
             else
             {
-                // Display a message box indicating that the Cancel button was clicked.
                 MessageBox.Show("The Cancel button on the form was clicked.");
-                // Optional: Call the Dispose method when you are finished with the dialog box.
                 form1.Dispose();
             }
         }
