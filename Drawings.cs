@@ -67,7 +67,9 @@ namespace WpfApplication3
             }
         }
         public DrawingInfo drawingInfo;
-        
+
+        public List<ChartLine> deletedLines;
+
         #region Members
 
         public Canvas canvas;

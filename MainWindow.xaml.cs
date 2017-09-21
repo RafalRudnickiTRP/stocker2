@@ -26,6 +26,14 @@ namespace WpfApplication3
 
         static public bool testMode = false;
 
+        private enum CtrlZMode
+        {
+            none,
+            move,
+            delete
+        }
+        private CtrlZMode ctrlZMode = CtrlZMode.none;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -245,6 +253,8 @@ namespace WpfApplication3
             {
                 foreach (var line in chart.selectedLines)
                     line.StorePrevPos();
+
+                ctrlZMode = CtrlZMode.move;
             }
         }
 
@@ -290,6 +300,25 @@ namespace WpfApplication3
                     choosenLine.mode = Chart.ChartLine.Mode.Drawing;
                     choosenLine.drawingMode = drawingMode;
                 }
+            }
+        }
+        
+        private void AddLines(List<Chart.ChartLine> lines)
+        {
+            Chart activeChart = DataViewModel.CurrentDrawing;
+
+            foreach (var line in lines)
+            {
+                line.mode = Chart.ChartLine.Mode.Normal;
+                line.drawingMode = Chart.ChartLine.DrawingMode.Invalid;
+                line.Select(false);
+
+                activeChart.chartLines.Add(line);
+                activeChart.canvas.Children.Add(line.linePath);
+                activeChart.canvas.Children.Add(line.rectPath);
+
+                line.MoveP1(line.getP1());
+                line.MoveP2(line.getP2());
             }
         }
 
@@ -645,7 +674,7 @@ namespace WpfApplication3
                             double x = Misc.DateToPixel(di, sdd.Date, 0);
                             if (x < 0)
                                 continue;
-                            
+
                             if (peaksOptions.Contains("h"))
                             {
                                 double max = -1;
@@ -697,8 +726,8 @@ namespace WpfApplication3
                         }
                     }
                     break;
-                    
-                    // generate trends
+
+                // generate trends
                 case Key.T:
                     {
                         // cleanup first;
@@ -715,7 +744,7 @@ namespace WpfApplication3
                         foreach (UIElement ui in toDel)
                         {
                             chart.canvas.Children.Remove(ui);
-                        }          
+                        }
 
                         double dist = 0.5;
                         int minHits = 5;
@@ -730,7 +759,7 @@ namespace WpfApplication3
                             for (int j = i; j < peaksPoints.Count; j++)
                             {
                                 if (i == j)
-                                    continue;                               
+                                    continue;
 
                                 Point y = peaksPoints[j];
 
@@ -787,8 +816,8 @@ namespace WpfApplication3
                             chart.AddLine(l, Brushes.Black, "trend");
                     }
                     break;
-                    
-                    // hide all lines added to chart
+
+                // hide all lines added to chart
                 case Key.H:
                     {
                         foreach (Chart.ChartLine l in chart.chartLines.ToList())
@@ -803,8 +832,29 @@ namespace WpfApplication3
                     {
                         if (ctrlPressed)
                         {
-                            foreach (var line in chart.selectedLines)
-                                line.LoadPrevPos();
+                            switch (ctrlZMode)
+                            {
+                                case CtrlZMode.move:
+                                    {
+                                        foreach (var line in chart.selectedLines)
+                                            line.LoadPrevPos();
+
+                                        ctrlZMode = CtrlZMode.none;
+                                    }
+                                    break;
+
+                                case CtrlZMode.delete:
+                                    {
+                                        AddLines(chart.deletedLines);
+                                        chart.deletedLines.Clear();
+
+                                        ctrlZMode = CtrlZMode.none;
+                                    }
+                                    break;
+
+                                default:
+                                    break;
+                            }
                         }
                     }
                     break;
@@ -823,32 +873,43 @@ namespace WpfApplication3
                     }
                     break;
 
+                // delete selected lines from chart
+                case Key.Delete:
+                    {
+                        ctrlZMode = CtrlZMode.delete;
+
+                        // remember deleted lines
+                        if (chart.deletedLines == null)
+                            chart.deletedLines = new List<Chart.ChartLine>();
+
+                        chart.deletedLines.Clear();
+
+                        foreach (var line in chart.selectedLines)
+                            chart.deletedLines.Add(line);
+
+                        // delete
+                        foreach (Chart.ChartLine l in chart.chartLines.ToList())
+                        {
+                            if (l.IsSelected())
+                                chart.DeleteLine(l);
+                        }
+                        chart.selectedLines.Clear();
+                    }
+                    break;
+
+                case Key.A:
+                    {
+                        if (ctrlPressed == true)
+                            selectDeselectLines();
+                    }
+                    break;
+
                 default:
                     break;
-            }
+            }            
             
-
-            if (e.Key == Key.Delete)
-            {
-                // delete lines from chart
-                foreach (Chart.ChartLine l in chart.chartLines.ToList())
-                {
-                    if (l.IsSelected())
-                    {
-                        chart.DeleteLine(l);
-                    }
-                }
-                chart.selectedLines.Clear();
-            }
-            else if (e.Key == Key.A)
-            {
-                if (ctrlPressed == true)
-                {
-                    selectDeselectLines();
-                }
-            }
-            else if (e.Key == Key.LeftCtrl || 
-                     e.Key == Key.RightCtrl)
+            if (e.Key == Key.LeftCtrl || 
+                e.Key == Key.RightCtrl)
             {
                 ctrlPressed = true;
                 if (Chart.copyMode == Chart.ChartLine.CopyModes.No)
