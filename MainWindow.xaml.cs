@@ -310,7 +310,7 @@ namespace WpfApplication3
 
             line.MoveP1(mousePosition);
             line.MoveP2(mousePosition);
-
+            
             activeChart.selectedLines.Add(line);
         }
 
@@ -574,6 +574,7 @@ namespace WpfApplication3
                 }
             }
 
+            chart.selectedLines.Clear();
             foreach (Chart.ChartLine l in chart.chartLines)
             {
                 l.Select(!everythingSelected);
@@ -597,6 +598,7 @@ namespace WpfApplication3
 
         public string peaksOptions = "o c l h";
         public string peaksSpace = "2";
+        List<Point> peaksPoints = new List<Point>();
 
         private void TabItem_OnKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
         {
@@ -624,6 +626,8 @@ namespace WpfApplication3
                             chart.canvas.Children.Remove(ui);
                         }
 
+                        peaksPoints.Clear();
+
                         // find peaks
                         int space = 2;
                         int.TryParse(peaksSpace, out space);
@@ -644,6 +648,7 @@ namespace WpfApplication3
                                 {
                                     double y = Math.Round(Misc.RemapRangeValToPix(sdd.Hi, di), 0);
                                     chart.AddCircle(x, y, 10, Brushes.Red, "peak");
+                                    peaksPoints.Add(new Point(x, y));
                                 }
                             }
                             if (peaksOptions.Contains("c"))
@@ -655,6 +660,7 @@ namespace WpfApplication3
                                 {
                                     double y = Math.Round(Misc.RemapRangeValToPix(sdd.Close, di), 0);
                                     chart.AddCircle(x, y, 10, Brushes.Blue, "peak");
+                                    peaksPoints.Add(new Point(x, y));
                                 }
                             }
                             if (peaksOptions.Contains("l"))
@@ -666,6 +672,7 @@ namespace WpfApplication3
                                 {
                                     double y = Math.Round(Misc.RemapRangeValToPix(sdd.Low, di), 0);
                                     chart.AddCircle(x, y, 10, Brushes.Green, "peak");
+                                    peaksPoints.Add(new Point(x, y));
                                 }
                             }
                             if (peaksOptions.Contains("o"))
@@ -677,6 +684,7 @@ namespace WpfApplication3
                                 {
                                     double y = Math.Round(Misc.RemapRangeValToPix(sdd.Open, di), 0);
                                     chart.AddCircle(x, y, 10, Brushes.Brown, "peak");
+                                    peaksPoints.Add(new Point(x, y));
                                 }
                             }
                         }
@@ -700,25 +708,7 @@ namespace WpfApplication3
                         foreach (UIElement ui in toDel)
                         {
                             chart.canvas.Children.Remove(ui);
-                        }
-
-                        List<Point> points = new List<Point>();
-                        for (int i = 0; i < di.sddList.Count; i++)
-                        {
-                            Data.SymbolDayData sdd = di.sddList[i];
-                            double x = Misc.DateToPixel(di, sdd.Date, 0);
-                            if (x < 0)
-                                continue;
-
-                            double yHi = Math.Round(Misc.RemapRangeValToPix(sdd.Hi, di), 0);
-                            points.Add(new Point(x, yHi));
-                            double yLow = Math.Round(Misc.RemapRangeValToPix(sdd.Low, di), 0);
-                            points.Add(new Point(x, yLow));
-                            double yOpen = Math.Round(Misc.RemapRangeValToPix(sdd.Open, di), 0);
-                            points.Add(new Point(x, yOpen));
-                            double yClose = Math.Round(Misc.RemapRangeValToPix(sdd.Close, di), 0);
-                            points.Add(new Point(x, yClose));
-                        }
+                        }          
 
                         double dist = 0.5;
                         int minHits = 5;
@@ -726,28 +716,28 @@ namespace WpfApplication3
                         List<Line> lines = new List<Line>();
 
                         // create lines
-                        for (int i = 0; i < points.Count; i++)
+                        for (int i = 0; i < peaksPoints.Count; i++)
                         {
-                            Point x = points[i];
+                            Point x = peaksPoints[i];
 
-                            for (int j = i; j < points.Count; j++)
+                            for (int j = i; j < peaksPoints.Count; j++)
                             {
                                 if (i == j)
                                     continue;                               
 
-                                Point y = points[j];
+                                Point y = peaksPoints[j];
 
                                 // find if some point is aligned to this line
                                 int hits = 0;
                                 // line should be as long as possible
                                 Point lowp = new Point();
                                 Point hip = new Point();
-                                for (int p = j; p < points.Count; p++)
+                                for (int p = j; p < peaksPoints.Count; p++)
                                 {
                                     if (p == j || p == i)
                                         continue;
 
-                                    Point z = points[p];
+                                    Point z = peaksPoints[p];
 
                                     // eliminate the same points
                                     if (x.X == y.X && x.Y == y.Y)
@@ -802,6 +792,20 @@ namespace WpfApplication3
                     }
                     break;
 
+                case Key.Up:
+                    {
+                        if (ctrlPressed && shiftPressed)
+                            createNewLine(true);
+                    }
+                    break;
+
+                case Key.Down:
+                    {
+                        if (ctrlPressed && shiftPressed)
+                            createNewLine(false);
+                    }
+                    break;
+
                 default:
                     break;
             }
@@ -842,6 +846,100 @@ namespace WpfApplication3
             }
 
             UpdateListView();
+        }
+
+        private void createNewLine(bool modeUp)
+        {
+            Chart chart = DataViewModel.CurrentDrawing;
+
+            // should be two and only lines selected
+            if (chart.selectedLines.Count != 2)
+                return;
+
+            Chart.ChartLine l1 = chart.selectedLines[0];
+            Chart.ChartLine l2 = chart.selectedLines[1];
+
+            l1.Select(false);
+            l2.Select(false);
+
+            double L1P1X = l1.getP1().X;
+            double L1P1Y = l1.getP1().Y;
+            double L1P2X = l1.getP2().X;
+            double L1P2Y = l1.getP2().Y;
+            double L1PMX = l1.getMidP().X;
+            double L1PMY = l1.getMidP().Y;
+            double L2P1X = l2.getP1().X;
+            double L2P1Y = l2.getP1().Y;
+            double L2P2X = l2.getP2().X;
+            double L2P2Y = l2.getP2().Y;
+            double L2PMX = l2.getMidP().X;
+            double L2PMY = l2.getMidP().Y;
+
+            double M = (L1P2Y - L1P1Y) / (L1P2X - L1P1X);
+            double B = L1P1Y - M * L1P1X;
+
+            // use second line mid point
+            double YL = M * L2PMX + B;
+            double YP = L2PMY;
+
+            double D = YL - YP;
+
+            bool below = false;
+            bool right = false;
+            if (D > 0)
+            {
+                below = true;
+                if (M > 0)
+                    right = true;
+            }
+            else
+            {
+                if (M < 0)
+                    right = true;
+            }
+
+            //Debug.WriteIf(right, "right ");
+            //Debug.WriteIf(!right, "left ");
+            //Debug.WriteIf(below, "below\n");
+            //Debug.WriteIf(!below, "upper\n");
+
+            Chart.ChartLine upper = null;
+            Chart.ChartLine lower = null;
+            if (below)
+            {
+                lower = l1;
+                upper = l2;
+            }
+            else
+            {
+                upper = l1;
+                lower = l2;
+            }
+            upper.Select(modeUp);
+            lower.Select(!modeUp);
+
+            Chart.ChartLine newLine = l1.CopyLineTo(chart);
+            newLine.Select(true);
+
+            // calculate from mid points
+            double lenx = Math.Abs(L1PMX - L2PMX);
+            double leny = Math.Abs(L1PMY - L2PMY);
+
+            if (modeUp && upper.getMidP().X < lower.getMidP().X)
+                lenx *= -1;
+            if (!modeUp && upper.getMidP().X > lower.getMidP().X)
+                lenx *= -1;
+
+            if (modeUp)
+            {
+                newLine.MoveP1(new Point(upper.getP1().X + lenx, upper.getP1().Y - leny));
+                newLine.MoveP2(new Point(upper.getP2().X + lenx, upper.getP2().Y - leny));
+            }
+            else
+            {
+                newLine.MoveP1(new Point(lower.getP1().X + lenx, lower.getP1().Y + leny));
+                newLine.MoveP2(new Point(lower.getP2().X + lenx, lower.getP2().Y + leny));
+            }
         }
 
         private void TabItem_OnKeyUp(object sender, System.Windows.Input.KeyEventArgs e)
