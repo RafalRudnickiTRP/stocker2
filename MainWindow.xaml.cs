@@ -875,10 +875,6 @@ namespace WpfApplication3
             double L2PMX = l2.getMidP().X;
             double L2PMY = l2.getMidP().Y;
 
-            // calculate from mid points
-            double lenx = Math.Abs(L1PMX - L2PMX);
-            double leny = Math.Abs(L1PMY - L2PMY);
-
             double M = (L1P2Y - L1P1Y) / (L1P2X - L1P1X);
             double B = L1P1Y - M * L1P1X;
 
@@ -902,11 +898,10 @@ namespace WpfApplication3
                     right = true;
             }
 
-
-            Point TP = new Point();
-            // upper is lower
-            TP.X = right ? lenx : -lenx;
-            TP.Y = below ? leny : -leny;
+            //Debug.WriteIf(right, "right ");
+            //Debug.WriteIf(!right, "left ");
+            //Debug.WriteIf(below, "below\n");
+            //Debug.WriteIf(!below, "upper\n");
 
             Chart.ChartLine upper = null;
             Chart.ChartLine lower = null;
@@ -920,21 +915,31 @@ namespace WpfApplication3
                 upper = l1;
                 lower = l2;
             }
+            upper.Select(modeUp);
+            lower.Select(!modeUp);
 
             Chart.ChartLine newLine = l1.CopyLineTo(chart);
+            newLine.Select(true);
+
+            // calculate from mid points
+            double lenx = Math.Abs(L1PMX - L2PMX);
+            double leny = Math.Abs(L1PMY - L2PMY);
+
+            if (modeUp && upper.getMidP().X < lower.getMidP().X)
+                lenx *= -1;
+            if (!modeUp && upper.getMidP().X > lower.getMidP().X)
+                lenx *= -1;
+
             if (modeUp)
             {
-                upper.Select(true);
-                newLine.MoveP1(new Point(upper.getP1().X + TP.X, upper.getP1().Y - Math.Abs(TP.Y)));
-                newLine.MoveP2(new Point(upper.getP2().X + TP.X, upper.getP2().Y - Math.Abs(TP.Y)));
+                newLine.MoveP1(new Point(upper.getP1().X + lenx, upper.getP1().Y - leny));
+                newLine.MoveP2(new Point(upper.getP2().X + lenx, upper.getP2().Y - leny));
             }
             else
             {
-                lower.Select(true);
-                newLine.MoveP1(new Point(lower.getP1().X + TP.X, lower.getP1().Y + Math.Abs(TP.Y)));
-                newLine.MoveP2(new Point(lower.getP2().X + TP.X, lower.getP2().Y + Math.Abs(TP.Y)));
+                newLine.MoveP1(new Point(lower.getP1().X + lenx, lower.getP1().Y + leny));
+                newLine.MoveP2(new Point(lower.getP2().X + lenx, lower.getP2().Y + leny));
             }
-            newLine.Select(true);
         }
 
         private void TabItem_OnKeyUp(object sender, System.Windows.Input.KeyEventArgs e)

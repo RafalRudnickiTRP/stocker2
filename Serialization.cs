@@ -22,7 +22,8 @@ namespace WpfApplication3
                 if (SymbolsDrawingsToSerialize.ContainsKey(key))
                     SymbolsDrawingsToSerialize.Remove(key);
 
-                SymbolsDrawingsToSerialize.Add(key, data);
+                if (data.chartLines.Count > 0)
+                    SymbolsDrawingsToSerialize.Add(key, data);
             }
 
             string output = JsonConvert.SerializeObject(SymbolsDrawingsToSerialize, Formatting.Indented);
