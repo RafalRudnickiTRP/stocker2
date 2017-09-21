@@ -83,6 +83,12 @@ namespace WpfApplication3
         {
             string fileId = Drive.GetFileId(filename);
 
+            if (fileId == "")
+            {
+                Console.WriteLine("Tried to rename file {0}, but it was not found!", filename, newFilename);
+                return fileId;
+            }
+
             var fileMetadata = new Google.Apis.Drive.v3.Data.File();
             fileMetadata.Name = newFilename;
             var request = service.Files.Update(fileMetadata, fileId);
