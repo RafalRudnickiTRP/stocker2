@@ -139,7 +139,7 @@ namespace WpfApplication3
                 line.StartPoint = p;
                 midRect.Transform = new TranslateTransform((p.X + p2.X) / 2 - selectionRectWidth2, (p.Y + p2.Y) / 2 - selectionRectWidth2);
                 p1Rect.Transform = new TranslateTransform(p.X - selectionRectWidth2, p.Y - selectionRectWidth2);
-
+                
                 ColorUpdate(this);
             }
 
@@ -155,14 +155,13 @@ namespace WpfApplication3
                 if (MainWindow.testMode)
                 {
                     Debug.WriteLine("move P2: " + p.ToString());
-                    //p.X = 763; // save this... will be loaded as 761
                 }
 
                 Point p1 = line.StartPoint;
                 line.EndPoint = p;
                 midRect.Transform = new TranslateTransform((p1.X + p.X) / 2 - selectionRectWidth2, (p1.Y + p.Y) / 2 - selectionRectWidth2);
                 p2Rect.Transform = new TranslateTransform(p.X - selectionRectWidth2, p.Y - selectionRectWidth2);
-
+                
                 ColorUpdate(this);
             }
 

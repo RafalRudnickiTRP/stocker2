@@ -310,7 +310,7 @@ namespace WpfApplication3
 
             line.MoveP1(mousePosition);
             line.MoveP2(mousePosition);
-
+            
             activeChart.selectedLines.Add(line);
         }
 
@@ -574,6 +574,7 @@ namespace WpfApplication3
                 }
             }
 
+            chart.selectedLines.Clear();
             foreach (Chart.ChartLine l in chart.chartLines)
             {
                 l.Select(!everythingSelected);
@@ -791,6 +792,20 @@ namespace WpfApplication3
                     }
                     break;
 
+                case Key.Up:
+                    {
+                        if (ctrlPressed && shiftPressed)
+                            createNewLine(true);
+                    }
+                    break;
+
+                case Key.Down:
+                    {
+                        if (ctrlPressed && shiftPressed)
+                            createNewLine(false);
+                    }
+                    break;
+
                 default:
                     break;
             }
@@ -831,6 +846,95 @@ namespace WpfApplication3
             }
 
             UpdateListView();
+        }
+
+        private void createNewLine(bool modeUp)
+        {
+            Chart chart = DataViewModel.CurrentDrawing;
+
+            // should be two and only lines selected
+            if (chart.selectedLines.Count != 2)
+                return;
+
+            Chart.ChartLine l1 = chart.selectedLines[0];
+            Chart.ChartLine l2 = chart.selectedLines[1];
+
+            l1.Select(false);
+            l2.Select(false);
+
+            double L1P1X = l1.getP1().X;
+            double L1P1Y = l1.getP1().Y;
+            double L1P2X = l1.getP2().X;
+            double L1P2Y = l1.getP2().Y;
+            double L1PMX = l1.getMidP().X;
+            double L1PMY = l1.getMidP().Y;
+            double L2P1X = l2.getP1().X;
+            double L2P1Y = l2.getP1().Y;
+            double L2P2X = l2.getP2().X;
+            double L2P2Y = l2.getP2().Y;
+            double L2PMX = l2.getMidP().X;
+            double L2PMY = l2.getMidP().Y;
+
+            // calculate from mid points
+            double lenx = Math.Abs(L1PMX - L2PMX);
+            double leny = Math.Abs(L1PMY - L2PMY);
+
+            double M = (L1P2Y - L1P1Y) / (L1P2X - L1P1X);
+            double B = L1P1Y - M * L1P1X;
+
+            // use second line mid point
+            double YL = M * L2PMX + B;
+            double YP = L2PMY;
+
+            double D = YL - YP;
+
+            bool below = false;
+            bool right = false;
+            if (D > 0)
+            {
+                below = true;
+                if (M > 0)
+                    right = true;
+            }
+            else
+            {
+                if (M < 0)
+                    right = true;
+            }
+
+
+            Point TP = new Point();
+            // upper is lower
+            TP.X = right ? lenx : -lenx;
+            TP.Y = below ? leny : -leny;
+
+            Chart.ChartLine upper = null;
+            Chart.ChartLine lower = null;
+            if (below)
+            {
+                lower = l1;
+                upper = l2;
+            }
+            else
+            {
+                upper = l1;
+                lower = l2;
+            }
+
+            Chart.ChartLine newLine = l1.CopyLineTo(chart);
+            if (modeUp)
+            {
+                upper.Select(true);
+                newLine.MoveP1(new Point(upper.getP1().X + TP.X, upper.getP1().Y - Math.Abs(TP.Y)));
+                newLine.MoveP2(new Point(upper.getP2().X + TP.X, upper.getP2().Y - Math.Abs(TP.Y)));
+            }
+            else
+            {
+                lower.Select(true);
+                newLine.MoveP1(new Point(lower.getP1().X + TP.X, lower.getP1().Y + Math.Abs(TP.Y)));
+                newLine.MoveP2(new Point(lower.getP2().X + TP.X, lower.getP2().Y + Math.Abs(TP.Y)));
+            }
+            newLine.Select(true);
         }
 
         private void TabItem_OnKeyUp(object sender, System.Windows.Input.KeyEventArgs e)
