@@ -21,7 +21,7 @@ namespace WpfApplication3
         static bool shiftPressed = false;
         static bool ctrlPressed = false;
         static bool lpmPressed = false;
-
+                
         static bool showedFromReport = false;
 
         static public bool testMode = false;
@@ -238,6 +238,13 @@ namespace WpfApplication3
                     activeChart.ShowCross(true);
                     activeChart.MoveCross(mousePosition, false);
                 }
+            }
+
+            Chart chart = DataViewModel.CurrentDrawing;
+            if (chart != null)
+            {
+                foreach (var line in chart.selectedLines)
+                    line.StorePrevPos();
             }
         }
 
@@ -788,6 +795,16 @@ namespace WpfApplication3
                         {
                             l.linePath.Visibility = l.linePath.Visibility ==
                                 Visibility.Hidden ? Visibility.Visible : Visibility.Hidden;
+                        }
+                    }
+                    break;
+
+                case Key.Z:
+                    {
+                        if (ctrlPressed)
+                        {
+                            foreach (var line in chart.selectedLines)
+                                line.LoadPrevPos();
                         }
                     }
                     break;

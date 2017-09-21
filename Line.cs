@@ -32,7 +32,24 @@ namespace WpfApplication3
             private Chart chart;
             private static int nextId = 0;
             public int id;
-            
+
+            public Point prevStartPoint;
+            public Point prevEndPoint;
+
+            public void StorePrevPos()
+            {
+                prevStartPoint = new Point(getP1().X, getP1().Y);
+                prevEndPoint = new Point(getP2().X, getP2().Y);
+            }
+
+            public void LoadPrevPos()
+            {
+                if (prevStartPoint != null)
+                    MoveP1(prevStartPoint);
+                if (prevEndPoint != null)
+                    MoveP2(prevEndPoint);
+            }
+
             public enum Mode
             {
                 Invalid,
