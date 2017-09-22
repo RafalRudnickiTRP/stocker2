@@ -403,6 +403,8 @@ namespace WpfApplication3
                             lineToAdd.data = "L1";
                         if (line.Data == "")
                             lineToAdd.data =  "L1";
+                        if (lineToAdd.data.Contains("L1") == false)
+                            lineToAdd.linePath.Visibility = Visibility.Hidden;
 
                         lineToAdd.mode = ChartLine.Mode.Normal;
                         lineToAdd.drawingMode = ChartLine.DrawingMode.Invalid;
