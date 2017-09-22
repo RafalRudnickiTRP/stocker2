@@ -873,6 +873,13 @@ namespace WpfApplication3
                     }
                     break;
 
+                case Key.M:
+                    {
+                        if (ctrlPressed && shiftPressed)
+                            createMiddleLine();
+                    }
+                    break;
+
                 // delete selected lines from chart
                 case Key.Delete:
                     {
@@ -924,6 +931,24 @@ namespace WpfApplication3
             }
 
             UpdateListView();
+        }
+
+        private void createMiddleLine()
+        {
+            Chart chart = DataViewModel.CurrentDrawing;
+
+            // should be two and only lines selected
+            if (chart.selectedLines.Count != 2)
+                return;
+
+            Chart.ChartLine l1 = chart.selectedLines[0];
+            Chart.ChartLine l2 = chart.selectedLines[1];
+
+            Chart.ChartLine newLine = l1.CopyLineTo(chart);
+            newLine.Select(true);
+
+            newLine.MoveP1(new Point((l1.getP1().X + l2.getP1().X) / 2, (l1.getP1().Y + l2.getP1().Y) / 2));
+            newLine.MoveP2(new Point((l1.getP2().X + l2.getP2().X) / 2, (l1.getP2().Y + l2.getP2().Y) / 2));
         }
 
         private void createNewLine(bool modeUp)
@@ -993,6 +1018,7 @@ namespace WpfApplication3
                 upper = l1;
                 lower = l2;
             }
+            
             upper.Select(modeUp);
             lower.Select(!modeUp);
 
