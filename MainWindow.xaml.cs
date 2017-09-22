@@ -26,6 +26,9 @@ namespace WpfApplication3
 
         static public bool testMode = false;
 
+        public bool L1 = true;
+        public bool L2 = false;
+
         private enum CtrlZMode
         {
             none,
@@ -339,6 +342,11 @@ namespace WpfApplication3
 
             line.color = currentColor;
             line.linePath.Stroke = currentColor;
+
+            if (L1)
+                line.data = "L1";
+            if (L2)
+                line.data = "L2";
 
             activeChart.chartLines.Add(line);
             activeChart.canvas.Children.Add(line.linePath);
@@ -1174,6 +1182,61 @@ namespace WpfApplication3
                 MessageBox.Show("The Cancel button on the form was clicked.");
                 form1.Dispose();
             }
+        }        
+
+        private void buttonLayer1_Click(object sender, RoutedEventArgs e)
+        {
+            L1 = true;
+            L2 = false;
+
+            buttonLayer1.BorderThickness = new Thickness(2, 2, 2, 2);
+            buttonLayer2.BorderThickness = new Thickness(1, 1, 1, 1);
+            buttonLayerAll.BorderThickness = new Thickness(1, 1, 1, 1);
+
+            foreach (var line in DataViewModel.CurrentDrawing.chartLines)
+                line.Select(false);
+
+            foreach (var line in DataViewModel.CurrentDrawing.chartLines)
+            {
+                if (line.data.Contains("L1") == false)
+                    line.linePath.Visibility = Visibility.Hidden;
+                else
+                    line.linePath.Visibility = Visibility.Visible;
+            }
+        }
+
+        private void buttonLayer2_Click(object sender, RoutedEventArgs e)
+        {
+            L2 = true;
+            L1 = false;
+
+            buttonLayer2.BorderThickness = new Thickness(2, 2, 2, 2);
+            buttonLayer1.BorderThickness = new Thickness(1, 1, 1, 1);
+            buttonLayerAll.BorderThickness = new Thickness(1, 1, 1, 1);
+
+            foreach (var line in DataViewModel.CurrentDrawing.chartLines)
+                line.Select(false);
+
+            foreach (var line in DataViewModel.CurrentDrawing.chartLines)
+            {
+                if (line.data.Contains("L2") == false)
+                    line.linePath.Visibility = Visibility.Hidden;
+                else
+                    line.linePath.Visibility = Visibility.Visible;
+            }
+        }
+
+        private void buttonLayerAll_Click(object sender, RoutedEventArgs e)
+        {
+            L1 = true;
+            L2 = false;
+
+            buttonLayerAll.BorderThickness = new Thickness(2, 2, 2, 2);
+            buttonLayer1.BorderThickness = new Thickness(1, 1, 1, 1);
+            buttonLayer2.BorderThickness = new Thickness(1, 1, 1, 1);
+            
+            foreach (var line in DataViewModel.CurrentDrawing.chartLines)
+                line.linePath.Visibility = Visibility.Visible;
         }
     }
 }

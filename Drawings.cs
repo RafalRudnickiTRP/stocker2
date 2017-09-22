@@ -359,6 +359,7 @@ namespace WpfApplication3
             l.Stroke = brush;
             l.Tag = tag;
 
+            // TODO: add line to chartlines?
             canvas.Children.Add(l);
         }
 
@@ -372,7 +373,8 @@ namespace WpfApplication3
             line.X2 = y.X;
             line.Y1 = x.Y;
             line.Y2 = y.Y;
-
+            
+            // TODO: add line to chartlines?
             canvas.Children.Add(line);            
         }
 
@@ -394,6 +396,13 @@ namespace WpfApplication3
 
                         lineToAdd.color = Misc.StringToBrush(line.Color);
                         lineToAdd.linePath.Stroke = lineToAdd.color;
+
+                        // default layer is L1
+                        lineToAdd.data = line.Data;
+                        if (line.Data == null)
+                            lineToAdd.data = "L1";
+                        if (line.Data == "")
+                            lineToAdd.data =  "L1";
 
                         lineToAdd.mode = ChartLine.Mode.Normal;
                         lineToAdd.drawingMode = ChartLine.DrawingMode.Invalid;

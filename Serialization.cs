@@ -70,6 +70,7 @@ namespace WpfApplication3
                 // public string EndPoint { get; set; }
                 public string EndPointDV { get; set; }
                 public string Color { get; set; }
+                public string Data { get; set; }
             }
 
             public DataToSerialize SerializeToJson(DrawingInfo drawingInfo)
@@ -93,6 +94,11 @@ namespace WpfApplication3
                     P2ValY.ToString(Data.numberFormat);
 
                 toSerialize.Color = Misc.BrushToString(color);
+
+                // default layer is L1
+                if (data == "")
+                    data = "L1";
+                toSerialize.Data = data;
 
                 return toSerialize;
             }

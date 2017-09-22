@@ -72,6 +72,7 @@ namespace WpfApplication3
             public DrawingMode drawingMode;
 
             public Brush color { get; set; }
+            public string data { get; set; }
 
             private Mode _mode;
             public Mode mode
@@ -231,6 +232,8 @@ namespace WpfApplication3
 
                 newLine.color = color;
                 newLine.linePath.Stroke = linePath.Stroke;
+
+                newLine.data = data;
 
                 chart.chartLines.Add(newLine);
                 chart.canvas.Children.Add(newLine.linePath);

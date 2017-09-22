@@ -58,6 +58,13 @@
                 <Button x:Name="buttonWalletAdd" Content="add to wallet" Click="buttonbuttonWalletAdd_Click"/>
                 <Separator/>
                 <Button x:Name="buttonPeaks" Content="peaks" Click="buttonPeaks_Click"/>
+                <Separator/>
+                <Label x:Name="label2" Content="layer:" IsEnabled="False" />
+                <Button x:Name="buttonLayer1" Content="L1" Click="buttonLayer1_Click" BorderThickness="2" BorderBrush="Red"/>
+                <Separator/>
+                <Button x:Name="buttonLayer2" Content="L2" Click="buttonLayer2_Click" BorderThickness="1" BorderBrush="Lime"/>
+                <Separator/>
+                <Button x:Name="buttonLayerAll" Content="All" Click="buttonLayerAll_Click" BorderThickness="1" BorderBrush="Blue"/>
                 <!--<Label Name="Label2" Content=" " />
                 <Button Name="buttonRaport" Content="raport" Click="buttonRaport_Click" />-->
             </ToolBar>
