@@ -26,8 +26,7 @@ namespace WpfApplication3
 
         static public bool testMode = false;
 
-        public bool L1 = true;
-        public bool L2 = false;
+        public string layerData = "L1";
 
         private enum CtrlZMode
         {
@@ -343,9 +342,9 @@ namespace WpfApplication3
             line.color = currentColor;
             line.linePath.Stroke = currentColor;
 
-            if (L1)
+            if (layerData.Contains("L1"))
                 line.data = "L1";
-            if (L2)
+            if (layerData.Contains("L2"))
                 line.data = "L2";
 
             activeChart.chartLines.Add(line);
@@ -611,17 +610,23 @@ namespace WpfApplication3
             bool everythingSelected = true;
             foreach (Chart.ChartLine l in chart.chartLines)
             {
-                if (l.IsSelected() == false)
+                if (layerData.Contains(l.data))
                 {
-                    everythingSelected = false;
-                    break;
+                    if (l.IsSelected() == false)
+                    {
+                        everythingSelected = false;
+                        break;
+                    }
                 }
             }
 
             chart.selectedLines.Clear();
             foreach (Chart.ChartLine l in chart.chartLines)
             {
-                l.Select(!everythingSelected);
+                if (layerData.Contains(l.data))
+                {
+                    l.Select(!everythingSelected);
+                }
             }
         }
 
@@ -1186,8 +1191,10 @@ namespace WpfApplication3
 
         private void buttonLayer1_Click(object sender, RoutedEventArgs e)
         {
-            L1 = true;
-            L2 = false;
+            if (layerData.Contains("L1") == false)
+                layerData += " L1 ";
+            if (layerData.Contains("L2") == true)
+                layerData = layerData.Replace("L2", "");
 
             buttonLayer1.BorderThickness = new Thickness(2, 2, 2, 2);
             buttonLayer2.BorderThickness = new Thickness(1, 1, 1, 1);
@@ -1207,8 +1214,10 @@ namespace WpfApplication3
 
         private void buttonLayer2_Click(object sender, RoutedEventArgs e)
         {
-            L2 = true;
-            L1 = false;
+            if (layerData.Contains("L2") == false)
+                layerData += " L2 ";
+            if (layerData.Contains("L1") == true)
+                layerData = layerData.Replace("L1", "");
 
             buttonLayer2.BorderThickness = new Thickness(2, 2, 2, 2);
             buttonLayer1.BorderThickness = new Thickness(1, 1, 1, 1);
@@ -1228,8 +1237,10 @@ namespace WpfApplication3
 
         private void buttonLayerAll_Click(object sender, RoutedEventArgs e)
         {
-            L1 = true;
-            L2 = false;
+            if (layerData.Contains("L1") == false)
+                layerData += " L1 ";
+            if (layerData.Contains("L2") == false)
+                layerData += " L2 ";
 
             buttonLayerAll.BorderThickness = new Thickness(2, 2, 2, 2);
             buttonLayer1.BorderThickness = new Thickness(1, 1, 1, 1);
