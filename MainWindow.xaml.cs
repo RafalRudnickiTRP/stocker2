@@ -346,6 +346,8 @@ namespace WpfApplication3
                 line.data = "L1";
             if (layerData.Contains("L2"))
                 line.data = "L2";
+            if (layerData.Contains("L3"))
+                line.data = "L3";
 
             activeChart.chartLines.Add(line);
             activeChart.canvas.Children.Add(line.linePath);
@@ -830,13 +832,23 @@ namespace WpfApplication3
                     }
                     break;
 
-                // hide all lines added to chart
+                // hide/unhide all lines added to chart
                 case Key.H:
                     {
                         foreach (Chart.ChartLine l in chart.chartLines.ToList())
                         {
-                            l.linePath.Visibility = l.linePath.Visibility ==
-                                Visibility.Hidden ? Visibility.Visible : Visibility.Hidden;
+                            if (layerData.Contains(l.data))
+                            {
+                                l.linePath.Visibility = l.linePath.Visibility ==
+                                    Visibility.Hidden ? Visibility.Visible : Visibility.Hidden;
+
+                                // deselect hidden lines
+                                if (l.linePath.Visibility == Visibility.Hidden)
+                                {
+                                    l.rectPath.Visibility = Visibility.Hidden;
+                                    l.Select(false);
+                                }
+                            }
                         }
                     }
                     break;
@@ -1189,50 +1201,69 @@ namespace WpfApplication3
             }
         }        
 
-        private void buttonLayer1_Click(object sender, RoutedEventArgs e)
+        void buttonLayerHelper(string layer)
         {
-            if (layerData.Contains("L1") == false)
-                layerData += " L1 ";
-            if (layerData.Contains("L2") == true)
-                layerData = layerData.Replace("L2", "");
+            if (layerData.Contains(layer) == false)
+            {
+                layerData += " " + layer + " ";
 
-            buttonLayer1.BorderThickness = new Thickness(2, 2, 2, 2);
-            buttonLayer2.BorderThickness = new Thickness(1, 1, 1, 1);
+                foreach (var line in DataViewModel.CurrentDrawing.chartLines)
+                {
+                    if (line.data.Contains(layer) == false)
+                        line.linePath.Visibility = Visibility.Hidden;
+                    else
+                        line.linePath.Visibility = Visibility.Visible;
+                }
+            }
+
+            if (layer == "L1")
+            {
+                buttonLayer1.BorderThickness = new Thickness(2, 2, 2, 2);
+
+                layerData = layerData.Replace("L2", "");
+                layerData = layerData.Replace("L3", "");
+                buttonLayer2.BorderThickness = new Thickness(1, 1, 1, 1);
+                buttonLayer3.BorderThickness = new Thickness(1, 1, 1, 1);
+            }
+            if (layer == "L2")
+            {
+                buttonLayer2.BorderThickness = new Thickness(2, 2, 2, 2);
+
+                layerData = layerData.Replace("L1", "");
+                layerData = layerData.Replace("L3", "");
+                buttonLayer1.BorderThickness = new Thickness(1, 1, 1, 1);
+                buttonLayer3.BorderThickness = new Thickness(1, 1, 1, 1);
+            }
+            if (layer == "L3")
+            {
+                buttonLayer3.BorderThickness = new Thickness(2, 2, 2, 2);
+
+                layerData = layerData.Replace("L1", "");
+                layerData = layerData.Replace("L2", "");
+                buttonLayer1.BorderThickness = new Thickness(1, 1, 1, 1);
+                buttonLayer2.BorderThickness = new Thickness(1, 1, 1, 1);
+            }
+
             buttonLayerAll.BorderThickness = new Thickness(1, 1, 1, 1);
 
             foreach (var line in DataViewModel.CurrentDrawing.chartLines)
                 line.Select(false);
 
-            foreach (var line in DataViewModel.CurrentDrawing.chartLines)
-            {
-                if (line.data.Contains("L1") == false)
-                    line.linePath.Visibility = Visibility.Hidden;
-                else
-                    line.linePath.Visibility = Visibility.Visible;
-            }
+        }
+
+        private void buttonLayer1_Click(object sender, RoutedEventArgs e)
+        {
+            buttonLayerHelper("L1");
         }
 
         private void buttonLayer2_Click(object sender, RoutedEventArgs e)
         {
-            if (layerData.Contains("L2") == false)
-                layerData += " L2 ";
-            if (layerData.Contains("L1") == true)
-                layerData = layerData.Replace("L1", "");
-
-            buttonLayer2.BorderThickness = new Thickness(2, 2, 2, 2);
-            buttonLayer1.BorderThickness = new Thickness(1, 1, 1, 1);
-            buttonLayerAll.BorderThickness = new Thickness(1, 1, 1, 1);
-
-            foreach (var line in DataViewModel.CurrentDrawing.chartLines)
-                line.Select(false);
-
-            foreach (var line in DataViewModel.CurrentDrawing.chartLines)
-            {
-                if (line.data.Contains("L2") == false)
-                    line.linePath.Visibility = Visibility.Hidden;
-                else
-                    line.linePath.Visibility = Visibility.Visible;
-            }
+            buttonLayerHelper("L2");
+        }
+        
+        private void buttonLayer3_Click(object sender, RoutedEventArgs e)
+        {
+            buttonLayerHelper("L3");
         }
 
         private void buttonLayerAll_Click(object sender, RoutedEventArgs e)
@@ -1241,11 +1272,14 @@ namespace WpfApplication3
                 layerData += " L1 ";
             if (layerData.Contains("L2") == false)
                 layerData += " L2 ";
+            if (layerData.Contains("L3") == false)
+                layerData += " L3 ";
 
             buttonLayerAll.BorderThickness = new Thickness(2, 2, 2, 2);
             buttonLayer1.BorderThickness = new Thickness(1, 1, 1, 1);
             buttonLayer2.BorderThickness = new Thickness(1, 1, 1, 1);
-            
+            buttonLayer3.BorderThickness = new Thickness(1, 1, 1, 1);
+
             foreach (var line in DataViewModel.CurrentDrawing.chartLines)
                 line.linePath.Visibility = Visibility.Visible;
         }

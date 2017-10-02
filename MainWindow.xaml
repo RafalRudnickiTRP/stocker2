@@ -64,7 +64,9 @@
                 <Separator/>
                 <Button x:Name="buttonLayer2" Content="L2" Click="buttonLayer2_Click" BorderThickness="1" BorderBrush="Lime"/>
                 <Separator/>
-                <Button x:Name="buttonLayerAll" Content="All" Click="buttonLayerAll_Click" BorderThickness="1" BorderBrush="Blue"/>
+                <Button x:Name="buttonLayer3" Content="L3" Click="buttonLayer3_Click" BorderThickness="1" BorderBrush="Blue"/>
+                <Separator/>
+                <Button x:Name="buttonLayerAll" Content="All" Click="buttonLayerAll_Click" BorderThickness="1" BorderBrush="Black"/>
                 <!--<Label Name="Label2" Content=" " />
                 <Button Name="buttonRaport" Content="raport" Click="buttonRaport_Click" />-->
             </ToolBar>
