@@ -10,46 +10,6 @@ namespace WpfApplication3
     {
         public partial class ChartLine
         {
-            public Path linePath { get; }
-            public Path rectPath { get; }
-
-            public Point getP1() { return line.StartPoint; }
-            public void setP1(Point p) { line.StartPoint = p; }
-            public Point getP2() { return line.EndPoint; }
-            public void setP2(Point p) { line.EndPoint = p; }
-            public Point getMidP() { return line.StartPoint + (line.EndPoint - line.StartPoint) / 2; }
-
-            public DrawingInfo GetDrawingInfo()
-            {
-                return chart.drawingInfo;
-            }
-
-            private LineGeometry line;
-            private RectangleGeometry p1Rect;
-            private RectangleGeometry p2Rect;
-            private RectangleGeometry midRect;
-
-            private Chart chart;
-            private static int nextId = 0;
-            public int id;
-
-            public Point prevStartPoint;
-            public Point prevEndPoint;
-
-            public void StorePrevPos()
-            {
-                prevStartPoint = new Point(getP1().X, getP1().Y);
-                prevEndPoint = new Point(getP2().X, getP2().Y);
-            }
-
-            public void LoadPrevPos()
-            {
-                if (prevStartPoint != null)
-                    MoveP1(prevStartPoint);
-                if (prevEndPoint != null)
-                    MoveP2(prevEndPoint);
-            }
-
             public enum Mode
             {
                 Invalid,
@@ -69,11 +29,21 @@ namespace WpfApplication3
             {
                 Invalid, P1, P2, Mid
             }
+
             public DrawingMode drawingMode;
 
-            public Brush color { get; set; }
-            public string data { get; set; }
+            private LineGeometry line;
+            private RectangleGeometry p1Rect;
+            private RectangleGeometry p2Rect;
+            private RectangleGeometry midRect;
 
+            private Chart chart;
+            private static int nextId = 0;
+            public int id;
+
+            public Point prevStartPoint;
+            public Point prevEndPoint;
+            
             private Mode _mode;
             public Mode mode
             {
@@ -85,27 +55,12 @@ namespace WpfApplication3
                 }
             }
 
-            public void Select(bool selected)
-            {
-                if (selected)
-                {
-                    mode = Mode.Selected;
-                    rectPath.Visibility = Visibility.Visible;
-                    chart.selectedLines.Add(this);
-                }
-                else
-                {
-                    mode = Mode.Normal;
-                    rectPath.Visibility = Visibility.Hidden;
-                    chart.selectedLines.Remove(this);
-                }
-            }
+            public Brush color { get; set; }
+            public string data { get; set; }
 
-            public bool IsSelected()
-            {
-                return mode == Mode.Selected;
-            }
-
+            public Path linePath { get; }
+            public Path rectPath { get; }
+            
             public ChartLine(Chart parentChart)
             {
                 chart = parentChart;
@@ -137,6 +92,71 @@ namespace WpfApplication3
                 rectPath.Name = "rect_" + id;
 
                 color = linePath.Stroke;
+            }
+
+            public Point getP1()
+            {
+                return line.StartPoint;
+            }
+
+            public void setP1(Point p)
+            {
+                line.StartPoint = p;
+            }
+
+            public Point getP2()
+            {
+                return line.EndPoint;
+            }
+
+            public void setP2(Point p)
+            {
+                line.EndPoint = p;
+            }
+
+            public Point getMidP()
+            {
+                return line.StartPoint + (line.EndPoint - line.StartPoint) / 2;
+            }
+
+            public DrawingInfo GetDrawingInfo()
+            {
+                return chart.drawingInfo;
+            }
+
+            public void Select(bool selected)
+            {
+                if (selected)
+                {
+                    mode = Mode.Selected;
+                    rectPath.Visibility = Visibility.Visible;
+                    chart.selectedLines.Add(this);
+                }
+                else
+                {
+                    mode = Mode.Normal;
+                    rectPath.Visibility = Visibility.Hidden;
+                    chart.selectedLines.Remove(this);
+                }
+            }
+
+            public bool IsSelected()
+            {
+                return mode == Mode.Selected;
+            }
+
+            public void StorePrevPos()
+            {
+                prevStartPoint = new Point(getP1().X, getP1().Y);
+                prevEndPoint = new Point(getP2().X, getP2().Y);
+            }
+
+            public void LoadPrevPos()
+            {
+                if (prevStartPoint != null)
+                    MoveP1(prevStartPoint);
+                if (prevEndPoint != null)
+                    MoveP2(prevEndPoint);
             }
 
             public void MoveP1(Point p, bool resize = false)
