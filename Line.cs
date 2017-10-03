@@ -146,8 +146,11 @@ namespace WpfApplication3
                     Vector v = line.StartPoint - line.EndPoint;
                     v.Normalize();
                     p.Y = line.StartPoint.Y + (p.X - line.StartPoint.X) / v.X * v.Y;
-                }
 
+                    if ((p - line.EndPoint).Length < 1)
+                        return; // prevent from 0-len line
+                }
+                
                 if (MainWindow.testMode)
                 {
                     Debug.WriteLine("move P1: " + p.ToString());
@@ -168,13 +171,16 @@ namespace WpfApplication3
                     Vector v = line.StartPoint - line.EndPoint;
                     v.Normalize();
                     p.Y = line.EndPoint.Y + (p.X - line.EndPoint.X) / v.X * v.Y;
+
+                    if ((line.StartPoint - p).Length < 1)
+                        return; // prevent from 0-len line
                 }
 
                 if (MainWindow.testMode)
                 {
                     Debug.WriteLine("move P2: " + p.ToString());
                 }
-
+                
                 Point p1 = line.StartPoint;
                 line.EndPoint = p;
                 midRect.Transform = new TranslateTransform((p1.X + p.X) / 2 - selectionRectWidth2, (p1.Y + p.Y) / 2 - selectionRectWidth2);

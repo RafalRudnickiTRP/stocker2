@@ -354,7 +354,7 @@ namespace WpfApplication3
             activeChart.canvas.Children.Add(line.rectPath);
 
             line.MoveP1(mousePosition);
-            line.MoveP2(mousePosition);
+            line.MoveP2(new Point(mousePosition.X + 1, mousePosition.Y + 1));
             
             activeChart.selectedLines.Add(line);
         }
@@ -1013,17 +1013,17 @@ namespace WpfApplication3
             double D = YL - YP;
 
             bool below = false;
-            bool right = false;
+            //bool right = false;
             if (D > 0)
             {
                 below = true;
-                if (M > 0)
-                    right = true;
+            //    if (M > 0)
+            //        right = true;
             }
             else
             {
-                if (M < 0)
-                    right = true;
+            //    if (M < 0)
+            //        right = true;
             }
 
             //Debug.WriteIf(right, "right ");
