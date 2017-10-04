@@ -470,14 +470,14 @@ namespace WpfApplication3
 
                 // TODO: limit min distance to some value
 
-                float minDist = float.MaxValue;
+                double minDist = double.MaxValue;
                 Chart.ChartLine closestLine = null;
                 foreach (Chart.ChartLine line in activeChart.chartLines)
                 {
                     if (line.linePath.Visibility == Visibility.Hidden)
                         continue;
 
-                    float dist = Misc.LinePointDistance(line.getP1(), line.getP2(), mousePosition);
+                    double dist = Misc.SegmentPointDistance(line.getP1(), line.getP2(), mousePosition);
                     if (dist < minDist)
                     {
                         minDist = dist; closestLine = line;

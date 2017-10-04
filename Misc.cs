@@ -195,6 +195,29 @@ namespace WpfApplication3
             return (float)(Math.Abs((p2.Y - p1.Y) * p.X - (p2.X - p1.X) * p.Y + p2.X * p1.Y - p2.Y * p1.X) /
                 Math.Sqrt(Math.Pow(p2.Y - p1.Y, 2) + Math.Pow(p2.X - p1.X, 2)));
         }
+        
+        public static double SegmentPointDistance(Point a, Point b, Point p)
+        {
+            Vector n = b - a;
+            Vector pa = a - p;
+
+            double c = n * pa;
+
+            // Closest point is a
+            if (c > 0.0f)
+                return pa * pa;
+
+            Vector bp = p - b;
+
+            // Closest point is b
+            if ((n * bp) > 0.0f)
+                return bp * bp;
+
+            // Closest point is between a and b
+            Vector e = pa - n * (c / (n * n));
+
+            return Math.Sqrt(e * e);
+        }
 
         public static float LineLength(Chart.ChartLine line)
         {
@@ -205,7 +228,7 @@ namespace WpfApplication3
         {
             return (float)Math.Sqrt(Math.Pow(p1.X - p2.X, 2) + Math.Pow(p1.Y - p2.Y, 2));
         }
-
+        
         public static Point LineStringToPoint(DrawingInfo drawingInfo, string dataDV)
         {
             char[] separators = new char[] { '+', ';' };
