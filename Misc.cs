@@ -205,18 +205,21 @@ namespace WpfApplication3
 
             // Closest point is a
             if (c > 0.0f)
-                return pa * pa;
+                return Math.Sqrt(pa * pa);
 
             Vector bp = p - b;
 
             // Closest point is b
             if ((n * bp) > 0.0f)
-                return bp * bp;
+                return Math.Sqrt(bp * bp);
 
             // Closest point is between a and b
             Vector e = pa - n * (c / (n * n));
 
-            return Math.Sqrt(e * e);
+            double paDist = PointPointDistance(a, p);
+            double pbDist = PointPointDistance(a, p);
+
+            return Math.Min(Math.Min(Math.Sqrt(e * e), paDist), pbDist);
         }
 
         public static float LineLength(Chart.ChartLine line)
