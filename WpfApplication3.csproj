@@ -102,6 +102,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Candle.cs" />
     <Compile Include="Drive.cs" />
     <Compile Include="Serialization.cs" />
     <Compile Include="Sources.cs" />

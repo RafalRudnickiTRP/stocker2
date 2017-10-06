@@ -284,53 +284,8 @@ namespace WpfApplication3
             bool first = true;
             foreach (Data.SymbolDayData sdd in sddList.GetRange(0, numCandlesToDraw))
             {
-                double[] sortedVals = {
-                    sdd.Hi,
-                    sdd.Open >= sdd.Close ? sdd.Open : sdd.Close,
-                    sdd.Open > sdd.Close ? sdd.Close : sdd.Open,
-                    sdd.Low
-                };
-
-                if (drawingInfo.viewAutoScale)
-                {
-                    sortedVals[0] = Misc.RemapRangeValToPix(sortedVals[0], drawingInfo);
-                    sortedVals[1] = Misc.RemapRangeValToPix(sortedVals[1], drawingInfo);
-                    sortedVals[2] = Misc.RemapRangeValToPix(sortedVals[2], drawingInfo);
-                    sortedVals[3] = Misc.RemapRangeValToPix(sortedVals[3], drawingInfo);
-                }
-
-                GeometryGroup shadowGeom = new GeometryGroup();
-                shadowGeom.Children.Add(new LineGeometry(
-                    new Point(pr, sortedVals[0]),
-                    new Point(pr, sortedVals[1])));
-                shadowGeom.Children.Add(new LineGeometry(
-                    new Point(pr, sortedVals[2]),
-                    new Point(pr, sortedVals[3])));
-
-                Path shadowPath = new Path();
-                shadowPath.StrokeThickness = 1;
-                if (first)
-                    shadowPath.Stroke = Brushes.Red;
-                else
-                    shadowPath.Stroke = Brushes.Black;
-                shadowPath.Data = shadowGeom;
-                canvas.Children.Add(shadowPath);
-
-                GeometryGroup bodyGeom = new GeometryGroup();
-                bodyGeom.Children.Add(new RectangleGeometry(new Rect(
-                    new Point(pr - drawingInfo.candleWidth / 2, sortedVals[1]),
-                    new Point(pr + drawingInfo.candleWidth / 2, sortedVals[2]))));
-                Path bodyPath = new Path();
-                bodyPath.StrokeThickness = 1;
-                if (first)
-                    bodyPath.Stroke = Brushes.Red;
-                else
-                    bodyPath.Stroke = Brushes.Black;
-                bodyPath.Fill = sdd.Open > sdd.Close ? Brushes.Black : Brushes.White;
-                bodyPath.Data = bodyGeom;
-
-                canvas.Children.Add(bodyPath);
-                
+                CreateCandle(canvas, pr, sdd, first);
+                                
                 if (!refStartCreated)
                 {
                     drawingInfo.refDateStart = sdd.Date;
