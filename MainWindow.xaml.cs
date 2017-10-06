@@ -94,9 +94,9 @@ namespace WpfApplication3
       
             if (DataViewModel.SymbolsDrawings.TryGetValue(symbolInfo.FullName, out chart) == false)
             {
-                Chart.DrawingInfo di = new Chart.DrawingInfo((int)SymbolsTabControl.ActualWidth, (int)SymbolsTabControl.ActualHeight);
+                Chart.DrawingInfo di = new Chart.DrawingInfo(symbolInfo, (int)SymbolsTabControl.ActualWidth, (int)SymbolsTabControl.ActualHeight);
 
-                List<Data.SymbolDayData> sdd = dvm.GetSymbolData(symbolInfo.ShortName);
+                List<Data.SymbolDayData> sdd = dvm.GetSymbolData(symbolInfo);
                 
                 // current price - new sdd at [0] and price time in drawingInfo
                 string time = "";
@@ -1199,7 +1199,25 @@ namespace WpfApplication3
                 MessageBox.Show("The Cancel button on the form was clicked.");
                 form1.Dispose();
             }
-        }        
+        }
+
+        private void buttonRefresh_Click(object sender, RoutedEventArgs e)
+        {            
+            Chart chart = DataViewModel.CurrentDrawing;
+            Chart.DrawingInfo di = chart.drawingInfo;
+            
+            // current price - new sdd at [0] and price time in drawingInfo
+            string time = "";
+            Data.SymbolDayData current = Data.GetCurrentSdd(di.si.ShortName, out time);
+            if (current != null)
+            {
+                var sdd = GetDVM().GetSymbolData(di.si);
+                di.currentPriceTime = time;
+                sdd[sdd.Count - 1] = current;
+
+                chart.UpdateLastSDD();
+            }
+        }
 
         void buttonLayerHelper(string layer)
         {

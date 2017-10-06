@@ -67,6 +67,8 @@
                 <Button x:Name="buttonLayer3" Content="L3" Click="buttonLayer3_Click" BorderThickness="1" BorderBrush="Blue"/>
                 <Separator/>
                 <Button x:Name="buttonLayerAll" Content="All" Click="buttonLayerAll_Click" BorderThickness="1" BorderBrush="Black"/>
+                <Separator/>
+                <Button x:Name="buttonRefresh" Content="refresh" Click="buttonRefresh_Click"/>
                 <!--<Label Name="Label2" Content=" " />
                 <Button Name="buttonRaport" Content="raport" Click="buttonRaport_Click" />-->
             </ToolBar>

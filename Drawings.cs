@@ -43,7 +43,9 @@ namespace WpfApplication3
 
             public List<Data.SymbolDayData> sddList;
 
-            public DrawingInfo(int width, int height)
+            public Data.SymbolInfo si;
+
+            public DrawingInfo(Data.SymbolInfo symInfo, int width, int height)
             {
                 viewHeight = height;
                 viewWidth = width;
@@ -64,6 +66,8 @@ namespace WpfApplication3
                 sddList = null;
 
                 currentPriceTime = "";
+
+                si = symInfo;
             }
         }
         public DrawingInfo drawingInfo;
@@ -114,6 +118,11 @@ namespace WpfApplication3
 
             chartLines.Remove(line);
             selectedLines.Remove(line);
+        }
+
+        public void UpdateLastSDD()
+        {
+
         }
 
         public Canvas CreateDrawing(List<Data.SymbolDayData> sddList)

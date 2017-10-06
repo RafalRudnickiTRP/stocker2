@@ -295,7 +295,7 @@ namespace WpfApplication3
                 if (SymbolsDrawingsToSerialize.ContainsKey(symbolInfo.FullName) == false)
                     continue;
 
-                var sdd = GetSymbolData(symbolInfo.ShortName);
+                var sdd = GetSymbolData(symbolInfo);
 
                 foreach (var line in SymbolsDrawingsToSerialize[symbolInfo.FullName].chartLines)
                 {
@@ -393,8 +393,10 @@ namespace WpfApplication3
             CurrentDrawing = currentChart;
         }
 
-        public List<Data.SymbolDayData> GetSymbolData(string symbolName)
+        public List<Data.SymbolDayData> GetSymbolData(Data.SymbolInfo si)
         {
+            string symbolName = si.ShortName;
+
             if (SDDs.ContainsKey(symbolName))
                 return SDDs[symbolName];
 

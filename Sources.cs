@@ -1,6 +1,7 @@
 ﻿using HtmlAgilityPack;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -51,6 +52,7 @@ namespace WpfApplication3
             }
             catch (Exception)
             {
+                Debug.Assert(false);
             }
 
             return null;
