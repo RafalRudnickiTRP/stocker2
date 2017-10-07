@@ -122,7 +122,36 @@ namespace WpfApplication3
 
         public void UpdateLastSDD()
         {
+            Debug.Assert(canvas != null);
 
+            Data.SymbolDayData lastSdd = drawingInfo.sddList[drawingInfo.sddList.Count - 1];
+
+            int cbgFound = -1;
+            int csgFound = -1;
+            CandleTag ct = new CandleTag();
+            for (int i = 0; i < canvas.Children.Count; i++)
+            {
+                if (canvas.Children[i] is CandleBodyGeom &&
+                    ((CandleTag)((CandleBodyGeom)canvas.Children[i]).Tag).first)
+                {
+                    cbgFound = i;
+                    ct = (CandleTag)((CandleBodyGeom)canvas.Children[i]).Tag;
+                }
+
+                if (canvas.Children[i] is CandleShadowGeom &&
+                    ((CandleTag)((CandleShadowGeom)canvas.Children[i]).Tag).first)
+                {
+                    csgFound = i;
+                }
+
+                if (cbgFound >= 0 && csgFound >= 0)
+                    break;
+            }
+
+            canvas.Children.RemoveAt(cbgFound);
+            canvas.Children.RemoveAt(csgFound);
+
+            CreateCandle(canvas, ct.offset, lastSdd, ct.first);
         }
 
         public Canvas CreateDrawing(List<Data.SymbolDayData> sddList)

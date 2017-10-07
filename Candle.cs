@@ -15,30 +15,38 @@ namespace WpfApplication3
 {
     public partial class Chart
     {
+        public struct CandleTag
+        {
+            public bool first;
+            public int offset;
+        }
+
         public class CandleBodyGeom : Shape
         {
             private GeometryGroup geo = new GeometryGroup();
             private DrawingInfo drawingInfo;
 
-            public CandleBodyGeom(DrawingInfo _drawingInfo, int offset, double[] sortedVals, bool first, bool upDir)
+            public CandleBodyGeom(DrawingInfo _drawingInfo, int _offset, double[] sortedVals, bool _first, bool upDir)
             {
                 drawingInfo = _drawingInfo;
 
                 GeometryGroup bodyGeom = new GeometryGroup();
                 bodyGeom.Children.Add(new RectangleGeometry(new Rect(
-                    new Point(offset - drawingInfo.candleWidth / 2, sortedVals[1]),
-                    new Point(offset + drawingInfo.candleWidth / 2, sortedVals[2]))));
+                    new Point(_offset - drawingInfo.candleWidth / 2, sortedVals[1]),
+                    new Point(_offset + drawingInfo.candleWidth / 2, sortedVals[2]))));
                 Path bodyPath = new Path();
                 bodyPath.StrokeThickness = 1;
                 
                 geo.Children.Add(bodyGeom);
 
                 StrokeThickness = 1;
-                if (first)
+                if (_first)
                     Stroke = Brushes.Red;
                 else
                     Stroke = Brushes.Black;
                 Fill = upDir ? Brushes.White : Brushes.Black;
+
+                Tag = new CandleTag { first = _first, offset = _offset };
             }
 
             protected override Geometry DefiningGeometry
@@ -51,25 +59,27 @@ namespace WpfApplication3
         {
             private GeometryGroup geo = new GeometryGroup();
             private DrawingInfo drawingInfo;
-
-            public CandleShadowGeom(DrawingInfo _drawingInfo, int offset, double[] sortedVals, bool first, bool upDir)
+            
+            public CandleShadowGeom(DrawingInfo _drawingInfo, int _offset, double[] sortedVals, bool _first, bool upDir)
             {
                 drawingInfo = _drawingInfo;
 
                 GeometryGroup shadowGeom = new GeometryGroup();
                 shadowGeom.Children.Add(new LineGeometry(
-                    new Point(offset, sortedVals[0]),
-                    new Point(offset, sortedVals[1])));
+                    new Point(_offset, sortedVals[0]),
+                    new Point(_offset, sortedVals[1])));
                 shadowGeom.Children.Add(new LineGeometry(
-                    new Point(offset, sortedVals[2]),
-                    new Point(offset, sortedVals[3])));
+                    new Point(_offset, sortedVals[2]),
+                    new Point(_offset, sortedVals[3])));
                 geo.Children.Add(shadowGeom);
 
                 StrokeThickness = 1;
-                if (first)
+                if (_first)
                     Stroke = Brushes.Red;
                 else
                     Stroke = Brushes.Black;
+
+                Tag = new CandleTag { first = _first, offset = _offset };
             }
 
             protected override Geometry DefiningGeometry
