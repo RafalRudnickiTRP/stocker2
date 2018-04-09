@@ -426,18 +426,12 @@ namespace WpfApplication3
             }
 
             List<Data.SymbolDayData> result = new List<Data.SymbolDayData>();
-
-            bool header = true;
+            
             foreach (string line in csv.Split('\n'))
             {
-                if (header)
-                {
-                    header = false;
-                    continue;
-                }
-
                 if (line.Length == 0) continue;
-
+                if (Regex.Match(line, @"^\d+.*").Success == false) continue;
+                
                 string l = line.Substring(0, line.Length - 1);
                 string[] data = l.Split(',');
 
