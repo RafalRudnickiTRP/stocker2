@@ -21,7 +21,7 @@ namespace WpfApplication3
         static bool shiftPressed = false;
         static bool ctrlPressed = false;
         static bool lpmPressed = false;
-                
+
         static bool showedFromReport = false;
 
         static public bool testMode = false;
@@ -39,7 +39,7 @@ namespace WpfApplication3
         public MainWindow()
         {
             InitializeComponent();
-            
+
             DataViewModel dvm = new DataViewModel();
             DataContext = dvm;
 
@@ -91,13 +91,13 @@ namespace WpfApplication3
             var dvm = DataContext as DataViewModel;
             Chart chart = null;
             Data.SymbolInfo symbolInfo = Data.SymbolInfoList.Single(s => s.FullName == symbolFullName);
-      
+
             if (DataViewModel.SymbolsDrawings.TryGetValue(symbolInfo.FullName, out chart) == false)
             {
                 Chart.DrawingInfo di = new Chart.DrawingInfo(symbolInfo, (int)SymbolsTabControl.ActualWidth, (int)SymbolsTabControl.ActualHeight);
 
                 List<Data.SymbolDayData> sdd = dvm.GetSymbolData(symbolInfo);
-                
+
                 // current price - new sdd at [0] and price time in drawingInfo
                 string time = "";
                 Data.SymbolDayData current = Data.GetCurrentSdd(symbolInfo.ShortName, out time);
@@ -128,11 +128,11 @@ namespace WpfApplication3
                     Height = 16
                 };
                 btn.Click += CloseSymbolTab;
-                sp.Children.Add(btn);                
-        
+                sp.Children.Add(btn);
+
                 newTab.Header = sp;
                 SymbolsTabControl.Items.Add(newTab);
-                
+
                 chart = new Chart(di);
                 DataViewModel.SymbolsDrawings.Add(symbolInfo.FullName, chart);
                 newTab.Content = chart.CreateDrawing(sdd);
@@ -143,7 +143,7 @@ namespace WpfApplication3
                     // remove added symbol
                     DataViewModel.SymbolsDrawingsToSerialize.Remove(symbolInfo.FullName);
                 }
-                
+
                 // select current tab
                 // this should be done last
                 SymbolsTabControl.SelectedItem = newTab;
@@ -171,6 +171,13 @@ namespace WpfApplication3
             MessageBox.Show("close " + name);
         }
 
+        private void UpdateTextInfo(string shortName, float closePrice, string time)
+        {
+            TextBlock tb = (TextBlock)FindName("TextBlockInfo");
+            if (tb != null)
+                tb.Text = shortName + " current price is: " + closePrice + " at " + time;
+        }
+
         private void SymbolTab_SelectionChanged(object sender, SelectionChangedEventArgs a)
         {
             if (a.Source is ListView) return;
@@ -188,11 +195,7 @@ namespace WpfApplication3
             foreach (Data.SymbolInfo si in DataViewModel.SymbolsInfoList)
                 if (si.FullName == headerName)
                 {
-                    TextBlock tb = (TextBlock)FindName("TextBlockInfo");
-                    if (tb != null)
-                        tb.Text =
-                            si.ShortName + " current price is: " + chart.drawingInfo.sddList[0].Close
-                            + " at " + chart.drawingInfo.currentPriceTime;
+                    UpdateTextInfo(si.ShortName, chart.drawingInfo.sddList[0].Close, chart.drawingInfo.currentPriceTime);
                     break;
                 }
 
@@ -1213,9 +1216,11 @@ namespace WpfApplication3
             {
                 var sdd = GetDVM().GetSymbolData(di.si);
                 di.currentPriceTime = time;
-                sdd[sdd.Count - 1] = current;
+                sdd[0] = current;
 
                 chart.UpdateLastSDD();
+
+                UpdateTextInfo(di.si.ShortName, di.sddList[0].Close, di.currentPriceTime);
             }
         }
 

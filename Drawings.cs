@@ -124,7 +124,7 @@ namespace WpfApplication3
         {
             Debug.Assert(canvas != null);
 
-            Data.SymbolDayData lastSdd = drawingInfo.sddList[drawingInfo.sddList.Count - 1];
+            Data.SymbolDayData lastSdd = drawingInfo.sddList[0];
 
             int cbgFound = -1;
             int csgFound = -1;
