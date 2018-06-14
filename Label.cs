@@ -13,6 +13,8 @@ namespace WpfApplication3
         private Label currentValue;
         private Label crossDate;
 
+        public Label priceLabel;
+
         public class Label
         {
             public enum Mode

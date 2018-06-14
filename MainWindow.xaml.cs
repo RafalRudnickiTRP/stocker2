@@ -1220,6 +1220,10 @@ namespace WpfApplication3
 
                 chart.UpdateLastSDD();
 
+                chart.priceLabel.SetValue(di.sddList[0].Close);
+                double y = Misc.RemapRangeValToPix(di.sddList[0].Close, di);
+                chart.priceLabel.SetPosition(new Point(di.viewWidth - di.viewMarginRight + 2, y));
+
                 UpdateTextInfo(di.si.ShortName, di.sddList[0].Close, di.currentPriceTime);
             }
         }

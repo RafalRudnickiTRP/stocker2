@@ -126,8 +126,8 @@ namespace WpfApplication3
 
             Data.SymbolDayData lastSdd = drawingInfo.sddList[0];
 
-            int cbgFound = -1;
-            int csgFound = -1;
+            int cbgFound = -1; // CandleBodyGeom
+            int csgFound = -1; // CandleShadowGeom
             CandleTag ct = new CandleTag();
             for (int i = 0; i < canvas.Children.Count; i++)
             {
@@ -136,20 +136,21 @@ namespace WpfApplication3
                 {
                     cbgFound = i;
                     ct = (CandleTag)((CandleBodyGeom)canvas.Children[i]).Tag;
+                    canvas.Children.RemoveAt(cbgFound);
+                    break;
                 }
+            }
 
+            for (int i = 0; i < canvas.Children.Count; i++)
+            {
                 if (canvas.Children[i] is CandleShadowGeom &&
                     ((CandleTag)((CandleShadowGeom)canvas.Children[i]).Tag).first)
                 {
                     csgFound = i;
-                }
-
-                if (cbgFound >= 0 && csgFound >= 0)
+                    canvas.Children.RemoveAt(csgFound);
                     break;
+                }
             }
-
-            canvas.Children.RemoveAt(cbgFound);
-            canvas.Children.RemoveAt(csgFound);
 
             CreateCandle(canvas, ct.offset, lastSdd, ct.first);
         }
@@ -329,7 +330,7 @@ namespace WpfApplication3
 
             CreateCross(canvas);
             CreateCrossLabels(canvas);
-            CreatePriceLabel(canvas, drawingInfo.sddList[0].Close, true, Label.Mode.Price);
+            priceLabel = CreatePriceLabel(canvas, drawingInfo.sddList[0].Close, true, Label.Mode.Price);
 
             return canvas;
         }
