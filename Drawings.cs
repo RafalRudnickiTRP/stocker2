@@ -284,12 +284,13 @@ namespace WpfApplication3
             int vol = start;
             if (maxVol > 0)
             {
+                double maxVolDiv = 0.33 * ((double)drawingInfo.maxViewport + (double)drawingInfo.viewMarginBottom) / (double)maxVol;
                 foreach (Data.SymbolDayData sdd in sddList.GetRange(0, numCandlesToDraw))
                 {
                     GeometryGroup volumeGeom = new GeometryGroup();
                     volumeGeom.Children.Add(new RectangleGeometry(new Rect(
                         new Point(vol - drawingInfo.candleWidth / 2,
-                            drawingInfo.maxViewport - sdd.Volume / (maxVol / drawingInfo.maxViewport + drawingInfo.viewMarginBottom)),
+                            drawingInfo.maxViewport - sdd.Volume * maxVolDiv),
                         new Point(vol + drawingInfo.candleWidth / 2 + 2,
                             drawingInfo.maxViewport))));
 
