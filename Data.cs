@@ -285,75 +285,97 @@ namespace WpfApplication3
             GenerateReport();
         }
 
+        public struct retData
+        {
+            public string reportString;
+        }
+
+        static retData CreateReportThread(Dictionary<string, List<Data.SymbolDayData>> sdds, Data.SymbolInfo symbolInfo)
+        {
+            string report = "";
+
+            if (SymbolsDrawingsToSerialize.ContainsKey(symbolInfo.FullName) == false)
+                return new retData();
+
+            var sdd = GetSymbolData(sdds, symbolInfo);
+
+            foreach (var line in SymbolsDrawingsToSerialize[symbolInfo.FullName].chartLines)
+            {
+                if (line.Color != "Lime" && line.Color != "Red")
+                    continue;
+
+                DateTime lineStartDate = DateTime.ParseExact(line.StartPointDV.Split('+')[0],
+                    Data.dateTimeFormat, CultureInfo.InvariantCulture);
+                DateTime lineEndDate = DateTime.ParseExact(line.EndPointDV.Split('+')[0],
+                    Data.dateTimeFormat, CultureInfo.InvariantCulture);
+                double extraDaysFromStart = double.Parse(line.StartPointDV.Split('+')[1].Split(';')[0],
+                    Data.numberFormat);
+                double extraDaysToEnd = double.Parse(line.EndPointDV.Split('+')[1].Split(';')[0],
+                    Data.numberFormat);
+
+                if (lineEndDate.AddDays(extraDaysToEnd) < sdd[0].Date)
+                    continue;
+
+                // find sdd at start of line
+                var sddIt = 0;
+                while (sdd[sddIt].Date > lineStartDate)
+                    sddIt++;
+
+                double numDays = sddIt - extraDaysFromStart + extraDaysToEnd;
+
+                double startVal = double.Parse(line.StartPointDV.Split(';')[1],
+                    Data.numberFormat);
+                double endVal = double.Parse(line.EndPointDV.Split(';')[1],
+                    Data.numberFormat);
+                double step = (endVal - startVal) / numDays;
+
+                double lineValAtSdd0 = startVal + step * sddIt;
+
+                if (sdd[0].Low < lineValAtSdd0 && lineValAtSdd0 < sdd[0].Hi)
+                {
+                    string e = "";
+
+                    report += "NAME: " + symbolInfo.FullName + " with ";
+                    if (step > 0)
+                        e += "ASCENDING line ";
+                    else
+                        e += "DESCENDING line ";
+                    e += "crossed at value " + lineValAtSdd0.ToString("F2", Data.numberFormat);
+
+                    ReportItem ri = new ReportItem();
+                    ri.Symbol = symbolInfo.FullName;
+                    ri.Date = sdd[0].Date;
+                    ri.Event = e;
+                    ReportItems.Add(ri);
+
+                    report += e + "\n";             
+                }
+            }
+
+            var rd = new retData();
+            rd.reportString = report;
+            return rd;
+        }
+
         public void GenerateReport()
         {
             string report = DateTime.Today.ToString("dd-MM-yyyy") + "\n" + "\n";
-
-            bool noCrossed = true;
+            
+            var tasks = new Task<retData>[SymbolsInfoList.Count];
+            int i = 0;
             foreach (var symbolInfo in SymbolsInfoList)
             {
-                if (SymbolsDrawingsToSerialize.ContainsKey(symbolInfo.FullName) == false)
-                    continue;
-
-                var sdd = GetSymbolData(symbolInfo);
-
-                foreach (var line in SymbolsDrawingsToSerialize[symbolInfo.FullName].chartLines)
-                {
-                    if (line.Color != "Lime" && line.Color != "Red")
-                        continue;
-
-                    DateTime lineStartDate = DateTime.ParseExact(line.StartPointDV.Split('+')[0],
-                        Data.dateTimeFormat, CultureInfo.InvariantCulture);
-                    DateTime lineEndDate = DateTime.ParseExact(line.EndPointDV.Split('+')[0],
-                        Data.dateTimeFormat, CultureInfo.InvariantCulture);
-                    double extraDaysFromStart = double.Parse(line.StartPointDV.Split('+')[1].Split(';')[0],
-                        Data.numberFormat);
-                    double extraDaysToEnd = double.Parse(line.EndPointDV.Split('+')[1].Split(';')[0],
-                        Data.numberFormat);
-
-                    if (lineEndDate.AddDays(extraDaysToEnd) < sdd[0].Date)
-                        continue;
-
-                    // find sdd at start of line
-                    var sddIt = 0;
-                    while (sdd[sddIt].Date > lineStartDate)
-                        sddIt++;
-
-                    double numDays = sddIt - extraDaysFromStart + extraDaysToEnd;
-
-                    double startVal = double.Parse(line.StartPointDV.Split(';')[1],
-                        Data.numberFormat);
-                    double endVal = double.Parse(line.EndPointDV.Split(';')[1],
-                        Data.numberFormat);
-                    double step = (endVal - startVal) / numDays;
-
-                    double lineValAtSdd0 = startVal + step * sddIt;
-
-                    if (sdd[0].Low < lineValAtSdd0 && lineValAtSdd0 < sdd[0].Hi)
-                    {
-                        string e = "";
-
-                        report += "NAME: " + symbolInfo.FullName + " with ";
-                        if (step > 0)
-                            e += "ASCENDING line ";
-                        else
-                            e += "DESCENDING line ";
-                        e += "crossed at value " + lineValAtSdd0.ToString("F2", Data.numberFormat);
-
-                        ReportItem ri = new ReportItem();
-                        ri.Symbol = symbolInfo.FullName;
-                        ri.Date = sdd[0].Date;
-                        ri.Event = e;
-                        ReportItems.Add(ri);
-
-                        report += e + "\n";
-                        noCrossed = false;
-                    }
-                }
-
-                if (!noCrossed)
-                    report += "\n";
+                var handle = Task.Factory.StartNew(() => CreateReportThread(SDDs, symbolInfo));
+                tasks[i] = handle;
+                i++;
             }
+
+            Task.WaitAll(tasks);
+            var results = Task.WhenAll(tasks);
+            foreach (var result in results.Result)
+            {
+                report += result.reportString;
+            }            
 
             Drive.SaveReportFile(report);
         }
@@ -393,12 +415,12 @@ namespace WpfApplication3
             CurrentDrawing = currentChart;
         }
 
-        public List<Data.SymbolDayData> GetSymbolData(Data.SymbolInfo si)
+        public static List<Data.SymbolDayData> GetSymbolData(Dictionary<string, List<Data.SymbolDayData>> sdds, Data.SymbolInfo si)
         {
             string symbolName = si.ShortName;
 
-            if (SDDs.ContainsKey(symbolName))
-                return SDDs[symbolName];
+            if (sdds.ContainsKey(symbolName))
+                return sdds[symbolName];
 
             string csv = "";
             string today = DateTime.Today.ToString("dd-MM-yyyy");
@@ -455,7 +477,7 @@ namespace WpfApplication3
             }
 
             result.Reverse();
-            SDDs.Add(symbolName, result);
+            sdds.Add(symbolName, result);
 
             return result;
         }

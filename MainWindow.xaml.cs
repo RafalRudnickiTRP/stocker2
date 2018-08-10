@@ -96,7 +96,7 @@ namespace WpfApplication3
             {
                 Chart.DrawingInfo di = new Chart.DrawingInfo(symbolInfo, (int)SymbolsTabControl.ActualWidth, (int)SymbolsTabControl.ActualHeight);
 
-                List<Data.SymbolDayData> sdd = dvm.GetSymbolData(symbolInfo);
+                List<Data.SymbolDayData> sdd = DataViewModel.GetSymbolData(dvm.SDDs, symbolInfo);
 
                 // current price - new sdd at [0] and price time in drawingInfo
                 string time = "";
@@ -1214,7 +1214,7 @@ namespace WpfApplication3
             Data.SymbolDayData current = Data.GetCurrentSdd(di.si.ShortName, out time);
             if (current != null)
             {
-                var sdd = GetDVM().GetSymbolData(di.si);
+                var sdd = DataViewModel.GetSymbolData(GetDVM().SDDs, di.si);
                 di.currentPriceTime = time;
                 sdd[0] = current;
 
