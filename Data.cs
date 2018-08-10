@@ -452,10 +452,10 @@ namespace WpfApplication3
             foreach (string line in csv.Split('\n'))
             {
                 if (line.Length == 0) continue;
-                if (Regex.Match(line, @"^\d+.*").Success == false) continue;
-                
-                string l = line.Substring(0, line.Length - 1);
-                string[] data = l.Split(',');
+                if (line[0] == 'D') continue;
+                                
+                string[] data = line.Split(',');
+                Debug.Assert(data.Count() == 6);
 
                 DateTime date = DateTime.ParseExact(data[0], "yyyy-MM-dd", CultureInfo.InvariantCulture);
 
