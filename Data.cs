@@ -280,9 +280,7 @@ namespace WpfApplication3
                     SymbolsDrawingsToSerialize = new Dictionary<string, Chart.DataToSerialize>();
 
                 UpdateInfoNamesOnLoad();
-            }                
-
-            GenerateReport();
+            }
         }
 
         public struct retData
@@ -290,7 +288,8 @@ namespace WpfApplication3
             public string reportString;
         }
 
-        static retData CreateReportThread(Dictionary<string, List<Data.SymbolDayData>> sdds, Data.SymbolInfo symbolInfo)
+        // NOTE: this function is adapted to be run in a thread
+        static retData CreateOneReport(Dictionary<string, List<Data.SymbolDayData>> sdds, Data.SymbolInfo symbolInfo)
         {
             string report = "";
 
@@ -365,19 +364,23 @@ namespace WpfApplication3
             int i = 0;
             foreach (var symbolInfo in SymbolsInfoList)
             {
-                var handle = Task.Factory.StartNew(() => CreateReportThread(SDDs, symbolInfo));
-                tasks[i] = handle;
+                // var handle = Task.Factory.StartNew(() => CreateOneReport(SDDs, symbolInfo));
+                //tasks[i] = handle;
+                var result = CreateOneReport(SDDs, symbolInfo);
+                report += result.reportString;
                 i++;
             }
 
+            /*
             Task.WaitAll(tasks);
             var results = Task.WhenAll(tasks);
             foreach (var result in results.Result)
             {
                 report += result.reportString;
-            }            
+            }   
+            */         
 
-            Drive.SaveReportFile(report);
+            Drive.SaveReportFile(report);            
         }
         
         private void LoadSymbolsInfoList()
@@ -455,7 +458,7 @@ namespace WpfApplication3
                 if (line[0] == 'D') continue;
                                 
                 string[] data = line.Split(',');
-                Debug.Assert(data.Count() == 6);
+                Debug.Assert(data.Count() >= 5);
 
                 DateTime date = DateTime.ParseExact(data[0], "yyyy-MM-dd", CultureInfo.InvariantCulture);
 

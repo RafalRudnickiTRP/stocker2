@@ -7,6 +7,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Diagnostics;
 using System.Windows.Shapes;
+using System.Threading.Tasks;
 
 namespace WpfApplication3
 {
@@ -39,7 +40,7 @@ namespace WpfApplication3
         public MainWindow()
         {
             InitializeComponent();
-
+            
             DataViewModel dvm = new DataViewModel();
             DataContext = dvm;
 
@@ -49,7 +50,21 @@ namespace WpfApplication3
 
             InitializeCommands();
 
-            ReportView.ItemsSource = DataViewModel.ReportItems;
+            var handle = Task.Factory.StartNew(() => BackgroundWork(this, dvm));
+        }
+
+        public static void BackgroundWork(MainWindow window, DataViewModel dvm)
+        {
+            dvm.GenerateReport();
+
+            window.Dispatcher.Invoke(() =>
+            {
+                TabItem reportTab = (TabItem)window.SymbolsTabControl.Items[0];
+                Debug.Assert(reportTab.Header.ToString() == "Report");
+                reportTab.Foreground = Brushes.Red;
+
+                window.ReportView.ItemsSource = DataViewModel.ReportItems;
+            });
         }
 
         private DataViewModel GetDVM()
@@ -188,6 +203,17 @@ namespace WpfApplication3
             string headerName = GetHeaderName(activeTab);
             if (DataViewModel.SymbolsDrawings.TryGetValue(headerName, out chart))
                 DataViewModel.SetCurrentDrawing(chart);
+
+            // restore black color on Report tab after the generation of the report.
+            if (headerName == "Report" ||
+                (a.RemovedItems.Count > 0 &&
+                 ((TabItem)a.RemovedItems[0]).Header.ToString() == "Report"))
+            {
+                if (a.RemovedItems.Count > 0)
+                    ((TabItem)a.RemovedItems[0]).Foreground = Brushes.Black;
+                else
+                    activeTab.Foreground = Brushes.Black;
+            }
 
             if (chart == null)
                 return;
