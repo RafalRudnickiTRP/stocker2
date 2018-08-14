@@ -369,7 +369,7 @@ namespace WpfApplication3
             line.Y1 = x.Y;
             line.Y2 = y.Y;
             
-            // TODO: add line to chartlines?
+            // TODO: add line to chart lines?
             canvas.Children.Add(line);            
         }
 

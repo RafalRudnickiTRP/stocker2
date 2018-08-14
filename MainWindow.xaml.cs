@@ -861,7 +861,7 @@ namespace WpfApplication3
                     }
                     break;
 
-                // hide/unhide all lines added to chart
+                // hide/show all lines added to chart
                 case Key.H:
                     {
                         foreach (Chart.ChartLine l in chart.chartLines.ToList())
@@ -930,7 +930,28 @@ namespace WpfApplication3
                 case Key.M:
                     {
                         if (ctrlPressed && shiftPressed)
-                            createMiddleLine();
+                            createMiddleLines(1);
+                    }
+                    break;
+
+                case Key.D2:
+                    {
+                        if (ctrlPressed && shiftPressed)
+                            createMiddleLines(2);
+                    }
+                    break;
+
+                case Key.D3:
+                    {
+                        if (ctrlPressed && shiftPressed)
+                            createMiddleLines(3);
+                    }
+                    break;
+                    
+                case Key.D4:
+                    {
+                        if (ctrlPressed && shiftPressed)
+                            createMiddleLines(4);
                     }
                     break;
 
@@ -987,7 +1008,7 @@ namespace WpfApplication3
             UpdateListView();
         }
 
-        private void createMiddleLine()
+        private void createMiddleLines(int n)
         {
             Chart chart = DataViewModel.CurrentDrawing;
 
@@ -998,11 +1019,18 @@ namespace WpfApplication3
             Chart.ChartLine l1 = chart.selectedLines[0];
             Chart.ChartLine l2 = chart.selectedLines[1];
 
-            Chart.ChartLine newLine = l1.CopyLineTo(chart);
-            newLine.Select(true);
+            if (n == 1)
+            {
+                Chart.ChartLine newLine = l1.CopyLineTo(chart);
+                newLine.Select(true);
 
-            newLine.MoveP1(new Point((l1.getP1().X + l2.getP1().X) / 2, (l1.getP1().Y + l2.getP1().Y) / 2));
-            newLine.MoveP2(new Point((l1.getP2().X + l2.getP2().X) / 2, (l1.getP2().Y + l2.getP2().Y) / 2));
+                newLine.MoveP1(new Point((l1.getP1().X + l2.getP1().X) / 2, (l1.getP1().Y + l2.getP1().Y) / 2));
+                newLine.MoveP2(new Point((l1.getP2().X + l2.getP2().X) / 2, (l1.getP2().Y + l2.getP2().Y) / 2));
+            }
+            else
+            {
+                Debug.WriteLine(l1.getP1().X.ToString() + " " + l1.getP1().Y.ToString());
+            }
         }
 
         private void createNewLine(bool modeUp)
@@ -1041,24 +1069,7 @@ namespace WpfApplication3
 
             double D = YL - YP;
 
-            bool below = false;
-            //bool right = false;
-            if (D > 0)
-            {
-                below = true;
-            //    if (M > 0)
-            //        right = true;
-            }
-            else
-            {
-            //    if (M < 0)
-            //        right = true;
-            }
-
-            //Debug.WriteIf(right, "right ");
-            //Debug.WriteIf(!right, "left ");
-            //Debug.WriteIf(below, "below\n");
-            //Debug.WriteIf(!below, "upper\n");
+            bool below = D > 0;
 
             Chart.ChartLine upper = null;
             Chart.ChartLine lower = null;
