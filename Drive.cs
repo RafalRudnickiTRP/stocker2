@@ -8,6 +8,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -193,7 +195,30 @@ namespace WpfApplication3
                 HttpClientInitializer = credential,
                 ApplicationName = applicationName,
             });
-            
+
+            // Slack example
+            // curl - X POST - H 'Content-type: application/json'--data '{"text":"Hello, World!"}' 
+            // https://hooks.slack.com/services/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
+
+            var webAddr = "https://hooks.slack.com/services/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";
+            var httpWebRequest = (HttpWebRequest)WebRequest.Create(webAddr);
+            httpWebRequest.ContentType = "application/json; charset=utf-8";
+            httpWebRequest.Method = "POST";
+
+            using (var streamWriter = new StreamWriter(httpWebRequest.GetRequestStream()))
+            {
+                string json = "{\"text\":\"Hello, World!\"}";
+
+                streamWriter.Write(json);
+                streamWriter.Flush();
+            }
+
+            var httpResponse = (HttpWebResponse)httpWebRequest.GetResponse();
+            using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
+            {
+                var result = streamReader.ReadToEnd();
+            }
+
             return service;
         }
 
