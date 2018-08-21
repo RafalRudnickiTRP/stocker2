@@ -27,7 +27,7 @@ namespace WpfApplication3
 
         static public bool testMode = false;
 
-        public string layerData = "L1";
+        public string currentLayer = "L1";
 
         private enum CtrlZMode
         {
@@ -178,6 +178,10 @@ namespace WpfApplication3
             deselectAllLines();
             DataViewModel.SetCurrentDrawing(chart);
             currentSymbolInfo = symbolInfo;
+
+            // set default layer to L1 only
+            currentLayer = "";
+            buttonLayerHelper("L1");
         }
 
         private void CloseSymbolTab(object sender, EventArgs a)
@@ -371,11 +375,11 @@ namespace WpfApplication3
             line.color = currentColor;
             line.linePath.Stroke = currentColor;
 
-            if (layerData.Contains("L1"))
+            if (currentLayer.Contains("L1"))
                 line.layerData = "L1";
-            if (layerData.Contains("L2"))
+            if (currentLayer.Contains("L2"))
                 line.layerData = "L2";
-            if (layerData.Contains("L3"))
+            if (currentLayer.Contains("L3"))
                 line.layerData = "L3";
 
             activeChart.chartLines.Add(line);
@@ -641,7 +645,7 @@ namespace WpfApplication3
             bool everythingSelected = true;
             foreach (Chart.ChartLine l in chart.chartLines)
             {
-                if (layerData.Contains(l.layerData))
+                if (l.layerData.Contains(currentLayer))
                 {
                     if (l.IsSelected() == false)
                     {
@@ -654,7 +658,7 @@ namespace WpfApplication3
             chart.selectedLines.Clear();
             foreach (Chart.ChartLine l in chart.chartLines)
             {
-                if (layerData.Contains(l.layerData))
+                if (l.layerData.Contains(currentLayer))
                 {
                     l.Select(!everythingSelected);
                 }
@@ -866,7 +870,7 @@ namespace WpfApplication3
                     {
                         foreach (Chart.ChartLine l in chart.chartLines.ToList())
                         {
-                            if (layerData.Contains(l.layerData))
+                            if (l.layerData.Contains(currentLayer))
                             {
                                 l.linePath.Visibility = l.linePath.Visibility ==
                                     Visibility.Hidden ? Visibility.Visible : Visibility.Hidden;
@@ -1290,53 +1294,43 @@ namespace WpfApplication3
             }
         }
 
-        void buttonLayerHelper(string layer)
+        void buttonLayerHelper(string selectedLayer)
         {
-            if (layerData.Contains(layer) == false)
-            {
-                layerData += " " + layer + " ";
+            // deselect all for now
+            buttonLayer1.BorderThickness = new Thickness(1, 1, 1, 1);
+            buttonLayer2.BorderThickness = new Thickness(1, 1, 1, 1);
+            buttonLayer3.BorderThickness = new Thickness(1, 1, 1, 1);
 
-                foreach (var line in DataViewModel.CurrentDrawing.chartLines)
-                {
-                    if (line.layerData.Contains(layer) == false)
-                        line.linePath.Visibility = Visibility.Hidden;
-                    else
-                        line.linePath.Visibility = Visibility.Visible;
-                }
-            }
-
-            if (layer == "L1")
-            {
-                buttonLayer1.BorderThickness = new Thickness(2, 2, 2, 2);
-
-                layerData = layerData.Replace("L2", "");
-                layerData = layerData.Replace("L3", "");
-                buttonLayer2.BorderThickness = new Thickness(1, 1, 1, 1);
-                buttonLayer3.BorderThickness = new Thickness(1, 1, 1, 1);
-            }
-            if (layer == "L2")
-            {
-                buttonLayer2.BorderThickness = new Thickness(2, 2, 2, 2);
-
-                layerData = layerData.Replace("L1", "");
-                layerData = layerData.Replace("L3", "");
-                buttonLayer1.BorderThickness = new Thickness(1, 1, 1, 1);
-                buttonLayer3.BorderThickness = new Thickness(1, 1, 1, 1);
-            }
-            if (layer == "L3")
-            {
-                buttonLayer3.BorderThickness = new Thickness(2, 2, 2, 2);
-
-                layerData = layerData.Replace("L1", "");
-                layerData = layerData.Replace("L2", "");
-                buttonLayer1.BorderThickness = new Thickness(1, 1, 1, 1);
-                buttonLayer2.BorderThickness = new Thickness(1, 1, 1, 1);
-            }
-
+            // deselect all layers button
             buttonLayerAll.BorderThickness = new Thickness(1, 1, 1, 1);
 
+            if (currentLayer.Contains(selectedLayer) == false)
+                currentLayer += " " + selectedLayer;
+            else
+                currentLayer = currentLayer.Replace(selectedLayer, " ");
+
+            currentLayer = currentLayer.Replace("  ", " ");
+
+            // select all that should be selected
+            if (currentLayer.Contains("L1"))
+                buttonLayer1.BorderThickness = new Thickness(2, 2, 2, 2);
+            if (currentLayer.Contains("L2"))
+                buttonLayer2.BorderThickness = new Thickness(2, 2, 2, 2);
+            if (currentLayer.Contains("L3"))
+                buttonLayer3.BorderThickness = new Thickness(2, 2, 2, 2);            
+
+            // deselect all lines
             foreach (var line in DataViewModel.CurrentDrawing.chartLines)
                 line.Select(false);
+
+            // make all lines from selected layers visible, hide others
+            foreach (var line in DataViewModel.CurrentDrawing.chartLines)
+            {
+                if (currentLayer.Contains(line.layerData) == false)
+                    line.linePath.Visibility = Visibility.Hidden;
+                else
+                    line.linePath.Visibility = Visibility.Visible;
+            }
 
         }
 
@@ -1357,12 +1351,7 @@ namespace WpfApplication3
 
         private void buttonLayerAll_Click(object sender, RoutedEventArgs e)
         {
-            if (layerData.Contains("L1") == false)
-                layerData += " L1 ";
-            if (layerData.Contains("L2") == false)
-                layerData += " L2 ";
-            if (layerData.Contains("L3") == false)
-                layerData += " L3 ";
+            currentLayer = "L1 L2 L3";
 
             buttonLayerAll.BorderThickness = new Thickness(2, 2, 2, 2);
             buttonLayer1.BorderThickness = new Thickness(1, 1, 1, 1);
