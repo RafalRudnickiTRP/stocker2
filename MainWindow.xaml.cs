@@ -641,7 +641,7 @@ namespace WpfApplication3
             bool everythingSelected = true;
             foreach (Chart.ChartLine l in chart.chartLines)
             {
-                if (layerData.Contains(l.data))
+                if (layerData.Contains(l.layerData))
                 {
                     if (l.IsSelected() == false)
                     {
@@ -654,7 +654,7 @@ namespace WpfApplication3
             chart.selectedLines.Clear();
             foreach (Chart.ChartLine l in chart.chartLines)
             {
-                if (layerData.Contains(l.data))
+                if (layerData.Contains(l.layerData))
                 {
                     l.Select(!everythingSelected);
                 }
@@ -866,7 +866,7 @@ namespace WpfApplication3
                     {
                         foreach (Chart.ChartLine l in chart.chartLines.ToList())
                         {
-                            if (layerData.Contains(l.data))
+                            if (layerData.Contains(l.layerData))
                             {
                                 l.linePath.Visibility = l.linePath.Visibility ==
                                     Visibility.Hidden ? Visibility.Visible : Visibility.Hidden;
@@ -928,6 +928,7 @@ namespace WpfApplication3
                     break;
 
                 case Key.M:
+                case Key.D1:
                     {
                         if (ctrlPressed && shiftPressed)
                             createMiddleLines(1);
@@ -1028,8 +1029,32 @@ namespace WpfApplication3
                 newLine.MoveP2(new Point((l1.getP2().X + l2.getP2().X) / 2, (l1.getP2().Y + l2.getP2().Y) / 2));
             }
             else
-            {
-                Debug.WriteLine(l1.getP1().X.ToString() + " " + l1.getP1().Y.ToString());
+            {                
+                bool L1P1IsLeft = l1.getP1().X < l1.getP2().X;
+                double L1XLeft = L1P1IsLeft ? l1.getP1().X : l1.getP2().X;
+                double L1YLeft = L1P1IsLeft ? l1.getP1().Y : l1.getP2().Y;
+                double L1XRight = L1P1IsLeft ? l1.getP2().X : l1.getP1().X;
+                double L1YRight = L1P1IsLeft ? l1.getP2().Y : l1.getP1().Y;
+
+                bool L2P1IsLeft = l2.getP1().X < l2.getP2().X;
+                double L2XLeft = L2P1IsLeft ? l2.getP1().X : l1.getP2().X;
+                double L2YLeft = L2P1IsLeft ? l2.getP1().Y : l1.getP2().Y;
+                double L2XRight = L2P1IsLeft ? l2.getP2().X : l1.getP1().X;
+                double L2YRight = L2P1IsLeft ? l2.getP2().Y : l1.getP1().Y;
+
+                double DivXLeft = (L1XLeft - L2XLeft) / n;
+                double DivYLeft = (L1YLeft - L2YLeft) / n;
+                double DivXRight = (L1XRight - L2XRight) / n;
+                double DivYRight = (L1YRight - L2YRight) / n;
+
+                for (int i = 1; i < n; i++)
+                {
+                    Chart.ChartLine newLine = l1.CopyLineTo(chart);
+                    newLine.Select(true);
+
+                    newLine.MoveP1(new Point(L1XLeft - DivXLeft * i, L1YLeft - DivYLeft * i));
+                    newLine.MoveP2(new Point(L1XRight - DivXRight * i, L1YRight - DivYRight * i));
+                }
             }
         }
 
@@ -1273,7 +1298,7 @@ namespace WpfApplication3
 
                 foreach (var line in DataViewModel.CurrentDrawing.chartLines)
                 {
-                    if (line.data.Contains(layer) == false)
+                    if (line.layerData.Contains(layer) == false)
                         line.linePath.Visibility = Visibility.Hidden;
                     else
                         line.linePath.Visibility = Visibility.Visible;

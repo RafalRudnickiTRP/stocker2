@@ -56,7 +56,7 @@ namespace WpfApplication3
             }
 
             public Brush color { get; set; }
-            public string data { get; set; }
+            public string layerData { get; set; }
 
             public Path linePath { get; }
             public Path rectPath { get; }
@@ -274,7 +274,7 @@ namespace WpfApplication3
                 newLine.color = color;
                 newLine.linePath.Stroke = linePath.Stroke;
 
-                newLine.data = data;
+                newLine.layerData = layerData;
 
                 chart.chartLines.Add(newLine);
                 chart.canvas.Children.Add(newLine.linePath);
