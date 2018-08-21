@@ -51,6 +51,10 @@ namespace WpfApplication3
             InitializeCommands();
 
             var handle = Task.Factory.StartNew(() => BackgroundWork(this, dvm));
+
+            // set default group
+            ComboBox group = (ComboBox)FindName("Group");
+            group.SelectedItem = group.Items.GetItemAt(0);
         }
 
         public static void BackgroundWork(MainWindow window, DataViewModel dvm)
@@ -1377,6 +1381,16 @@ namespace WpfApplication3
 
             UpdateListView();
             UpdateLayout();
+        }
+
+        private void ContextMenuAddClicked(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void ContextMenuRemoveClicked(object sender, RoutedEventArgs e)
+        {
+
         }
     }
 }
