@@ -652,7 +652,7 @@ namespace WpfApplication3
             bool everythingSelected = true;
             foreach (Chart.ChartLine l in chart.chartLines)
             {
-                if (l.layerData.Contains(currentLayer))
+                if (currentLayer.Contains(l.layerData))
                 {
                     if (l.IsSelected() == false)
                     {
@@ -665,7 +665,7 @@ namespace WpfApplication3
             chart.selectedLines.Clear();
             foreach (Chart.ChartLine l in chart.chartLines)
             {
-                if (l.layerData.Contains(currentLayer))
+                if (currentLayer.Contains(l.layerData))
                 {
                     l.Select(!everythingSelected);
                 }
