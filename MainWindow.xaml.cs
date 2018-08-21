@@ -363,6 +363,13 @@ namespace WpfApplication3
             if (activeChart == null)
                 return;
 
+            // return when more than one layer is selected
+            int count = 0;
+            foreach (char c in currentLayer)
+                if (c == 'L') count++;
+            if (count > 1)
+                return;
+
             // if there is no lines in drawing state, create a new line
             Chart.ChartLine line = activeChart.chartLines.FirstOrDefault(l => l.mode == Chart.ChartLine.Mode.Drawing);
             // only one line is drawn at a time
