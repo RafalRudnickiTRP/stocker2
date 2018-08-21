@@ -96,9 +96,9 @@ namespace WpfApplication3
                 toSerialize.Color = Misc.BrushToString(color);
 
                 // default layer is L1
-                if (data == "")
-                    data = "L1";
-                toSerialize.Data = data;
+                if (layerData == "")
+                    layerData = "L1";
+                toSerialize.Data = layerData;
 
                 return toSerialize;
             }

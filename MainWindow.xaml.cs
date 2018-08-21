@@ -372,11 +372,11 @@ namespace WpfApplication3
             line.linePath.Stroke = currentColor;
 
             if (layerData.Contains("L1"))
-                line.data = "L1";
+                line.layerData = "L1";
             if (layerData.Contains("L2"))
-                line.data = "L2";
+                line.layerData = "L2";
             if (layerData.Contains("L3"))
-                line.data = "L3";
+                line.layerData = "L3";
 
             activeChart.chartLines.Add(line);
             activeChart.canvas.Children.Add(line.linePath);

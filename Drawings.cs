@@ -393,12 +393,12 @@ namespace WpfApplication3
                         lineToAdd.linePath.Stroke = lineToAdd.color;
 
                         // default layer is L1
-                        lineToAdd.data = line.Data;
+                        lineToAdd.layerData = line.Data;
                         if (line.Data == null)
-                            lineToAdd.data = "L1";
+                            lineToAdd.layerData = "L1";
                         if (line.Data == "")
-                            lineToAdd.data =  "L1";
-                        if (lineToAdd.data.Contains("L1") == false)
+                            lineToAdd.layerData =  "L1";
+                        if (lineToAdd.layerData.Contains("L1") == false)
                             lineToAdd.linePath.Visibility = Visibility.Hidden;
 
                         lineToAdd.mode = ChartLine.Mode.Normal;
