@@ -473,16 +473,14 @@ namespace WpfApplication3
 
             SortSymbolsList();
 
-            System.Windows.Controls.ListView sl = (System.Windows.Controls.ListView)FindName("SymbolsList");
+            ListView sl = (ListView)FindName("SymbolsList");
             if (sl != null)
             {
                 sl.Items.Refresh();
                 sl.UpdateLayout();
 
                 if (sl.SelectedItems.Count > 0)
-                {
                     sl.ScrollIntoView(sl.SelectedItems[0]);
-                }
             }
         }
 
@@ -712,6 +710,7 @@ namespace WpfApplication3
                                     toDel.Add(ellipse);
                             }
                         }
+
                         foreach (UIElement ui in toDel)
                         {
                             chart.canvas.Children.Remove(ui);
@@ -1165,7 +1164,7 @@ namespace WpfApplication3
         private void SortSymbolsList()
         {
             // sort SymbolsInfoList
-            DataViewModel.SymbolsInfoList.Sort(
+            DataViewModel.VisibleSymbolsInfoList.Sort(
                 delegate (Data.SymbolInfo x, Data.SymbolInfo y) { return x.CompareTo(y); });
         }
         
@@ -1367,6 +1366,17 @@ namespace WpfApplication3
 
             foreach (var line in DataViewModel.CurrentDrawing.chartLines)
                 line.linePath.Visibility = Visibility.Visible;
+        }
+
+        private void Filter_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (GetDVM() == null)
+                return;
+
+            GetDVM().FilterSymbolInfoList(((TextBox)sender).Text);
+
+            UpdateListView();
+            UpdateLayout();
         }
     }
 }

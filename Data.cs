@@ -44,6 +44,7 @@ namespace WpfApplication3
             public string FullName { get; set; }
             public string InfoName { get; set; }
             public string ShortName { get; set; }
+            public bool Visibility;
 
             private bool _IsRed()
             {
@@ -129,6 +130,7 @@ namespace WpfApplication3
     public partial class DataViewModel
     {
         public static List<Data.SymbolInfo> SymbolsInfoList { get; set; }
+        public static List<Data.SymbolInfo> VisibleSymbolsInfoList { get; set; }
 
         public static Dictionary<string, Chart> SymbolsDrawings { get; set; }
         public static Chart CurrentDrawing { get; set; }
@@ -262,6 +264,7 @@ namespace WpfApplication3
             WalletItems = new List<WalletItem>();
 
             LoadSymbolsInfoList();
+            FilterSymbolInfoList("");
 
             // try to load symbols drawings
             // create default dir
@@ -410,7 +413,32 @@ namespace WpfApplication3
                     string output = JsonConvert.SerializeObject(SymbolsInfoList, Formatting.Indented);
                     Drive.UploadFile(folderId, filename, output);                    
                 }
-            }            
+            }
+
+            VisibleSymbolsInfoList = new List<Data.SymbolInfo>();
+        }
+
+        public void FilterSymbolInfoList(String text)
+        {
+            VisibleSymbolsInfoList.Clear();
+
+            // copy all if no filter
+            if (text.Equals("...") || text.Equals(""))
+            {
+                foreach (var x in SymbolsInfoList)
+                    VisibleSymbolsInfoList.Add(x);
+            }
+            else
+            {
+                // copy only filtered
+                Debug.WriteLine("Filter: " + text);
+
+                foreach (var x in SymbolsInfoList)
+                {
+                    if (x.FullName.Contains(text.ToUpper()))
+                        VisibleSymbolsInfoList.Add(x);
+                }
+            }
         }
 
         public static void SetCurrentDrawing(Chart currentChart)

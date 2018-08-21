@@ -91,10 +91,11 @@
             </ComboBox>
             <Label DockPanel.Dock="Top">filter:</Label>
             <TextBox DockPanel.Dock="Top" 
-                     Name="textBox" 
+                     Name="Filter"
+                     TextChanged="Filter_TextChanged"
                      Text="..."/>
             <Label DockPanel.Dock="Top">symbols:</Label>
-            <ListView Name="SymbolsList" ItemsSource="{Binding SymbolsInfoList}"
+            <ListView Name="SymbolsList" ItemsSource="{Binding VisibleSymbolsInfoList}"
                       MouseDoubleClick="SymbolsList_MouseDoubleClick"
                       GridViewColumnHeader.Click="SymbolsList_ColumnHeaderClick">
                 <ListView.View>
