@@ -40,7 +40,7 @@ namespace WpfApplication3
         public MainWindow()
         {
             InitializeComponent();
-            
+
             DataViewModel dvm = new DataViewModel();
             DataContext = dvm;
 
@@ -52,9 +52,9 @@ namespace WpfApplication3
 
             var handle = Task.Factory.StartNew(() => BackgroundWork(this, dvm));
 
-            // set default group
-            ComboBox group = (ComboBox)FindName("Group");
-            group.SelectedItem = group.Items.GetItemAt(0);
+            // set default group and update
+            CBGroup.SelectedItem = CBGroup.Items.GetItemAt(0);
+            UpdateGroupsContextMenu();
         }
 
         public static void BackgroundWork(MainWindow window, DataViewModel dvm)
@@ -1372,25 +1372,91 @@ namespace WpfApplication3
                 line.linePath.Visibility = Visibility.Visible;
         }
 
-        private void Filter_TextChanged(object sender, TextChangedEventArgs e)
+        private void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (GetDVM() == null)
                 return;
 
-            GetDVM().FilterSymbolInfoList(((TextBox)sender).Text);
+            ComboBoxItem item = (ComboBoxItem)CBGroup.SelectedItem;
+            GetDVM().FilterSymbolInfoList(Filter.Text, item.Content.ToString());
 
             UpdateListView();
             UpdateLayout();
         }
 
-        private void ContextMenuAddClicked(object sender, RoutedEventArgs e)
+        private void Filter_TextChanged(object sender, TextChangedEventArgs e)
         {
+            if (GetDVM() == null)
+                return;
 
+            ComboBoxItem item = (ComboBoxItem)CBGroup.SelectedItem;
+            GetDVM().FilterSymbolInfoList(Filter.Text, item.Content.ToString());
+
+            UpdateListView();
+            UpdateLayout();
+        }
+
+        public void UpdateGroupsContextMenu()
+        {
+            // clear symbols context menu
+            // skip 0 element, this is remove all
+            for (int i = 1; i < SymbolsList.ContextMenu.Items.Count; i++)
+                SymbolsList.ContextMenu.Items.RemoveAt(i);
+
+            DataViewModel.Groups = "";
+            for (int i = 1; i < CBGroup.Items.Count; i++)
+            {
+                ComboBoxItem item = (ComboBoxItem)CBGroup.Items.GetItemAt(i);
+
+                MenuItem mi = new MenuItem();
+                mi.Header = "Add to " + item.Content + " group";
+                mi.Click += MenuItemAddToGroupClick;
+                SymbolsList.ContextMenu.Items.Add(mi);
+            }
+        }
+
+        public void UpdateGroups()
+        {
+            UpdateGroupsContextMenu();
+            
+            DataViewModel.Groups = "";
+            for (int i = 1; i < CBGroup.Items.Count; i++)
+            {
+                ComboBoxItem item = (ComboBoxItem)CBGroup.Items.GetItemAt(i);  
+
+                // add symbols
+                DataViewModel.Groups += item.Content + " { ";
+
+                foreach (Data.SymbolInfo si in DataViewModel.SymbolsInfoList)
+                    if (si.Group == item.Content.ToString())
+                        DataViewModel.Groups += si.ShortName + " ";
+
+                DataViewModel.Groups += "} ";
+            }
+
+            GetDVM().SaveGroups();
         }
 
         private void ContextMenuRemoveClicked(object sender, RoutedEventArgs e)
         {
+            // clear item group
+            Data.SymbolInfo si = (Data.SymbolInfo)SymbolsList.SelectedItem;
+            si.Group = "";
 
+            UpdateGroups();
+        }
+
+        private void MenuItemAddToGroupClick(object sender, RoutedEventArgs e)
+        {
+            MenuItem mi = (MenuItem)sender;
+            string toSplit = mi.Header.ToString();
+            string[] splitted = toSplit.Split(' ');
+            string group = splitted[2];
+
+            Data.SymbolInfo si = (Data.SymbolInfo)SymbolsList.SelectedItem;
+            si.Group = group;
+
+            UpdateGroups();
         }
     }
 }

@@ -46,6 +46,8 @@ namespace WpfApplication3
             public string ShortName { get; set; }
             public bool Visibility;
 
+            public string Group;
+
             private bool _IsRed()
             {
                 string[] arr = InfoName.Split('/');
@@ -145,6 +147,8 @@ namespace WpfApplication3
             public string Event { get; set; }
         }
         public static List<ReportItem> ReportItems { get; set; }
+
+        public static string Groups;
 
         public class WalletItem
         {
@@ -264,7 +268,7 @@ namespace WpfApplication3
             WalletItems = new List<WalletItem>();
 
             LoadSymbolsInfoList();
-            FilterSymbolInfoList("");
+            FilterSymbolInfoList("", "Default");
 
             // try to load symbols drawings
             // create default dir
@@ -283,6 +287,13 @@ namespace WpfApplication3
                     SymbolsDrawingsToSerialize = new Dictionary<string, Chart.DataToSerialize>();
 
                 UpdateInfoNamesOnLoad();
+            }
+
+            string groupsFileId = Drive.GetFileId("groups.txt");
+            if (groupsFileId != "")
+            {
+                string input = Drive.DownloadFile(groupsFileId, "groups.txt");
+                Groups = input;
             }
         }
 
@@ -385,7 +396,12 @@ namespace WpfApplication3
 
             Drive.SaveReportFile(report);            
         }
-        
+
+        public void SaveGroups()
+        {
+            Drive.SaveFile(Groups, "groups.txt");
+        }
+
         private void LoadSymbolsInfoList()
         {
             // try to load from disk
@@ -418,25 +434,30 @@ namespace WpfApplication3
             VisibleSymbolsInfoList = new List<Data.SymbolInfo>();
         }
 
-        public void FilterSymbolInfoList(String text)
+        public void FilterSymbolInfoList(string filter, string group)
         {
             VisibleSymbolsInfoList.Clear();
 
             // copy all if no filter
-            if (text.Equals("...") || text.Equals(""))
+            if ((filter.Equals("...") || filter.Equals("")) && group.Equals("Default"))
             {
                 foreach (var x in SymbolsInfoList)
                     VisibleSymbolsInfoList.Add(x);
             }
             else
             {
-                // copy only filtered
-                Debug.WriteLine("Filter: " + text);
-
+                // copy only filtered and in group
+                Debug.WriteLine("Filter: " + filter + " Group: " + group);
+                
                 foreach (var x in SymbolsInfoList)
                 {
-                    if (x.FullName.Contains(text.ToUpper()))
-                        VisibleSymbolsInfoList.Add(x);
+                    if (x.FullName.Contains(filter.ToUpper()) || (filter.Equals("...") || filter.Equals("")))
+                    {
+                        if (x.Group != null && (group.Equals("Default") || x.Group.Contains(group)))
+                        {
+                            VisibleSymbolsInfoList.Add(x);
+                        }
+                    }
                 }
             }
         }

@@ -1,17 +1,13 @@
 ﻿using Google.Apis.Auth.OAuth2;
 using Google.Apis.Download;
 using Google.Apis.Drive.v3;
-using Google.Apis.Drive.v3.Data;
 using Google.Apis.Services;
 using Google.Apis.Util.Store;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
-using System.Windows;
 
 // package installation: 
 // open Package Manager Console
@@ -29,18 +25,23 @@ namespace WpfApplication3
         static string[] scopes = { DriveService.Scope.Drive };
         static string applicationName = "Stocker";
         private static DriveService service = null;
-        
+
+        public static void SaveFile(string text, string filename)
+        {
+            string folderId = CreateDirectory("temp");
+            string fileId = GetFileId(filename);
+            if (fileId != "")
+                DeleteFile(filename);
+
+            UploadFile(folderId, filename, text);
+        }
+
         public static void SaveReportFile(string raport)
         {
             string today = DateTime.Today.ToString("dd-MM-yyyy");
             string filename = "stocker_report_" + today + ".html";
 
-            string folderId = Drive.CreateDirectory("temp");
-            string fileId = Drive.GetFileId(filename);
-            if (fileId != "")
-                Drive.DeleteFile(filename);
-
-            Drive.UploadFile(folderId, filename, raport);
+            SaveFile(raport, filename);
         }
 
         public static string CreateDirectory(string path)

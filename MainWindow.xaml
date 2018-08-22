@@ -87,7 +87,8 @@
                    LastChildFill="True">
             <Label DockPanel.Dock="Top">group:</Label>
             <ComboBox DockPanel.Dock="Top"
-                      Name="Group">
+                      Name="CBGroup"
+                      SelectionChanged="ComboBox_SelectionChanged">
                 <ComboBoxItem>Default</ComboBoxItem>
                 <ComboBoxItem>Additional</ComboBoxItem>
             </ComboBox>
@@ -102,8 +103,7 @@
                       GridViewColumnHeader.Click="SymbolsList_ColumnHeaderClick">
                 <ListView.ContextMenu>
                     <ContextMenu>
-                        <MenuItem Header="Add to group" Click="ContextMenuAddClicked" />
-                        <MenuItem Header="Remove from group" Click="ContextMenuRemoveClicked" />
+                        <MenuItem Header="Remove from groups" Click="ContextMenuRemoveClicked" />
                     </ContextMenu>
                 </ListView.ContextMenu>
                 <ListView.View>

@@ -106,7 +106,7 @@ namespace WpfApplication3
             // manually added
             {
                 Data.SymbolInfo intel = new Data.SymbolInfo("_US_INTEL", "INTC.US");
-                symbols.Add(intel);
+                symbols.Add(intel);                
 
                 Data.SymbolInfo usdpln = new Data.SymbolInfo("_FX_USDPLN", "USDPLN");
                 symbols.Add(usdpln);

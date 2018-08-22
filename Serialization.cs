@@ -1,12 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using HtmlAgilityPack;
 using Newtonsoft.Json;
-using System.Windows;
 
 namespace WpfApplication3
 {
@@ -65,9 +59,7 @@ namespace WpfApplication3
         {
             public struct DataToSerialize
             {
-                // public string StartPoint { get; set; }
                 public string StartPointDV { get; set; }
-                // public string EndPoint { get; set; }
                 public string EndPointDV { get; set; }
                 public string Color { get; set; }
                 public string Data { get; set; }
