@@ -200,6 +200,7 @@ namespace WpfApplication3
                 ApplicationName = applicationName,
             });
 
+            /*
             // Slack example
             // curl - X POST - H 'Content-type: application/json'--data '{"text":"Hello, World!"}' 
             // https://hooks.slack.com/services/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
@@ -222,6 +223,7 @@ namespace WpfApplication3
             {
                 var result = streamReader.ReadToEnd();
             }
+            */
 
             return service;
         }
