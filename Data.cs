@@ -164,7 +164,7 @@ namespace WpfApplication3
 
         static bool IsClActive(string point)
         {
-            bool isClActive = false;                        
+            bool isClActive = false;
 
             double extraDaysToEnd = double.Parse(point.Split('+')[1].Split(';')[0],
                 Data.numberFormat);
@@ -268,7 +268,7 @@ namespace WpfApplication3
             WalletItems = new List<WalletItem>();
 
             LoadSymbolsInfoList();
-            FilterSymbolInfoList("", "Default");
+            FilterSymbolInfoList("", "wszystko");
 
             // try to load symbols drawings
             // create default dir
@@ -287,13 +287,6 @@ namespace WpfApplication3
                     SymbolsDrawingsToSerialize = new Dictionary<string, Chart.DataToSerialize>();
 
                 UpdateInfoNamesOnLoad();
-            }
-
-            string groupsFileId = Drive.GetFileId("groups.txt");
-            if (groupsFileId != "")
-            {
-                string input = Drive.DownloadFile(groupsFileId, "groups.txt");
-                Groups = input;
             }
         }
 
@@ -361,7 +354,7 @@ namespace WpfApplication3
                     ri.Event = e;
                     ReportItems.Add(ri);
 
-                    report += e + "\n";             
+                    report += e + "\n";
                 }
             }
 
@@ -373,7 +366,7 @@ namespace WpfApplication3
         public void GenerateReport()
         {
             string report = DateTime.Today.ToString("dd-MM-yyyy") + "\n" + "\n";
-            
+
             var tasks = new Task<retData>[SymbolsInfoList.Count];
             int i = 0;
             foreach (var symbolInfo in SymbolsInfoList)
@@ -392,14 +385,24 @@ namespace WpfApplication3
             {
                 report += result.reportString;
             }   
-            */         
+            */
 
-            Drive.SaveReportFile(report);            
+            Drive.SaveReportFile(report);
         }
 
         public void SaveGroups()
         {
             Drive.SaveFile(Groups, "groups.txt");
+        }
+
+        public void LoadGroups()
+        {
+            string groupsFileId = Drive.GetFileId("groups.txt");
+            if (groupsFileId != "")
+            {
+                string input = Drive.DownloadFile(groupsFileId, "groups.txt");
+                Groups = input;
+            }
         }
 
         private void LoadSymbolsInfoList()
@@ -439,7 +442,7 @@ namespace WpfApplication3
             VisibleSymbolsInfoList.Clear();
 
             bool defaultFilter = filter.Equals("...") || filter.Equals("");
-            bool defaultGroup = group.Equals("Default");
+            bool defaultGroup = group.Equals("wszystko");
 
             // copy all if no filter or group
             if (defaultFilter && defaultGroup)

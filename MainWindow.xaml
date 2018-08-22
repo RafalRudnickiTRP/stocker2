@@ -89,8 +89,11 @@
             <ComboBox DockPanel.Dock="Top"
                       Name="CBGroup"
                       SelectionChanged="ComboBox_SelectionChanged">
-                <ComboBoxItem>Default</ComboBoxItem>
-                <ComboBoxItem>Additional</ComboBoxItem>
+                <ComboBoxItem>wszystko</ComboBoxItem>
+                <ComboBoxItem>upiorek</ComboBoxItem>
+                <ComboBoxItem>bratpiorka</ComboBoxItem>
+                <ComboBoxItem>obserwowane</ComboBoxItem>
+                <ComboBoxItem>crap</ComboBoxItem>
             </ComboBox>
             <Label DockPanel.Dock="Top">filter:</Label>
             <TextBox DockPanel.Dock="Top" 

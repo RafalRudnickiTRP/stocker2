@@ -52,6 +52,22 @@ namespace WpfApplication3
 
             var handle = Task.Factory.StartNew(() => BackgroundWork(this, dvm));
 
+            InitializeGroups();
+        }
+
+        private void InitializeGroups()
+        {
+            // load groups and add group to symbol info
+            ((DataViewModel)DataContext).LoadGroups();
+            string[] split = DataViewModel.Groups.Split('}');
+            foreach (string x in split)
+                foreach (Data.SymbolInfo si in DataViewModel.SymbolsInfoList)
+                    if (x.Contains(si.ShortName))
+                    {
+                        string[] gsplit = x.Split(' ');
+                        si.Group = gsplit.ElementAt(0);
+                    }
+
             // set default group and update
             CBGroup.SelectedItem = CBGroup.Items.GetItemAt(0);
             UpdateGroupsContextMenu();
@@ -1372,7 +1388,7 @@ namespace WpfApplication3
                 line.linePath.Visibility = Visibility.Visible;
         }
 
-        private void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void RefreshFilter()
         {
             if (GetDVM() == null)
                 return;
@@ -1384,24 +1400,22 @@ namespace WpfApplication3
             UpdateLayout();
         }
 
+        private void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            RefreshFilter();
+        }
+
         private void Filter_TextChanged(object sender, TextChangedEventArgs e)
         {
-            if (GetDVM() == null)
-                return;
-
-            ComboBoxItem item = (ComboBoxItem)CBGroup.SelectedItem;
-            GetDVM().FilterSymbolInfoList(Filter.Text, item.Content.ToString());
-
-            UpdateListView();
-            UpdateLayout();
+            RefreshFilter();
         }
 
         public void UpdateGroupsContextMenu()
         {
             // clear symbols context menu
             // skip 0 element, this is remove all
-            for (int i = 1; i < SymbolsList.ContextMenu.Items.Count; i++)
-                SymbolsList.ContextMenu.Items.RemoveAt(i);
+            while (SymbolsList.ContextMenu.Items.Count > 1)
+                SymbolsList.ContextMenu.Items.RemoveAt(SymbolsList.ContextMenu.Items.Count - 1);
 
             DataViewModel.Groups = "";
             for (int i = 1; i < CBGroup.Items.Count; i++)
@@ -1435,6 +1449,8 @@ namespace WpfApplication3
             }
 
             GetDVM().SaveGroups();
+
+            RefreshFilter();
         }
 
         private void ContextMenuRemoveClicked(object sender, RoutedEventArgs e)
