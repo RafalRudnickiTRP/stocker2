@@ -27,7 +27,7 @@ namespace WpfApplication3
 
         static public bool testMode = false;
 
-        public string layerData = "L1";
+        public string currentLayer = "L1";
 
         private enum CtrlZMode
         {
@@ -40,7 +40,7 @@ namespace WpfApplication3
         public MainWindow()
         {
             InitializeComponent();
-            
+
             DataViewModel dvm = new DataViewModel();
             DataContext = dvm;
 
@@ -51,6 +51,10 @@ namespace WpfApplication3
             InitializeCommands();
 
             var handle = Task.Factory.StartNew(() => BackgroundWork(this, dvm));
+
+            // set default group and update
+            CBGroup.SelectedItem = CBGroup.Items.GetItemAt(0);
+            UpdateGroupsContextMenu();
         }
 
         public static void BackgroundWork(MainWindow window, DataViewModel dvm)
@@ -178,6 +182,10 @@ namespace WpfApplication3
             deselectAllLines();
             DataViewModel.SetCurrentDrawing(chart);
             currentSymbolInfo = symbolInfo;
+
+            // set default layer to L1 only
+            currentLayer = "";
+            buttonLayerHelper("L1");
         }
 
         private void CloseSymbolTab(object sender, EventArgs a)
@@ -359,6 +367,13 @@ namespace WpfApplication3
             if (activeChart == null)
                 return;
 
+            // return when more than one layer is selected
+            int count = 0;
+            foreach (char c in currentLayer)
+                if (c == 'L') count++;
+            if (count > 1)
+                return;
+
             // if there is no lines in drawing state, create a new line
             Chart.ChartLine line = activeChart.chartLines.FirstOrDefault(l => l.mode == Chart.ChartLine.Mode.Drawing);
             // only one line is drawn at a time
@@ -371,12 +386,12 @@ namespace WpfApplication3
             line.color = currentColor;
             line.linePath.Stroke = currentColor;
 
-            if (layerData.Contains("L1"))
-                line.data = "L1";
-            if (layerData.Contains("L2"))
-                line.data = "L2";
-            if (layerData.Contains("L3"))
-                line.data = "L3";
+            if (currentLayer.Contains("L1"))
+                line.layerData = "L1";
+            if (currentLayer.Contains("L2"))
+                line.layerData = "L2";
+            if (currentLayer.Contains("L3"))
+                line.layerData = "L3";
 
             activeChart.chartLines.Add(line);
             activeChart.canvas.Children.Add(line.linePath);
@@ -462,16 +477,14 @@ namespace WpfApplication3
 
             SortSymbolsList();
 
-            System.Windows.Controls.ListView sl = (System.Windows.Controls.ListView)FindName("SymbolsList");
+            ListView sl = (ListView)FindName("SymbolsList");
             if (sl != null)
             {
                 sl.Items.Refresh();
                 sl.UpdateLayout();
 
                 if (sl.SelectedItems.Count > 0)
-                {
                     sl.ScrollIntoView(sl.SelectedItems[0]);
-                }
             }
         }
 
@@ -641,7 +654,7 @@ namespace WpfApplication3
             bool everythingSelected = true;
             foreach (Chart.ChartLine l in chart.chartLines)
             {
-                if (layerData.Contains(l.data))
+                if (currentLayer.Contains(l.layerData))
                 {
                     if (l.IsSelected() == false)
                     {
@@ -654,7 +667,7 @@ namespace WpfApplication3
             chart.selectedLines.Clear();
             foreach (Chart.ChartLine l in chart.chartLines)
             {
-                if (layerData.Contains(l.data))
+                if (currentLayer.Contains(l.layerData))
                 {
                     l.Select(!everythingSelected);
                 }
@@ -701,6 +714,7 @@ namespace WpfApplication3
                                     toDel.Add(ellipse);
                             }
                         }
+
                         foreach (UIElement ui in toDel)
                         {
                             chart.canvas.Children.Remove(ui);
@@ -861,12 +875,12 @@ namespace WpfApplication3
                     }
                     break;
 
-                // hide/unhide all lines added to chart
+                // hide/show all lines added to chart
                 case Key.H:
                     {
                         foreach (Chart.ChartLine l in chart.chartLines.ToList())
                         {
-                            if (layerData.Contains(l.data))
+                            if (l.layerData.Contains(currentLayer))
                             {
                                 l.linePath.Visibility = l.linePath.Visibility ==
                                     Visibility.Hidden ? Visibility.Visible : Visibility.Hidden;
@@ -928,9 +942,31 @@ namespace WpfApplication3
                     break;
 
                 case Key.M:
+                case Key.D1:
                     {
                         if (ctrlPressed && shiftPressed)
-                            createMiddleLine();
+                            createMiddleLines(1);
+                    }
+                    break;
+
+                case Key.D2:
+                    {
+                        if (ctrlPressed && shiftPressed)
+                            createMiddleLines(2);
+                    }
+                    break;
+
+                case Key.D3:
+                    {
+                        if (ctrlPressed && shiftPressed)
+                            createMiddleLines(3);
+                    }
+                    break;
+                    
+                case Key.D4:
+                    {
+                        if (ctrlPressed && shiftPressed)
+                            createMiddleLines(4);
                     }
                     break;
 
@@ -987,7 +1023,7 @@ namespace WpfApplication3
             UpdateListView();
         }
 
-        private void createMiddleLine()
+        private void createMiddleLines(int n)
         {
             Chart chart = DataViewModel.CurrentDrawing;
 
@@ -998,11 +1034,42 @@ namespace WpfApplication3
             Chart.ChartLine l1 = chart.selectedLines[0];
             Chart.ChartLine l2 = chart.selectedLines[1];
 
-            Chart.ChartLine newLine = l1.CopyLineTo(chart);
-            newLine.Select(true);
+            if (n == 1)
+            {
+                Chart.ChartLine newLine = l1.CopyLineTo(chart);
+                newLine.Select(true);
 
-            newLine.MoveP1(new Point((l1.getP1().X + l2.getP1().X) / 2, (l1.getP1().Y + l2.getP1().Y) / 2));
-            newLine.MoveP2(new Point((l1.getP2().X + l2.getP2().X) / 2, (l1.getP2().Y + l2.getP2().Y) / 2));
+                newLine.MoveP1(new Point((l1.getP1().X + l2.getP1().X) / 2, (l1.getP1().Y + l2.getP1().Y) / 2));
+                newLine.MoveP2(new Point((l1.getP2().X + l2.getP2().X) / 2, (l1.getP2().Y + l2.getP2().Y) / 2));
+            }
+            else
+            {                
+                bool L1P1IsLeft = l1.getP1().X < l1.getP2().X;
+                double L1XLeft = L1P1IsLeft ? l1.getP1().X : l1.getP2().X;
+                double L1YLeft = L1P1IsLeft ? l1.getP1().Y : l1.getP2().Y;
+                double L1XRight = L1P1IsLeft ? l1.getP2().X : l1.getP1().X;
+                double L1YRight = L1P1IsLeft ? l1.getP2().Y : l1.getP1().Y;
+
+                bool L2P1IsLeft = l2.getP1().X < l2.getP2().X;
+                double L2XLeft = L2P1IsLeft ? l2.getP1().X : l1.getP2().X;
+                double L2YLeft = L2P1IsLeft ? l2.getP1().Y : l1.getP2().Y;
+                double L2XRight = L2P1IsLeft ? l2.getP2().X : l1.getP1().X;
+                double L2YRight = L2P1IsLeft ? l2.getP2().Y : l1.getP1().Y;
+
+                double DivXLeft = (L1XLeft - L2XLeft) / n;
+                double DivYLeft = (L1YLeft - L2YLeft) / n;
+                double DivXRight = (L1XRight - L2XRight) / n;
+                double DivYRight = (L1YRight - L2YRight) / n;
+
+                for (int i = 1; i < n; i++)
+                {
+                    Chart.ChartLine newLine = l1.CopyLineTo(chart);
+                    newLine.Select(true);
+
+                    newLine.MoveP1(new Point(L1XLeft - DivXLeft * i, L1YLeft - DivYLeft * i));
+                    newLine.MoveP2(new Point(L1XRight - DivXRight * i, L1YRight - DivYRight * i));
+                }
+            }
         }
 
         private void createNewLine(bool modeUp)
@@ -1041,24 +1108,7 @@ namespace WpfApplication3
 
             double D = YL - YP;
 
-            bool below = false;
-            //bool right = false;
-            if (D > 0)
-            {
-                below = true;
-            //    if (M > 0)
-            //        right = true;
-            }
-            else
-            {
-            //    if (M < 0)
-            //        right = true;
-            }
-
-            //Debug.WriteIf(right, "right ");
-            //Debug.WriteIf(!right, "left ");
-            //Debug.WriteIf(below, "below\n");
-            //Debug.WriteIf(!below, "upper\n");
+            bool below = D > 0;
 
             Chart.ChartLine upper = null;
             Chart.ChartLine lower = null;
@@ -1118,7 +1168,7 @@ namespace WpfApplication3
         private void SortSymbolsList()
         {
             // sort SymbolsInfoList
-            DataViewModel.SymbolsInfoList.Sort(
+            DataViewModel.VisibleSymbolsInfoList.Sort(
                 delegate (Data.SymbolInfo x, Data.SymbolInfo y) { return x.CompareTo(y); });
         }
         
@@ -1254,53 +1304,43 @@ namespace WpfApplication3
             }
         }
 
-        void buttonLayerHelper(string layer)
+        void buttonLayerHelper(string selectedLayer)
         {
-            if (layerData.Contains(layer) == false)
-            {
-                layerData += " " + layer + " ";
+            // deselect all for now
+            buttonLayer1.BorderThickness = new Thickness(1, 1, 1, 1);
+            buttonLayer2.BorderThickness = new Thickness(1, 1, 1, 1);
+            buttonLayer3.BorderThickness = new Thickness(1, 1, 1, 1);
 
-                foreach (var line in DataViewModel.CurrentDrawing.chartLines)
-                {
-                    if (line.data.Contains(layer) == false)
-                        line.linePath.Visibility = Visibility.Hidden;
-                    else
-                        line.linePath.Visibility = Visibility.Visible;
-                }
-            }
-
-            if (layer == "L1")
-            {
-                buttonLayer1.BorderThickness = new Thickness(2, 2, 2, 2);
-
-                layerData = layerData.Replace("L2", "");
-                layerData = layerData.Replace("L3", "");
-                buttonLayer2.BorderThickness = new Thickness(1, 1, 1, 1);
-                buttonLayer3.BorderThickness = new Thickness(1, 1, 1, 1);
-            }
-            if (layer == "L2")
-            {
-                buttonLayer2.BorderThickness = new Thickness(2, 2, 2, 2);
-
-                layerData = layerData.Replace("L1", "");
-                layerData = layerData.Replace("L3", "");
-                buttonLayer1.BorderThickness = new Thickness(1, 1, 1, 1);
-                buttonLayer3.BorderThickness = new Thickness(1, 1, 1, 1);
-            }
-            if (layer == "L3")
-            {
-                buttonLayer3.BorderThickness = new Thickness(2, 2, 2, 2);
-
-                layerData = layerData.Replace("L1", "");
-                layerData = layerData.Replace("L2", "");
-                buttonLayer1.BorderThickness = new Thickness(1, 1, 1, 1);
-                buttonLayer2.BorderThickness = new Thickness(1, 1, 1, 1);
-            }
-
+            // deselect all layers button
             buttonLayerAll.BorderThickness = new Thickness(1, 1, 1, 1);
 
+            if (currentLayer.Contains(selectedLayer) == false)
+                currentLayer += " " + selectedLayer;
+            else
+                currentLayer = currentLayer.Replace(selectedLayer, " ");
+
+            currentLayer = currentLayer.Replace("  ", " ");
+
+            // select all that should be selected
+            if (currentLayer.Contains("L1"))
+                buttonLayer1.BorderThickness = new Thickness(2, 2, 2, 2);
+            if (currentLayer.Contains("L2"))
+                buttonLayer2.BorderThickness = new Thickness(2, 2, 2, 2);
+            if (currentLayer.Contains("L3"))
+                buttonLayer3.BorderThickness = new Thickness(2, 2, 2, 2);            
+
+            // deselect all lines
             foreach (var line in DataViewModel.CurrentDrawing.chartLines)
                 line.Select(false);
+
+            // make all lines from selected layers visible, hide others
+            foreach (var line in DataViewModel.CurrentDrawing.chartLines)
+            {
+                if (currentLayer.Contains(line.layerData) == false)
+                    line.linePath.Visibility = Visibility.Hidden;
+                else
+                    line.linePath.Visibility = Visibility.Visible;
+            }
 
         }
 
@@ -1321,12 +1361,7 @@ namespace WpfApplication3
 
         private void buttonLayerAll_Click(object sender, RoutedEventArgs e)
         {
-            if (layerData.Contains("L1") == false)
-                layerData += " L1 ";
-            if (layerData.Contains("L2") == false)
-                layerData += " L2 ";
-            if (layerData.Contains("L3") == false)
-                layerData += " L3 ";
+            currentLayer = "L1 L2 L3";
 
             buttonLayerAll.BorderThickness = new Thickness(2, 2, 2, 2);
             buttonLayer1.BorderThickness = new Thickness(1, 1, 1, 1);
@@ -1335,6 +1370,93 @@ namespace WpfApplication3
 
             foreach (var line in DataViewModel.CurrentDrawing.chartLines)
                 line.linePath.Visibility = Visibility.Visible;
+        }
+
+        private void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (GetDVM() == null)
+                return;
+
+            ComboBoxItem item = (ComboBoxItem)CBGroup.SelectedItem;
+            GetDVM().FilterSymbolInfoList(Filter.Text, item.Content.ToString());
+
+            UpdateListView();
+            UpdateLayout();
+        }
+
+        private void Filter_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (GetDVM() == null)
+                return;
+
+            ComboBoxItem item = (ComboBoxItem)CBGroup.SelectedItem;
+            GetDVM().FilterSymbolInfoList(Filter.Text, item.Content.ToString());
+
+            UpdateListView();
+            UpdateLayout();
+        }
+
+        public void UpdateGroupsContextMenu()
+        {
+            // clear symbols context menu
+            // skip 0 element, this is remove all
+            for (int i = 1; i < SymbolsList.ContextMenu.Items.Count; i++)
+                SymbolsList.ContextMenu.Items.RemoveAt(i);
+
+            DataViewModel.Groups = "";
+            for (int i = 1; i < CBGroup.Items.Count; i++)
+            {
+                ComboBoxItem item = (ComboBoxItem)CBGroup.Items.GetItemAt(i);
+
+                MenuItem mi = new MenuItem();
+                mi.Header = "Add to " + item.Content + " group";
+                mi.Click += MenuItemAddToGroupClick;
+                SymbolsList.ContextMenu.Items.Add(mi);
+            }
+        }
+
+        public void UpdateGroups()
+        {
+            UpdateGroupsContextMenu();
+            
+            DataViewModel.Groups = "";
+            for (int i = 1; i < CBGroup.Items.Count; i++)
+            {
+                ComboBoxItem item = (ComboBoxItem)CBGroup.Items.GetItemAt(i);  
+
+                // add symbols
+                DataViewModel.Groups += item.Content + " { ";
+
+                foreach (Data.SymbolInfo si in DataViewModel.SymbolsInfoList)
+                    if (si.Group == item.Content.ToString())
+                        DataViewModel.Groups += si.ShortName + " ";
+
+                DataViewModel.Groups += "} ";
+            }
+
+            GetDVM().SaveGroups();
+        }
+
+        private void ContextMenuRemoveClicked(object sender, RoutedEventArgs e)
+        {
+            // clear item group
+            Data.SymbolInfo si = (Data.SymbolInfo)SymbolsList.SelectedItem;
+            si.Group = "";
+
+            UpdateGroups();
+        }
+
+        private void MenuItemAddToGroupClick(object sender, RoutedEventArgs e)
+        {
+            MenuItem mi = (MenuItem)sender;
+            string toSplit = mi.Header.ToString();
+            string[] splitted = toSplit.Split(' ');
+            string group = splitted[2];
+
+            Data.SymbolInfo si = (Data.SymbolInfo)SymbolsList.SelectedItem;
+            si.Group = group;
+
+            UpdateGroups();
         }
     }
 }

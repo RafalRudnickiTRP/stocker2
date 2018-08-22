@@ -44,6 +44,9 @@ namespace WpfApplication3
             public string FullName { get; set; }
             public string InfoName { get; set; }
             public string ShortName { get; set; }
+            public bool Visibility;
+
+            public string Group;
 
             private bool _IsRed()
             {
@@ -129,6 +132,7 @@ namespace WpfApplication3
     public partial class DataViewModel
     {
         public static List<Data.SymbolInfo> SymbolsInfoList { get; set; }
+        public static List<Data.SymbolInfo> VisibleSymbolsInfoList { get; set; }
 
         public static Dictionary<string, Chart> SymbolsDrawings { get; set; }
         public static Chart CurrentDrawing { get; set; }
@@ -143,6 +147,8 @@ namespace WpfApplication3
             public string Event { get; set; }
         }
         public static List<ReportItem> ReportItems { get; set; }
+
+        public static string Groups;
 
         public class WalletItem
         {
@@ -262,6 +268,7 @@ namespace WpfApplication3
             WalletItems = new List<WalletItem>();
 
             LoadSymbolsInfoList();
+            FilterSymbolInfoList("", "Default");
 
             // try to load symbols drawings
             // create default dir
@@ -280,6 +287,13 @@ namespace WpfApplication3
                     SymbolsDrawingsToSerialize = new Dictionary<string, Chart.DataToSerialize>();
 
                 UpdateInfoNamesOnLoad();
+            }
+
+            string groupsFileId = Drive.GetFileId("groups.txt");
+            if (groupsFileId != "")
+            {
+                string input = Drive.DownloadFile(groupsFileId, "groups.txt");
+                Groups = input;
             }
         }
 
@@ -382,7 +396,12 @@ namespace WpfApplication3
 
             Drive.SaveReportFile(report);            
         }
-        
+
+        public void SaveGroups()
+        {
+            Drive.SaveFile(Groups, "groups.txt");
+        }
+
         private void LoadSymbolsInfoList()
         {
             // try to load from disk
@@ -410,7 +429,37 @@ namespace WpfApplication3
                     string output = JsonConvert.SerializeObject(SymbolsInfoList, Formatting.Indented);
                     Drive.UploadFile(folderId, filename, output);                    
                 }
-            }            
+            }
+
+            VisibleSymbolsInfoList = new List<Data.SymbolInfo>();
+        }
+
+        public void FilterSymbolInfoList(string filter, string group)
+        {
+            VisibleSymbolsInfoList.Clear();
+
+            // copy all if no filter
+            if ((filter.Equals("...") || filter.Equals("")) && group.Equals("Default"))
+            {
+                foreach (var x in SymbolsInfoList)
+                    VisibleSymbolsInfoList.Add(x);
+            }
+            else
+            {
+                // copy only filtered and in group
+                Debug.WriteLine("Filter: " + filter + " Group: " + group);
+                
+                foreach (var x in SymbolsInfoList)
+                {
+                    if (x.FullName.Contains(filter.ToUpper()) || (filter.Equals("...") || filter.Equals("")))
+                    {
+                        if (x.Group != null && (group.Equals("Default") || x.Group.Contains(group)))
+                        {
+                            VisibleSymbolsInfoList.Add(x);
+                        }
+                    }
+                }
+            }
         }
 
         public static void SetCurrentDrawing(Chart currentChart)

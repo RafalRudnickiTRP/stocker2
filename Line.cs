@@ -56,7 +56,7 @@ namespace WpfApplication3
             }
 
             public Brush color { get; set; }
-            public string data { get; set; }
+            public string layerData { get; set; }
 
             public Path linePath { get; }
             public Path rectPath { get; }
@@ -159,53 +159,68 @@ namespace WpfApplication3
                     MoveP2(prevEndPoint);
             }
 
-            public void MoveP1(Point p, bool resize = false)
+            public void MoveP1(Point p1, bool resize = false)
             {
                 if (resize)
                 {
                     Vector v = line.StartPoint - line.EndPoint;
                     v.Normalize();
-                    p.Y = line.StartPoint.Y + (p.X - line.StartPoint.X) / v.X * v.Y;
+                    p1.Y = line.StartPoint.Y + (p1.X - line.StartPoint.X) / v.X * v.Y;
 
-                    if ((p - line.EndPoint).Length < 1)
+                    if ((p1 - line.EndPoint).Length < 1)
                         return; // prevent from 0-len line
                 }
                 
                 if (MainWindow.testMode)
                 {
-                    Debug.WriteLine("move P1: " + p.ToString());
+                    Debug.WriteLine("move P1: " + p1.ToString());
                 }
 
                 Point p2 = line.EndPoint;
-                line.StartPoint = p;
-                midRect.Transform = new TranslateTransform((p.X + p2.X) / 2 - selectionRectWidth2, (p.Y + p2.Y) / 2 - selectionRectWidth2);
-                p1Rect.Transform = new TranslateTransform(p.X - selectionRectWidth2, p.Y - selectionRectWidth2);
+                line.StartPoint = p1;
+                midRect.Transform = new TranslateTransform((p1.X + p2.X) / 2 - selectionRectWidth2, (p1.Y + p2.Y) / 2 - selectionRectWidth2);
+                p1Rect.Transform = new TranslateTransform(p1.X - selectionRectWidth2, p1.Y - selectionRectWidth2);
                 
+                // make sure that p1x < p2x
+                if (p1.X > p2.X)
+                {
+                    double t = p1.X;
+                    p1.X = p2.X;
+                    p2.X = t;
+                }
+
                 ColorUpdate(this);
             }
 
-            public void MoveP2(Point p, bool resize = false)
+            public void MoveP2(Point p2, bool resize = false)
             {
                 if (resize)
                 {
                     Vector v = line.StartPoint - line.EndPoint;
                     v.Normalize();
-                    p.Y = line.EndPoint.Y + (p.X - line.EndPoint.X) / v.X * v.Y;
+                    p2.Y = line.EndPoint.Y + (p2.X - line.EndPoint.X) / v.X * v.Y;
 
-                    if ((line.StartPoint - p).Length < 1)
+                    if ((line.StartPoint - p2).Length < 1)
                         return; // prevent from 0-len line
                 }
 
                 if (MainWindow.testMode)
                 {
-                    Debug.WriteLine("move P2: " + p.ToString());
+                    Debug.WriteLine("move P2: " + p2.ToString());
                 }
                 
                 Point p1 = line.StartPoint;
-                line.EndPoint = p;
-                midRect.Transform = new TranslateTransform((p1.X + p.X) / 2 - selectionRectWidth2, (p1.Y + p.Y) / 2 - selectionRectWidth2);
-                p2Rect.Transform = new TranslateTransform(p.X - selectionRectWidth2, p.Y - selectionRectWidth2);
-                
+                line.EndPoint = p2;
+                midRect.Transform = new TranslateTransform((p1.X + p2.X) / 2 - selectionRectWidth2, (p1.Y + p2.Y) / 2 - selectionRectWidth2);
+                p2Rect.Transform = new TranslateTransform(p2.X - selectionRectWidth2, p2.Y - selectionRectWidth2);
+
+                // make sure that p1x < p2x
+                if (p1.X > p2.X)
+                {
+                    double t = p1.X;
+                    p1.X = p2.X;
+                    p2.X = t;
+                }
                 ColorUpdate(this);
             }
 
@@ -259,7 +274,7 @@ namespace WpfApplication3
                 newLine.color = color;
                 newLine.linePath.Stroke = linePath.Stroke;
 
-                newLine.data = data;
+                newLine.layerData = layerData;
 
                 chart.chartLines.Add(newLine);
                 chart.canvas.Children.Add(newLine.linePath);

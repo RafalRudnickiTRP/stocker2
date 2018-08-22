@@ -86,17 +86,26 @@
                    VerticalAlignment="Top" 
                    LastChildFill="True">
             <Label DockPanel.Dock="Top">group:</Label>
-            <ComboBox DockPanel.Dock="Top">
-                <ComboBoxItem>uu</ComboBoxItem>
+            <ComboBox DockPanel.Dock="Top"
+                      Name="CBGroup"
+                      SelectionChanged="ComboBox_SelectionChanged">
+                <ComboBoxItem>Default</ComboBoxItem>
+                <ComboBoxItem>Additional</ComboBoxItem>
             </ComboBox>
             <Label DockPanel.Dock="Top">filter:</Label>
             <TextBox DockPanel.Dock="Top" 
-                     Name="textBox" 
+                     Name="Filter"
+                     TextChanged="Filter_TextChanged"
                      Text="..."/>
             <Label DockPanel.Dock="Top">symbols:</Label>
-            <ListView Name="SymbolsList" ItemsSource="{Binding SymbolsInfoList}"
+            <ListView Name="SymbolsList" ItemsSource="{Binding VisibleSymbolsInfoList}"
                       MouseDoubleClick="SymbolsList_MouseDoubleClick"
                       GridViewColumnHeader.Click="SymbolsList_ColumnHeaderClick">
+                <ListView.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Header="Remove from groups" Click="ContextMenuRemoveClicked" />
+                    </ContextMenu>
+                </ListView.ContextMenu>
                 <ListView.View>
                     <GridView>
                         <GridViewColumn DisplayMemberBinding="{Binding InfoName}" Width="150" />
