@@ -1050,7 +1050,7 @@ namespace WpfApplication3
             Chart.ChartLine l1 = chart.selectedLines[0];
             Chart.ChartLine l2 = chart.selectedLines[1];
 
-            if (n == 1)
+            if (n == 2)
             {
                 Chart.ChartLine newLine = l1.CopyLineTo(chart);
                 newLine.Select(true);
