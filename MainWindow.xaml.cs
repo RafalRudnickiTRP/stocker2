@@ -945,28 +945,28 @@ namespace WpfApplication3
                 case Key.D1:
                     {
                         if (ctrlPressed && shiftPressed)
-                            createMiddleLines(1);
+                            createMiddleLines(2);
                     }
                     break;
 
                 case Key.D2:
                     {
                         if (ctrlPressed && shiftPressed)
-                            createMiddleLines(2);
+                            createMiddleLines(3);
                     }
                     break;
 
                 case Key.D3:
                     {
                         if (ctrlPressed && shiftPressed)
-                            createMiddleLines(3);
+                            createMiddleLines(4);
                     }
                     break;
                     
                 case Key.D4:
                     {
                         if (ctrlPressed && shiftPressed)
-                            createMiddleLines(4);
+                            createMiddleLines(5);
                     }
                     break;
 

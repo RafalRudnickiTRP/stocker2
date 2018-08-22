@@ -438,8 +438,11 @@ namespace WpfApplication3
         {
             VisibleSymbolsInfoList.Clear();
 
-            // copy all if no filter
-            if ((filter.Equals("...") || filter.Equals("")) && group.Equals("Default"))
+            bool defaultFilter = filter.Equals("...") || filter.Equals("");
+            bool defaultGroup = group.Equals("Default");
+
+            // copy all if no filter or group
+            if (defaultFilter && defaultGroup)
             {
                 foreach (var x in SymbolsInfoList)
                     VisibleSymbolsInfoList.Add(x);
@@ -451,11 +454,14 @@ namespace WpfApplication3
                 
                 foreach (var x in SymbolsInfoList)
                 {
-                    if (x.FullName.Contains(filter.ToUpper()) || (filter.Equals("...") || filter.Equals("")))
+                    if (x.FullName.Contains(filter.ToUpper()) || defaultFilter)
                     {
-                        if (x.Group != null && (group.Equals("Default") || x.Group.Contains(group)))
-                        {
+                        if (defaultGroup)
                             VisibleSymbolsInfoList.Add(x);
+                        else
+                        {
+                            if (x.Group != null && x.Group.Contains(group))
+                                VisibleSymbolsInfoList.Add(x);
                         }
                     }
                 }
