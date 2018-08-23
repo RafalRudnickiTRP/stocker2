@@ -106,7 +106,7 @@
                       GridViewColumnHeader.Click="SymbolsList_ColumnHeaderClick">
                 <ListView.ContextMenu>
                     <ContextMenu>
-                        <MenuItem Header="Remove from groups" Click="ContextMenuRemoveClicked" />
+                        <MenuItem Header="Remove from selected group" Click="ContextMenuRemoveClicked" />
                     </ContextMenu>
                 </ListView.ContextMenu>
                 <ListView.View>

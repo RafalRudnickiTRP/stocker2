@@ -393,6 +393,8 @@ namespace WpfApplication3
         public void SaveGroups()
         {
             Drive.SaveFile(Groups, "groups.txt");
+
+            Console.WriteLine("Groups: " + Groups);
         }
 
         public void LoadGroups()
@@ -403,6 +405,8 @@ namespace WpfApplication3
                 string input = Drive.DownloadFile(groupsFileId, "groups.txt");
                 Groups = input;
             }
+
+            Console.WriteLine("Groups: " + Groups);
         }
 
         private void LoadSymbolsInfoList()

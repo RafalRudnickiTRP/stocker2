@@ -59,13 +59,14 @@ namespace WpfApplication3
         {
             // load groups and add group to symbol info
             ((DataViewModel)DataContext).LoadGroups();
+            DataViewModel.Groups = DataViewModel.Groups.Replace("} ", "}");
             string[] split = DataViewModel.Groups.Split('}');
             foreach (string x in split)
                 foreach (Data.SymbolInfo si in DataViewModel.SymbolsInfoList)
                     if (x.Contains(si.ShortName))
                     {
                         string[] gsplit = x.Split(' ');
-                        si.Group = gsplit.ElementAt(0);
+                        si.Group += gsplit.ElementAt(0) + " ";
                     }
 
             // set default group and update
@@ -1442,7 +1443,7 @@ namespace WpfApplication3
                 DataViewModel.Groups += item.Content + " { ";
 
                 foreach (Data.SymbolInfo si in DataViewModel.SymbolsInfoList)
-                    if (si.Group == item.Content.ToString())
+                    if (si.Group != null && si.Group.Contains(item.Content.ToString()))
                         DataViewModel.Groups += si.ShortName + " ";
 
                 DataViewModel.Groups += "} ";
@@ -1457,7 +1458,9 @@ namespace WpfApplication3
         {
             // clear item group
             Data.SymbolInfo si = (Data.SymbolInfo)SymbolsList.SelectedItem;
-            si.Group = "";
+
+            ComboBoxItem group = (ComboBoxItem)CBGroup.SelectedItem;
+            si.Group = si.Group.Replace(group.Content.ToString(), "");
 
             UpdateGroups();
         }
@@ -1470,7 +1473,7 @@ namespace WpfApplication3
             string group = splitted[2];
 
             Data.SymbolInfo si = (Data.SymbolInfo)SymbolsList.SelectedItem;
-            si.Group = group;
+            si.Group += group + " ";
 
             UpdateGroups();
         }
