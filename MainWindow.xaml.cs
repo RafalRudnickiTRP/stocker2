@@ -1409,6 +1409,7 @@ namespace WpfApplication3
         private void CBGroup_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             Filter.Text = "";
+            RefreshFilter();
         }
 
         private void Filter_TextChanged(object sender, TextChangedEventArgs e)
