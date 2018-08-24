@@ -88,7 +88,7 @@
             <Label DockPanel.Dock="Top">group:</Label>
             <ComboBox DockPanel.Dock="Top"
                       Name="CBGroup"
-                      SelectionChanged="ComboBox_SelectionChanged">
+                      SelectionChanged="CBGroup_SelectionChanged">
                 <ComboBoxItem>wszystko</ComboBoxItem>
                 <ComboBoxItem>upiorek</ComboBoxItem>
                 <ComboBoxItem>bratpiorka</ComboBoxItem>
@@ -96,10 +96,17 @@
                 <ComboBoxItem>crap</ComboBoxItem>
             </ComboBox>
             <Label DockPanel.Dock="Top">filter:</Label>
-            <TextBox DockPanel.Dock="Top" 
+            <Grid DockPanel.Dock="Top">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+                <TextBox Grid.Column="0"
                      Name="Filter"
                      TextChanged="Filter_TextChanged"
-                     Text="..."/>
+                     Text="" />
+                <Button Grid.Column="1" Name="filterClear" Content=" X " Click="filterClear_Click" />
+            </Grid>
             <Label DockPanel.Dock="Top">symbols:</Label>
             <ListView Name="SymbolsList" ItemsSource="{Binding VisibleSymbolsInfoList}"
                       MouseDoubleClick="SymbolsList_MouseDoubleClick"

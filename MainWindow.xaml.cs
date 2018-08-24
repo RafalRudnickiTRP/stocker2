@@ -560,6 +560,11 @@ namespace WpfApplication3
             }
         }
 
+        private void filterClear_Click(object sender, RoutedEventArgs e)
+        {
+            Filter.Text = "";
+        }
+
         private void buttonSave_Click(object sender, RoutedEventArgs e)
         {
             // backup first previous data
@@ -1401,9 +1406,9 @@ namespace WpfApplication3
             UpdateLayout();
         }
 
-        private void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void CBGroup_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            RefreshFilter();
+            Filter.Text = "";
         }
 
         private void Filter_TextChanged(object sender, TextChangedEventArgs e)
