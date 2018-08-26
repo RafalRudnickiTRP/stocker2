@@ -77,7 +77,7 @@ namespace WpfApplication3
                 // XPath of symbol name
                 // *[@id="f10"]
                 HtmlNodeCollection symbolNodes = doc.DocumentNode.SelectNodes("//*/td[@id=\"f10\"]");
-                foreach (HtmlNode node in symbolNodes.Skip(2))
+                foreach (HtmlNode node in symbolNodes.Skip(2)) 
                 {
                     string fullName = node.InnerText;
                     string shortName = node.ParentNode.FirstChild.FirstChild.InnerText;
@@ -106,7 +106,12 @@ namespace WpfApplication3
             // manually added
             {
                 Data.SymbolInfo intel = new Data.SymbolInfo("_US_INTEL", "INTC.US");
-                symbols.Add(intel);                
+                symbols.Add(intel);
+
+                Data.SymbolInfo wig = new Data.SymbolInfo("_WIG", "WIG");
+                symbols.Add(wig);
+                Data.SymbolInfo wig20 = new Data.SymbolInfo("_WIG20", "WIG20");
+                symbols.Add(wig20);
 
                 Data.SymbolInfo usdpln = new Data.SymbolInfo("_FX_USDPLN", "USDPLN");
                 symbols.Add(usdpln);

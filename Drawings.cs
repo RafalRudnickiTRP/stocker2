@@ -236,6 +236,10 @@ namespace WpfApplication3
                 minMaxStep = 10;
             if ((maxHi - minLow) / 10 > drawingInfo.maxNoVertLines)
                 minMaxStep = 100;
+            if ((maxHi - minLow) / 100 > drawingInfo.maxNoVertLines)
+                minMaxStep = 1000;
+            if ((maxHi - minLow) / 1000 > drawingInfo.maxNoVertLines)
+                minMaxStep = 10000;
 
             if (minMaxStep > 1)
             {
