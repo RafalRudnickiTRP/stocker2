@@ -62,12 +62,12 @@ namespace WpfApplication3
             DataViewModel.Groups = DataViewModel.Groups.Replace("} ", "}");
             string[] split = DataViewModel.Groups.Split('}');
             foreach (string x in split)
+            {
+                string[] gsplit = x.Split(' ');
                 foreach (Data.SymbolInfo si in DataViewModel.SymbolsInfoList)
-                    if (x.Contains(si.ShortName))
-                    {
-                        string[] gsplit = x.Split(' ');
+                    if (x.Contains(" "+ si.ShortName + " "))
                         si.Group += gsplit.ElementAt(0) + " ";
-                    }
+            }
 
             // set default group and update
             CBGroup.SelectedItem = CBGroup.Items.GetItemAt(0);

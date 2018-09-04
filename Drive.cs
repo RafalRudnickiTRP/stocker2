@@ -154,7 +154,7 @@ namespace WpfApplication3
                         }
                         case DownloadStatus.Completed:
                         {
-                            Console.WriteLine("Download completed: {0}", filename);
+                            //Console.WriteLine("Download completed: {0}", filename);
                             break;
                         }
                         case DownloadStatus.Failed:
